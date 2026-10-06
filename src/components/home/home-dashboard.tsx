@@ -110,7 +110,7 @@ export function HomeDashboard() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] lg:items-start">
         <div className="space-y-4">
-          <AdhanWindowCard data={data} />
+          <AdhanWindowCard data={data} testButton /> {/* TEST-ONLY: remove testButton after testing */}
           <NextPrayerCard data={data} stripClassName="lg:hidden" />
           <DualClock />
           <NextPrayerStaffCard data={data} />

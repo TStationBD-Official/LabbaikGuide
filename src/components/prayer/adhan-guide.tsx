@@ -182,14 +182,43 @@ const readDismissed = (k: string) => {
 };
 
 /** Home: shown automatically from 5 min before each adhan until 10 min after. */
-export function AdhanWindowCard({ data }: { data: ReturnType<typeof usePrayerData> }) {
+export function AdhanWindowCard({ data, testButton = false }: { data: ReturnType<typeof usePrayerData>; testButton?: boolean }) {
   const { t, formatNumber } = useI18n();
-  const { now, days } = data;
+  const { now, days, info } = data;
   const [dismissed, setDismissed] = useState<string | null>(null);
-  const win = now && days ? findAdhanWindow(now, [days.today, days.tomorrow]) : null;
+  // ── TEST-ONLY (remove after testing): simulated adhan time ──────────────
+  const [simAdhan, setSimAdhan] = useState<number | null>(null);
+  const sim = (offsetMs: number) => setSimAdhan(Date.now() + offsetMs);
+  const simWin =
+    simAdhan !== null && now && info
+      ? (() => {
+          const tt = now.getTime();
+          const len = info.next.name === "fajr" ? 5 * 60_000 : 4 * 60_000;
+          return {
+            prayer: info.next.name,
+            adhan: new Date(simAdhan),
+            phase: (tt < simAdhan ? "before" : tt < simAdhan + len ? "during" : "after") as "before" | "during" | "after",
+            msToAdhan: simAdhan - tt,
+          };
+        })()
+      : null;
+  // ────────────────────────────────────────────────────────────────────────
+  const realWin = now && days ? findAdhanWindow(now, [days.today, days.tomorrow]) : null;
+  const win = simWin ?? realWin;
   const dayKey = win ? win.adhan.toISOString().slice(0, 10) : "";
   const key = win ? dismissKey(win.prayer, dayKey) : "";
-  if (!win || dismissed === key || readDismissed(key)) return null;
+  if (!win || (!simWin && (dismissed === key || readDismissed(key)))) {
+    // TEST-ONLY button (remove after testing)
+    return testButton && now && info ? (
+      <button
+        type="button"
+        onClick={() => sim(60_000)}
+        className="w-full rounded-2xl border-2 border-dashed border-gold/70 bg-gold-soft/30 px-4 py-3 text-sm font-semibold text-gold"
+      >
+        🧪 টেস্ট: আযানের কার্ড দেখান
+      </button>
+    ) : null;
+  }
 
   const isFriday = days!.today.isFriday;
   const prayerName = t(prayerLabelKey(win.prayer, isFriday));
@@ -198,6 +227,24 @@ export function AdhanWindowCard({ data }: { data: ReturnType<typeof usePrayerDat
 
   return (
     <Card className="overflow-hidden border-gold/60 p-0 ring-2 ring-gold/25">
+      {simWin ? (
+        // TEST-ONLY controls (remove after testing)
+        <div className="flex flex-wrap items-center gap-1.5 border-b border-dashed border-gold/60 bg-gold-soft/30 px-3 py-2 text-xs">
+          <span className="font-semibold text-gold">🧪 টেস্ট মোড:</span>
+          <Button size="sm" variant="outline" onClick={() => sim(60_000)}>
+            আযানের ১ মিনিট আগে
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => sim(0)}>
+            আযান শুরু
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => sim(-5 * 60_000)}>
+            আযানের পর
+          </Button>
+          <Button size="sm" variant="ghost" onClick={() => setSimAdhan(null)}>
+            টেস্ট বন্ধ
+          </Button>
+        </div>
+      ) : null}
       <div className="flex items-center gap-3 bg-gold-soft/60 px-4 py-3">
         <span className="relative flex size-3 shrink-0" aria-hidden>
           <span className="absolute inline-flex size-full animate-ping rounded-full bg-gold opacity-60" />
@@ -221,6 +268,7 @@ export function AdhanWindowCard({ data }: { data: ReturnType<typeof usePrayerDat
           size="sm"
           label={t("adhan.dismiss")}
           onClick={() => {
+            if (simWin) return setSimAdhan(null); // TEST-ONLY
             try {
               localStorage.setItem(key, "1");
             } catch {
@@ -233,7 +281,7 @@ export function AdhanWindowCard({ data }: { data: ReturnType<typeof usePrayerDat
         </IconButton>
       </div>
       <div className="p-4">
-        <AdhanGuide key={`${win.prayer}-${dayKey}`} prayer={win.prayer} initialTab={win.phase === "after" ? "dua" : "answer"} />
+        <AdhanGuide key={`${win.prayer}-${dayKey}${simWin ? "-sim" : ""}`} prayer={win.prayer} initialTab={win.phase === "after" ? "dua" : "answer"} />
       </div>
     </Card>
   );
