@@ -28,19 +28,14 @@ export async function GET() {
     const home = await get(ORIGIN + "/");
     const src = [...home.text.matchAll(/<script[^>]+src="([^"]+)"/g)].map((m) => new URL(m[1], ORIGIN).toString())[0];
     const js = (await get(src)).text;
-    report.bundleSize = js.length;
-    report.employeesContext = around(js, "/api/employees", 700, 3);
-    report.fetchCalls = around(js, "fetch(", 250, 8);
-    report.absoluteUrls = [...new Set([...js.matchAll(/https?:\/\/[a-zA-Z0-9.-]+\.[a-z]{2,}[\w./-]*/g)].map((m) => m[0]))]
-      .filter((u) => !/w3\.org|reactjs\.org|react\.dev|mozilla\.org|github\.com|fb\.me|schema\.org/i.test(u))
-      .slice(0, 60);
-    report.envHints = [...new Set([...js.matchAll(/VITE_[A-Z0-9_]+/g)].map((m) => m[0]))];
-
+    const fnStart = js.indexOf("function NC(");
+    report.normalizer = fnStart === -1 ? null : js.slice(fnStart, fnStart + 1500);
+    report.prayersCallers = around(js, "Yx(", 300, 4);
     const tries: Record<string, string> = {};
-    for (const p of ["/api/employees", "/api/employees?mosque=haram", "/api/employees?location=makkah"]) {
+    for (const p of ["/api/prayers/mecca", "/api/prayers/madinah"]) {
       try {
         const r = await get(ORIGIN + p);
-        tries[p] = `${r.status} ${r.type.split(";")[0]} ${r.text.slice(0, 1500)}`;
+        tries[p] = `${r.status} ${r.type.split(";")[0]} ${r.text.slice(0, 4000)}`;
       } catch (e) {
         tries[p] = `error ${(e as Error).message}`;
       }
