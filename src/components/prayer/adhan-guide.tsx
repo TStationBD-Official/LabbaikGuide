@@ -23,7 +23,7 @@ function DuaBlock({ d }: { d: AdhanDua }) {
   return (
     <div className="rounded-2xl border border-border bg-card/70 p-4">
       <p className="text-sm font-semibold text-primary">{lt(d.title, contentLocale)}</p>
-      <p lang="ar" dir="rtl" className="font-dua mt-2 text-[clamp(1.35rem,5.5vw,1.9rem)] leading-[2] text-foreground">
+      <p lang="ar" dir="rtl" className="font-dua mt-2 text-[clamp(1.35rem,5.5vw,1.9rem)] text-foreground">
         {d.arabic}
       </p>
       <p className="mt-2 text-sm text-muted-foreground">{lt(d.translit, contentLocale)}</p>
@@ -103,7 +103,7 @@ export function AdhanGuide({ prayer, initialTab = "answer" }: { prayer: PrayerNa
                       {l.fajrOnly ? <span className="rounded-full bg-muted px-2 py-0.5">{t("adhan.fajrOnly")}</span> : null}
                       {past ? <Check className="size-4 text-primary" aria-hidden /> : null}
                     </div>
-                    <p lang="ar" dir="rtl" className="font-dua mt-1 text-[clamp(1.2rem,5vw,1.6rem)] leading-[1.9]">
+                    <p lang="ar" dir="rtl" className="font-dua mt-1 text-[clamp(1.2rem,5vw,1.6rem)]">
                       {l.arabic}
                     </p>
                     <p className="text-xs text-muted-foreground">
@@ -113,7 +113,7 @@ export function AdhanGuide({ prayer, initialTab = "answer" }: { prayer: PrayerNa
                       <p className="text-[11px] font-semibold opacity-90">{t("adhan.you")}</p>
                       {l.reply ? (
                         <>
-                          <p lang="ar" dir="rtl" className="font-dua text-[clamp(1.15rem,4.8vw,1.5rem)] leading-[1.9]">
+                          <p lang="ar" dir="rtl" className="font-dua text-[clamp(1.15rem,4.8vw,1.5rem)]">
                             {l.reply.arabic}
                           </p>
                           <p className="text-xs opacity-90">

@@ -114,7 +114,7 @@ export function ZikrCounter({ zikr, next }: { zikr: Zikr; next: Zikr | null }) {
         {lt(zikr.name, contentLocale)}
       </h2>
       {zikr.arabic ? (
-        <p lang="ar" dir="rtl" className="font-dua mt-1 text-center text-3xl leading-[1.9] text-primary sm:text-4xl">
+        <p lang="ar" dir="rtl" className="font-dua mt-1 text-center text-3xl text-primary sm:text-4xl">
           {zikr.arabic}
         </p>
       ) : null}

@@ -28,6 +28,9 @@
 @font-face { font-family: "Quran Amiri"; src: url("/fonts/quran/amiri-quran.woff2") format("woff2"); font-display: swap; }
 @font-face { font-family: "Quran Scheherazade"; src: url("/fonts/quran/scheherazade-new.woff2") format("woff2"); font-display: swap; }
 @font-face { font-family: "Quran Naskh"; src: url("/fonts/quran/noto-naskh-arabic.woff2") format("woff2"); font-display: swap; }
+/* Covers only Arabic punctuation and digits. Some Quran fonts (KFGQPC Hafs) draw ، ؛ ؟ and ٠–٩ as
+   ayah ornaments; placing this face first in the stack fixes them without changing the chosen font. */
+@font-face { font-family: "Arabic Punct"; src: url("/fonts/quran/noto-naskh-arabic.woff2") format("woff2"); font-display: swap; unicode-range: U+060C, U+061B, U+061F, U+0660-0669, U+066B-066C, U+06D4; }
 @font-face { font-family: "Quran Nastaliq"; src: url("/fonts/quran/noto-nastaliq-urdu.woff2") format("woff2"); font-display: swap; }
 
 /* ───────────────────────── Design tokens ─────────────────────────
@@ -347,12 +350,13 @@
 }
 /* Duas, zikr and other Arabic text follow the reader's chosen Arabic font. */
 @utility font-arabic {
-  font-family: var(--font-quran), "Quran IndoPak", "Noto Naskh Arabic", serif;
+  font-family: "Arabic Punct", var(--font-quran), "Quran IndoPak", "Noto Naskh Arabic", serif;
 }
-/* Non-Quran Arabic (adhkar, duas, adhan): a full Naskh text font with Arabic punctuation (،).
-   Quran-specific fonts (e.g. IndoPak) lack some text glyphs and would show ◌. */
+/* Non-Quran Arabic (adhkar, duas, adhan): the user's chosen Arabic font, with punctuation/digits
+   from "Arabic Punct" so fonts like KFGQPC Hafs don't turn ، into an ayah ornament. */
 @utility font-dua {
-  font-family: "Quran Naskh", "Noto Naskh Arabic", "Quran Amiri", serif;
+  font-family: "Arabic Punct", var(--font-quran), "Quran IndoPak", "Noto Naskh Arabic", serif;
+  line-height: var(--quran-leading);
 }
 @utility safe-bottom {
   padding-bottom: env(safe-area-inset-bottom);
