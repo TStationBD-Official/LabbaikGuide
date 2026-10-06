@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
+import Link from "next/link";
 import { useState } from "react";
 import { CalendarDays, Clock3, MapPin, Moon, Sunrise, User, Mic } from "lucide-react";
 import { useI18n } from "@/components/providers/i18n-provider";
@@ -13,7 +14,7 @@ import { SALAH, splitDuration, type PrayerName, type PrayerSlot } from "@/featur
 import { usePrayerData } from "@/hooks/use-prayer";
 import { cn } from "@/lib/utils";
 import type { TKey } from "@/i18n";
-import type { PersonName } from "@/types/haramain";
+import type { HaramainSchedule, PersonName } from "@/types/haramain";
 
 type Data = ReturnType<typeof usePrayerData>;
 
@@ -211,6 +212,79 @@ export function PersonAvatar({ person, size = "md" }: { person: PersonName; size
   );
 }
 
+function shortYmd(d: string, intlLocale: string) {
+  const [y, m, dd] = d.split("-").map(Number);
+  return new Intl.DateTimeFormat(`${intlLocale}-u-ca-gregory`, { timeZone: "UTC", weekday: "short", day: "numeric", month: "short" }).format(
+    new Date(Date.UTC(y, m - 1, dd, 12)),
+  );
+}
+
+/** Marks a name that comes from another day's published schedule. */
+function DatedTag({ date, relativeTo }: { date: string; relativeTo: string }) {
+  const { t, intlLocale } = useI18n();
+  const key = date > relativeTo ? "prayer.nextPublished" : "prayer.lastPublished";
+  return (
+    <span className="mt-0.5 inline-block rounded-full bg-warning/15 px-2 py-0.5 text-[11px] font-medium text-warning">
+      {t(key, { date: shortYmd(date, intlLocale) })}
+    </span>
+  );
+}
+
+type StaffPick = { person: PersonName; date: string | null } | null;
+/**
+ * Imam/Muezzin for one prayer on `dateKey`: that day's published name when present,
+ * otherwise (today only) the nearest other published day, carrying its date.
+ */
+function pickStaff(s: HaramainSchedule | undefined, name: PrayerName, dateKey: string, kind: "imam" | "muezzin"): StaffPick {
+  if (!s) return null;
+  if (dateKey === s.date) {
+    const p = s.status === "available" ? s.prayers.find((x) => x.name === name)?.[kind] : null;
+    if (p) return { person: p, date: null };
+    const r = s.recent.find((x) => x.name === name)?.[kind];
+    return r ? { person: r.person, date: r.date } : null;
+  }
+  const p = s.upcoming.find((d) => d.date === dateKey)?.prayers.find((x) => x.name === name)?.[kind];
+  return p ? { person: p, date: null } : null;
+}
+
+/** Home: who leads / calls the next prayer, with photos. */
+export function NextPrayerStaffCard({ data }: { data: Data }) {
+  const { t } = useI18n();
+  const display = useDisplayName();
+  const { info, days, schedule } = data;
+  const s = schedule.data;
+  if (!info || !days || !s) return null;
+  const isFriday = info.nextIsTomorrow ? days.tomorrow.isFriday : days.today.isFriday;
+  const dateKey = info.nextIsTomorrow ? nextDayKey(s.date) : s.date;
+  const picks = (["imam", "muezzin"] as const).map((k) => [k, pickStaff(s, info.next.name, dateKey, k)] as const);
+  if (!picks.some(([, p]) => p)) return null;
+  const prayer = t(prayerLabelKey(info.next.name, isFriday));
+  return (
+    <Card className="p-4">
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <h2 className="text-sm font-semibold">{t("home.staffTitle", { prayer })}</h2>
+        <Link href="/prayer" className="shrink-0 text-xs font-medium text-primary hover:underline">
+          {t("common.viewAll")}
+        </Link>
+      </div>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {picks.map(([k, pick]) => (
+          <div key={k} className="flex min-w-0 items-center gap-3">
+            {pick ? <PersonAvatar person={pick.person} /> : <span className="size-12 shrink-0 rounded-full border border-dashed border-border" aria-hidden />}
+            <div className="min-w-0">
+              <p className="text-[11px] text-muted-foreground">{k === "imam" ? t("prayer.imamLabel") : t("prayer.muezzinLabel")}</p>
+              <p dir="auto" className={cn("text-sm", pick ? "font-medium" : "text-xs text-muted-foreground")}>
+                {pick ? display(pick.person) : t("prayer.notPublished")}
+              </p>
+              {pick?.date ? <DatedTag date={pick.date} relativeTo={s.date} /> : null}
+            </div>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
 function useDisplayName() {
   const { locale } = useI18n();
   // Names are shown exactly as the source publishes them: Arabic for Arabic/Urdu UIs, English otherwise.
@@ -228,12 +302,6 @@ export function StaffSchedule({ data, kind }: { data: Data; kind: "imam" | "muez
 
   const s = schedule.data;
   const recentFor = (name: PrayerName) => s?.recent.find((r) => r.name === name)?.[kind] ?? null;
-  const shortDate = (d: string) => {
-    const [y, m, dd] = d.split("-").map(Number);
-    return new Intl.DateTimeFormat(`${intlLocale}-u-ca-gregory`, { timeZone: "UTC", weekday: "short", day: "numeric", month: "short" }).format(
-      new Date(Date.UTC(y, m - 1, dd, 12)),
-    );
-  };
 
   let body: React.ReactNode;
   const rows = days ? days.today.prayers.filter((p) => SALAH.includes(p.name)) : [];
@@ -268,11 +336,7 @@ export function StaffSchedule({ data, kind }: { data: Data; kind: "imam" | "muez
                       <span dir="auto" className={cn("block text-sm font-medium", recent && "text-foreground/80")}>
                         {display(person)}
                       </span>
-                      {recent ? (
-                        <span className="mt-0.5 inline-block rounded-full bg-warning/15 px-2 py-0.5 text-[11px] font-medium text-warning">
-                          {t("prayer.lastPublished", { date: shortDate(recent.date) })}
-                        </span>
-                      ) : null}
+                      {recent ? <DatedTag date={recent.date} relativeTo={s.date} /> : null}
                     </span>
                     <PersonAvatar person={person} />
                   </span>

@@ -52,6 +52,9 @@ describe("haramainimams.com adapter", () => {
     const dhuhr = s.recent.find((r) => r.name === "dhuhr");
     expect(dhuhr?.imam).toEqual({ date: "2026-10-06", person: expect.objectContaining({ en: "Dr. Abdulbari Awad Al-Thubaity" }) });
     expect(dhuhr?.muezzin).toBeNull();
+    // A prayer with no earlier entry falls back to the earliest later published day.
+    const asr = normalizeHaramainImams(FEED, "madinah", "2026-10-06", "x").recent.find((r) => r.name === "asr");
+    expect(asr?.imam?.date).toBe("2026-10-08");
     // Older than the lookback window is ignored.
     expect(normalizeHaramainImams(FEED, "madinah", "2026-11-30", "x").status).toBe("unavailable");
   });

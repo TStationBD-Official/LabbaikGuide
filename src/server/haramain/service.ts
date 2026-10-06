@@ -99,24 +99,27 @@ export function normalizeHaramainImams(raw: unknown, location: LocationId, date:
 
   // Group by date; first entry per (date, prayer) wins; drop rows with no names at all.
   const byDate = new Map<string, Map<string, { imam: PersonName | null; muezzin: PersonName | null }>>();
-  // Latest earlier assignment per prayer and role (dated; never presented as today's).
+  // Nearest published assignment on another day, per prayer and role (dated; never presented as today's).
   type Dated = { date: string; person: PersonName };
   const recentMap = new Map<string, { imam: Dated | null; muezzin: Dated | null }>();
   const oldest = minusDays(date, RECENT_LOOKBACK_DAYS);
+  const newest = minusDays(date, -RECENT_LOOKBACK_DAYS);
   for (const e of parsed.data) {
     const name = PRAYER.safeParse(e.prayer);
     if (!name.success) continue;
     const imam = person(e.imam);
     const muezzin = person(e.muezzin);
     if (!imam && !muezzin) continue;
-    if (e.date < date) {
-      if (e.date < oldest) continue;
+    if (e.date !== date && e.date >= oldest && e.date <= newest) {
+      // Nearest other day: the latest past day wins; a future day is used only when no past one exists.
+      const better = (cur: Dated | null) =>
+        !cur || (e.date < date ? cur.date > date || e.date > cur.date : cur.date > date && e.date < cur.date);
       const r = recentMap.get(name.data) ?? { imam: null, muezzin: null };
-      if (imam && (!r.imam || e.date > r.imam.date)) r.imam = { date: e.date, person: imam };
-      if (muezzin && (!r.muezzin || e.date > r.muezzin.date)) r.muezzin = { date: e.date, person: muezzin };
+      if (imam && better(r.imam)) r.imam = { date: e.date, person: imam };
+      if (muezzin && better(r.muezzin)) r.muezzin = { date: e.date, person: muezzin };
       recentMap.set(name.data, r);
-      continue;
     }
+    if (e.date < date) continue;
     const day = byDate.get(e.date) ?? new Map();
     if (!day.has(name.data)) day.set(name.data, { imam, muezzin });
     byDate.set(e.date, day);

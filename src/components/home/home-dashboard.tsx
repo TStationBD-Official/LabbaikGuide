@@ -9,7 +9,7 @@ import { usePrefs } from "@/components/providers/preferences-provider";
 import { Card, SectionHeader } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { AnimatedNumber } from "@/components/ui/animated-number";
-import { NextPrayerCard, PrayerSchedule } from "@/components/prayer/prayer-widgets";
+import { NextPrayerCard, NextPrayerStaffCard, PrayerSchedule } from "@/components/prayer/prayer-widgets";
 import { ContinueReadingCard } from "@/components/quran/quran-home";
 import { DuaCard } from "@/components/dua/dua-card";
 import { LOCATIONS } from "@/config/locations";
@@ -106,7 +106,10 @@ export function HomeDashboard() {
       </section>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] lg:items-start">
-        <NextPrayerCard data={data} />
+        <div className="space-y-4">
+          <NextPrayerCard data={data} />
+          <NextPrayerStaffCard data={data} />
+        </div>
         <div className="hidden lg:block">
           <PrayerSchedule data={data} compact />
         </div>

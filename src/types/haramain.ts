@@ -34,7 +34,7 @@ export const UpcomingDaySchema = z.object({
 });
 export type UpcomingDay = z.infer<typeof UpcomingDaySchema>;
 
-/** Most recent assignment the source published for a prayer before today — always shown with its date. */
+/** Nearest assignment the source published for a prayer on another day (latest past, else earliest future) — always shown with its date. */
 const DatedPersonSchema = z.object({ date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), person: PersonNameSchema });
 export const RecentEntrySchema = z.object({
   name: z.enum(["fajr", "sunrise", "dhuhr", "asr", "maghrib", "isha"]),

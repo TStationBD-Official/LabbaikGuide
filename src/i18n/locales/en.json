@@ -296,7 +296,8 @@
     "muezzinLabel": "Muezzin",
     "tomorrow": "Tomorrow",
     "lastPublished": "Last published: {date}",
-    "recentNote": "Where today's name isn't published yet, the source's most recent name is shown with its date — today's may differ."
+    "recentNote": "Where today's name isn't published yet, the name from the nearest published day is shown with its date — today's may differ.",
+    "nextPublished": "Next published: {date}"
   },
   "qibla": {
     "title": "Qibla Direction",
@@ -383,7 +384,8 @@
     "haramInfo": "At the Haram",
     "nextStep": "Next step: {step}",
     "umrahNotStarted": "Not started yet",
-    "guides": "Guides"
+    "guides": "Guides",
+    "staffTitle": "{prayer}: Imam & Muezzin"
   },
   "search": {
     "title": "Search",
