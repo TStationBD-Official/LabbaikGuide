@@ -100,7 +100,7 @@ export function QiblaView() {
   const cityName = origin.kind === "device" ? t("qibla.useLocation") : t(LOCATIONS[origin.kind].nameKey);
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <Card className="glass flex flex-col items-center p-6">
         <div className="relative aspect-square w-full max-w-[19rem]">
           {/* Dial rotates opposite to the phone heading so N stays north. */}

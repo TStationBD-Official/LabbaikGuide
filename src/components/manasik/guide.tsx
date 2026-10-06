@@ -97,7 +97,7 @@ export function GuideStepCard({
         {open ? (
           <div id={bodyId} className="space-y-5 border-t border-border px-4 py-5 sm:px-6">
             {stage ? (
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div className="flex gap-2 rounded-xl bg-muted/60 p-3 text-sm">
                   <Timer className="mt-0.5 size-4 shrink-0 text-gold" aria-hidden />
                   <span>
@@ -138,7 +138,7 @@ export function GuideStepCard({
               </Block>
             ) : null}
             {step.dos?.length || step.donts?.length ? (
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {step.dos?.length ? (
                   <Block title={t("manasik.dos")}>
                     <List items={step.dos} icon={<Check className="size-4" />} tone="success" />

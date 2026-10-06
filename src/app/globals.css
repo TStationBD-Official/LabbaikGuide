@@ -280,6 +280,8 @@
     color: var(--foreground);
     font-family: var(--font-latin), var(--font-bn);
     min-height: 100dvh;
+    /* Safety net: nothing may widen the mobile layout viewport (sticky header unaffected by clip). */
+    overflow-x: clip;
     transition: background-color 250ms ease, color 250ms ease;
   }
   html[lang="ar"] body { font-family: var(--font-arabic-ui), var(--font-latin); }

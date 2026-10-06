@@ -14,7 +14,7 @@ export function PrayerDashboard() {
     <div className="space-y-6">
       <NextPrayerCard data={data} />
       <DatesCard data={data} />
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 [&>*]:min-w-0">
         <section>
           <SectionHeader title={t("prayer.todaySchedule")} />
           <PrayerSchedule data={data} />

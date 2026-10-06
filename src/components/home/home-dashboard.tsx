@@ -105,7 +105,7 @@ export function HomeDashboard() {
         </p>
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] lg:items-start">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] lg:items-start">
         <NextPrayerCard data={data} />
         <div className="hidden lg:block">
           <PrayerSchedule data={data} compact />
@@ -131,7 +131,7 @@ export function HomeDashboard() {
         </motion.ul>
       </section>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="md:col-span-1">
           <ContinueReadingCard compact />
         </div>

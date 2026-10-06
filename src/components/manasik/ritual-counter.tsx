@@ -114,7 +114,7 @@ export function RitualCounterView({ kind }: { kind: RitualKind }) {
   const label = kind === "tawaf" ? t("tawaf.round", { n }) : t("sai.length", { n });
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,24rem)]">
+    <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,24rem)]">
       <div className="space-y-6">
         <UnavailableNotice message={kind === "tawaf" ? t("tawaf.noFixedDua") : t("sai.explanation")} />
         <Card className="glass flex flex-col items-center px-4 py-6">

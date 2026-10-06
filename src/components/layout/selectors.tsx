@@ -146,7 +146,7 @@ export function FontSelectors() {
   const fontScale = usePrefs((s) => s.fontScale);
   const set = usePrefs((s) => s.set);
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <Select<BanglaFont>
         label={t("settings.banglaFont")}
         value={banglaFont}

@@ -124,7 +124,7 @@ export function ZikrPage() {
   const str = (v: Zikr["name"]) => (typeof v === "string" ? v : v.bn);
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)]">
+    <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)]">
       <div className="space-y-8">
         <Card className="glass px-4 py-6 sm:px-8">{active ? <ZikrCounter key={active.id} zikr={active} /> : null}</Card>
         <ZikrStats />

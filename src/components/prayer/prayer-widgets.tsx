@@ -160,7 +160,7 @@ export function DatesCard({ data }: { data: Data }) {
   const d = data.days.today.date;
   const hijri = formatHijri(d, intlLocale);
   return (
-    <Card className="grid gap-3 p-4 sm:grid-cols-2">
+    <Card className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-2">
       <div>
         <p className="text-xs text-muted-foreground">{t("prayer.gregorian")}</p>
         <p className="font-medium">{formatGregorian(d, intlLocale)}</p>
@@ -325,10 +325,10 @@ export function UpcomingStaff({ data }: { data: Data }) {
   const rows = day.prayers.filter((p) => SALAH.includes(p.name));
 
   return (
-    <section>
+    <section className="min-w-0">
       <SectionHeader as="h3" title={<span className="flex items-center gap-2"><CalendarDays className="size-4 text-gold" aria-hidden />{t("prayer.upcomingTitle")}</span>} />
       <Card className="p-4">
-        <div role="tablist" aria-label={t("prayer.upcomingTitle")} className="-mx-1 mb-3 flex gap-2 overflow-x-auto px-1 pb-1">
+        <div role="tablist" aria-label={t("prayer.upcomingTitle")} className="-mx-1 mb-3 flex w-[calc(100%+0.5rem)] min-w-0 gap-2 overflow-x-auto px-1 pb-1 [contain:inline-size]">
           {upcoming.map((d, i) => (
             <button
               key={d.date}
@@ -350,7 +350,7 @@ export function UpcomingStaff({ data }: { data: Data }) {
           {rows.map((p) => (
             <li key={p.name} className="py-2.5">
               <p className="mb-1.5 text-sm font-semibold text-primary">{t(prayerLabelKey(p.name, isFriday))}</p>
-              <div className="grid gap-2 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {(["imam", "muezzin"] as const).map((k) => {
                   const person = p[k];
                   return (

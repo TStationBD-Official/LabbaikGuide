@@ -48,7 +48,7 @@ export function ManasikHub() {
   const s = useRitualsStore();
   const umrahDone = UMRAH_STEPS.filter((x) => s.umrahDone[x.id]).length;
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <HubCard
         href="/umrah"
         icon={Landmark}
