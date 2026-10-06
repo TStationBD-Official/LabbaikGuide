@@ -58,16 +58,17 @@ tests/                 Vitest unit + component tests
 
 Query keys include language, translation id, tafsir id and word-mode, so one language's cached text can never appear under another.
 
-## Haramain schedule (Imam / Muezzin / Iqamah)
+## Haramain schedule (Imam / Muezzin)
 
-There is no public, documented official API wired in yet. `src/server/haramain/service.ts` defines the **adapter contract**. Point `HARAMAIN_SCHEDULE_URL` at a service that returns:
+`src/server/haramain/service.ts` has pluggable providers, chosen with `HARAMAIN_SCHEDULE_PROVIDER`:
 
-```json
-{ "date": "2026-10-06", "location": "makkah", "scheduleDate": "2026-10-06", "sourceUrl": "https://…",
-  "prayers": [ { "name": "fajr", "adhan": "2026-10-06T04:57:00+03:00", "iqamah": "…", "imam": "…", "muezzin": "…" } ] }
-```
+| Provider | Source |
+|---|---|
+| `haramainimams` (default) | Public JSON feed behind [haramainimams.com](https://haramainimams.com) (`/api/prayers/{mecca|madinah}`), fetched server-side every 2 min |
+| `custom` | Your own service at `HARAMAIN_SCHEDULE_URL` returning `{ date, location, prayers: [{ name, imam, muezzin, adhan?, iqamah? }] }` |
+| `none` | Always "unavailable" |
 
-Data for the wrong date/location, or that fails validation, is rejected and the UI shows *“ইমামের সময়সূচি এখন নিশ্চিতভাবে পাওয়া যাচ্ছে না।”*. Missing names stay `null` — never “Unknown Imam”.
+Only entries for **today's Riyadh date** are used; anything that fails validation becomes *“ইমামের সময়সূচি এখন নিশ্চিতভাবে পাওয়া যাচ্ছে না।”*. Names are never invented and missing ones stay `null`. Adhan times remain the calculated Umm al-Qura times. haramainimams.com is a third-party site, not an official API, so ask its operators for permission before relying on it publicly; switching provider is one env var.
 
 ## Security
 - Secrets only in server env (`src/config/server.ts` imports `server-only`; the build fails if a client component imports it).
@@ -83,7 +84,7 @@ No accounts, no ads, analytics off by default. Location is used only for Qibla, 
 Guides and duas are compiled from the cited sources and **must be reviewed by a qualified scholar before public launch**. Explanatory content is authored in Bangla and English; Arabic/Urdu UIs show English explanations alongside the original Arabic.
 
 ## Known limitations / next steps
-- Haramain official schedule adapter needs a real source (see above).
+- Imam/Muezzin data depends on a third-party feed (see above); seek permission or an official feed.
 - Prayer/zikr notifications fire while the app is open (no push server).
 - Tajweed colour-coded script not yet enabled (needs `text_uthmani_tajweed` rendering + sanitizer allow-list).
 - IndoPak renders with Noto Naskh / Noto Nastaliq; for a print-mushaf look, add a dedicated IndoPak font file to `public/fonts`.

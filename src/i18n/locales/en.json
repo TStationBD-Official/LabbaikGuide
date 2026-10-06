@@ -275,7 +275,8 @@
     "ramadanNote": "Ramadan: Isha is adjusted +30 minutes per Umm al-Qura practice.",
     "fridayNote": "Today is Friday — Jumu'ah replaces Dhuhr.",
     "hijriNote": "Hijri date uses the Umm al-Qura calendar; local moon sighting may differ by a day.",
-    "notAvailable": "—"
+    "notAvailable": "—",
+    "ledBy": "Imam: {name}"
   },
   "qibla": {
     "title": "Qibla Direction",
@@ -390,7 +391,7 @@
     "prayerTitle": "Prayer times",
     "prayerBody": "Calculated on-device with the open-source Adhan library using the Umm al-Qura method and the coordinates of Masjid al-Haram and Masjid an-Nabawi. These are calculated times, not the Haram's official announcements.",
     "haramainTitle": "Imam and Muezzin schedules",
-    "haramainBody": "Shown only when an official Haramain source is connected. If it cannot be confirmed, the app says so instead of guessing.",
+    "haramainBody": "Imam and Muezzin names for each prayer come from Haramain Schedules (haramainimams.com) and are refreshed every few minutes. Only assignments for today's date are shown; if the source is unavailable or returns invalid data, the app says the schedule cannot be confirmed instead of guessing. Prayer times themselves remain the calculated Umm al-Qura times.",
     "hijriTitle": "Hijri date",
     "hijriBody": "Umm al-Qura calendar via your browser's built-in calendar support.",
     "guidesTitle": "Umrah, Hajj guides and duas",

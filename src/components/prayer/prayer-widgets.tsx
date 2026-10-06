@@ -12,6 +12,7 @@ import { SALAH, splitDuration, type PrayerName, type PrayerSlot } from "@/featur
 import { usePrayerData } from "@/hooks/use-prayer";
 import { cn } from "@/lib/utils";
 import type { TKey } from "@/i18n";
+import type { PersonName } from "@/types/haramain";
 
 type Data = ReturnType<typeof usePrayerData>;
 
@@ -36,7 +37,7 @@ export function Countdown({ ms }: { ms: number }) {
 
 /** Large "next prayer" card with live countdown and status. */
 export function NextPrayerCard({ data }: { data: Data }) {
-  const { t, intlLocale } = useI18n();
+  const { t, intlLocale, locale } = useI18n();
   const location = usePrefs((s) => s.location);
   const { info, days, now } = data;
 
@@ -80,6 +81,11 @@ export function NextPrayerCard({ data }: { data: Data }) {
             {info.nextIsTomorrow ? <span className="ms-2 text-base font-normal text-muted-foreground">({t("common.tomorrow")})</span> : null}
           </p>
           <p className="text-lg text-primary">{formatTime(info.next.adhan, intlLocale)}</p>
+          {info.next.imam ? (
+            <p dir="auto" className="mt-1 text-sm text-muted-foreground">
+              {t("prayer.ledBy", { name: locale === "ar" || locale === "ur" ? info.next.imam.ar : info.next.imam.en })}
+            </p>
+          ) : null}
         </div>
         <div className="text-end">
           <p className="text-xs text-muted-foreground">{t("prayer.startsIn")}</p>
@@ -167,17 +173,19 @@ export function DatesCard({ data }: { data: Data }) {
   );
 }
 
-/** Imam & Muezzin. Shows only officially sourced names; otherwise an explicit "unavailable" notice. */
+/** Imam & Muezzin. Shows only sourced, validated names for today; otherwise an explicit "unavailable" notice. */
 export function StaffSchedule({ data, kind }: { data: Data; kind: "imam" | "muezzin" }) {
-  const { t, intlLocale } = useI18n();
+  const { t, intlLocale, locale } = useI18n();
   const { schedule, days, staleSchedule } = data;
+  // Names are shown exactly as the source publishes them: Arabic for Arabic/Urdu UIs, English otherwise.
+  const display = (n: PersonName | null) => (n ? (locale === "ar" || locale === "ur" ? n.ar : n.en) : null);
   const title = kind === "imam" ? t("prayer.imamTitle") : t("prayer.muezzinTitle");
   const unavailableMsg = kind === "imam" ? t("prayer.imamUnavailable") : t("prayer.muezzinUnavailable");
   const Icon = kind === "imam" ? User : Mic;
 
   let body: React.ReactNode;
   if (schedule.isPending) body = <Skeleton className="h-24 w-full" />;
-  else if (schedule.isError || !schedule.data || schedule.data.status !== "official" || !days) {
+  else if (schedule.isError || !schedule.data || schedule.data.status !== "available" || !days) {
     body = (
       <div className="space-y-2">
         <UnavailableNotice message={unavailableMsg} />
@@ -192,11 +200,13 @@ export function StaffSchedule({ data, kind }: { data: Data; kind: "imam" | "muez
       <>
         <ul className="divide-y divide-border/70">
           {rows.map((p) => {
-            const name = kind === "imam" ? p.imam : p.muezzin;
+            const name = display(kind === "imam" ? p.imam : p.muezzin);
             return (
               <li key={p.name} className="flex min-h-12 items-center justify-between gap-3 py-2">
                 <span className="text-sm text-muted-foreground">{t(prayerLabelKey(p.name, days.today.isFriday))}</span>
-                <span className={cn("text-sm font-medium", !name && "text-muted-foreground")}>{name ?? t("prayer.notAvailable")}</span>
+                <span dir="auto" className={cn("text-end text-sm font-medium", !name && "text-muted-foreground")}>
+                  {name ?? t("prayer.notAvailable")}
+                </span>
               </li>
             );
           })}

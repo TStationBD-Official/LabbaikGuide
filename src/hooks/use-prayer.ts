@@ -50,7 +50,7 @@ export function useClock(intervalMs = 1000) {
 }
 
 function mergeOfficial(day: PrayerDay, s: HaramainSchedule | undefined): PrayerDay {
-  if (!s || s.status !== "official" || s.date !== ymdKey(day.date)) return day;
+  if (!s || s.status !== "available" || s.date !== ymdKey(day.date)) return day;
   return {
     ...day,
     prayers: day.prayers.map((p) => {

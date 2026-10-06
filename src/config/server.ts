@@ -19,6 +19,9 @@ export const SERVER_CONFIG = {
     revalidateSeconds: 60 * 60 * 24,
   },
   haramain: {
+    /** "haramainimams" (default) | "custom" | "none" — see src/server/haramain/service.ts */
+    provider: process.env.HARAMAIN_SCHEDULE_PROVIDER ?? "haramainimams",
+    haramainImamsBase: process.env.HARAMAIN_IMAMS_BASE ?? "https://haramainimams.com",
     /**
      * Endpoint returning the official Imam/Muezzin schedule in the normalized
      * contract (see `src/server/haramain/schema.ts`). Leave empty until an
@@ -28,7 +31,8 @@ export const SERVER_CONFIG = {
     scheduleApiKey: process.env.HARAMAIN_SCHEDULE_API_KEY ?? "",
     sourceName: process.env.HARAMAIN_SCHEDULE_SOURCE_NAME ?? "",
     timeoutMs: 8000,
-    revalidateSeconds: 60 * 15,
+    /** Staff changes rarely within a day; 2 min matches the source's own refresh. */
+    revalidateSeconds: 120,
   },
 } as const;
 

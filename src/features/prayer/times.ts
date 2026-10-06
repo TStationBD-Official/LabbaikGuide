@@ -2,6 +2,7 @@ import { CalculationMethod, Coordinates, PrayerTimes } from "adhan";
 import { APP_CONFIG } from "@/config/app";
 import { LOCATIONS, type LocationId } from "@/config/locations";
 import { addDays, hijriParts, weekdayOf, type YMD } from "./calendar";
+import type { PersonName } from "@/types/haramain";
 
 export const PRAYER_NAMES = ["fajr", "sunrise", "dhuhr", "asr", "maghrib", "isha"] as const;
 export type PrayerName = (typeof PRAYER_NAMES)[number];
@@ -12,8 +13,8 @@ export type PrayerSlot = {
   name: PrayerName;
   adhan: Date;
   iqamah: Date | null;
-  imam: string | null;
-  muezzin: string | null;
+  imam: PersonName | null;
+  muezzin: PersonName | null;
 };
 
 export type PrayerDay = {
