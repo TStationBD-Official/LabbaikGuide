@@ -1,26 +1,382 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ───────────────────────── Self-hosted fonts (offline-friendly) ─────────────────────────
+   @font-face rules only; each file downloads when first used. */
+@import "@fontsource/noto-sans-bengali/400.css";
+@import "@fontsource/noto-sans-bengali/600.css";
+@import "@fontsource/noto-sans-bengali/700.css";
+@import "@fontsource/hind-siliguri/400.css";
+@import "@fontsource/hind-siliguri/600.css";
+@import "@fontsource/baloo-da-2/400.css";
+@import "@fontsource/baloo-da-2/600.css";
+@import "@fontsource/tiro-bangla/400.css";
+@import "@fontsource/amiri-quran/400.css";
+@import "@fontsource/scheherazade-new/400.css";
+@import "@fontsource/scheherazade-new/700.css";
+@import "@fontsource/noto-nastaliq-urdu/400.css";
+@import "@fontsource/noto-naskh-arabic/400.css";
+@import "@fontsource/noto-naskh-arabic/600.css";
+@import "@fontsource/cormorant-garamond/500.css";
+@import "@fontsource/cormorant-garamond/600.css";
+
+/* ───────────────────────── Design tokens ─────────────────────────
+   Components never use raw colours — only these semantic tokens. */
+:root,
+[data-theme="light"],
+[data-theme="system"] {
+  --background: #f7f3ea;
+  --background-2: #efe8d8;
+  --foreground: #1c2620;
+  --muted: #e9e2d2;
+  --muted-foreground: #5c665f;
+  --card: #fffdf8;
+  --card-foreground: #1c2620;
+  --glass: rgb(255 253 248 / 0.72);
+  --border: #ddd3bd;
+  --primary: #0f5c45;
+  --primary-foreground: #fdfaf2;
+  --primary-soft: #dcebe3;
+  --secondary: #1f3b2f;
+  --secondary-foreground: #f7f3ea;
+  --accent: #e6f0e9;
+  --accent-foreground: #0f5c45;
+  --gold: #a9802f;
+  --gold-soft: #f2e6c6;
+  --success: #1d7a4f;
+  --warning: #9a6a00;
+  --danger: #b4322b;
+  --ring: #c39a45;
+  --pattern: #a9802f;
+  --pattern-opacity: 0.07;
+  --shadow: 0 1px 2px rgb(28 38 32 / 0.06), 0 8px 24px -12px rgb(28 38 32 / 0.18);
+  --quran-bg: #fffdf8;
+  color-scheme: light;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+[data-theme="dark"] {
+  --background: #0b1511;
+  --background-2: #0f1d17;
+  --foreground: #ece6d6;
+  --muted: #16251e;
+  --muted-foreground: #9aa79f;
+  --card: #111f19;
+  --card-foreground: #ece6d6;
+  --glass: rgb(17 31 25 / 0.72);
+  --border: #24382e;
+  --primary: #3fae85;
+  --primary-foreground: #06120d;
+  --primary-soft: #143326;
+  --secondary: #d9c79a;
+  --secondary-foreground: #0b1511;
+  --accent: #173226;
+  --accent-foreground: #9fdcc2;
+  --gold: #d6b25e;
+  --gold-soft: #2c2716;
+  --success: #49c08b;
+  --warning: #e0b44a;
+  --danger: #ef6b62;
+  --ring: #d6b25e;
+  --pattern: #d6b25e;
+  --pattern-opacity: 0.05;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 30px -12px rgb(0 0 0 / 0.6);
+  --quran-bg: #0f1c16;
+  color-scheme: dark;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  [data-theme="system"] {
+    --background: #0b1511;
+    --background-2: #0f1d17;
+    --foreground: #ece6d6;
+    --muted: #16251e;
+    --muted-foreground: #9aa79f;
+    --card: #111f19;
+    --card-foreground: #ece6d6;
+    --glass: rgb(17 31 25 / 0.72);
+    --border: #24382e;
+    --primary: #3fae85;
+    --primary-foreground: #06120d;
+    --primary-soft: #143326;
+    --secondary: #d9c79a;
+    --secondary-foreground: #0b1511;
+    --accent: #173226;
+    --accent-foreground: #9fdcc2;
+    --gold: #d6b25e;
+    --gold-soft: #2c2716;
+    --success: #49c08b;
+    --warning: #e0b44a;
+    --danger: #ef6b62;
+    --ring: #d6b25e;
+    --pattern: #d6b25e;
+    --pattern-opacity: 0.05;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 30px -12px rgb(0 0 0 / 0.6);
+    --quran-bg: #0f1c16;
+    color-scheme: dark;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+[data-theme="sepia"] {
+  --background: #f1e7d0;
+  --background-2: #e8dbbd;
+  --foreground: #3b2f1e;
+  --muted: #e4d6b6;
+  --muted-foreground: #6e5d42;
+  --card: #f8f0dc;
+  --card-foreground: #3b2f1e;
+  --glass: rgb(248 240 220 / 0.75);
+  --border: #d6c49d;
+  --primary: #6b4f1d;
+  --primary-foreground: #fbf4e2;
+  --primary-soft: #eadbb6;
+  --secondary: #4a3a22;
+  --secondary-foreground: #f8f0dc;
+  --accent: #eadfc2;
+  --accent-foreground: #5a421a;
+  --gold: #8e6a22;
+  --gold-soft: #ead9ae;
+  --success: #4f6b2a;
+  --warning: #8a5a00;
+  --danger: #9b3324;
+  --ring: #8e6a22;
+  --pattern: #8e6a22;
+  --pattern-opacity: 0.08;
+  --shadow: 0 1px 2px rgb(59 47 30 / 0.08), 0 8px 24px -12px rgb(59 47 30 / 0.25);
+  --quran-bg: #f8f0dc;
+  color-scheme: light;
+}
+
+/* Mushaf: printed-page feel — cream paper, emerald frame, gold rule lines. */
+[data-theme="mushaf"] {
+  --background: #fbf6e6;
+  --background-2: #f3ead0;
+  --foreground: #14201a;
+  --muted: #efe5c8;
+  --muted-foreground: #4f5a52;
+  --card: #fffbee;
+  --card-foreground: #14201a;
+  --glass: rgb(255 251 238 / 0.8);
+  --border: #c9b27a;
+  --primary: #0c4a37;
+  --primary-foreground: #fffbee;
+  --primary-soft: #dfe9dc;
+  --secondary: #0c4a37;
+  --secondary-foreground: #fffbee;
+  --accent: #eef2df;
+  --accent-foreground: #0c4a37;
+  --gold: #9c7424;
+  --gold-soft: #f1e3b8;
+  --success: #1d6b45;
+  --warning: #8a5a00;
+  --danger: #a1302a;
+  --ring: #9c7424;
+  --pattern: #0c4a37;
+  --pattern-opacity: 0.05;
+  --shadow: 0 0 0 1px #c9b27a, 0 6px 20px -12px rgb(12 74 55 / 0.3);
+  --quran-bg: #fffbee;
+  color-scheme: light;
+}
+
+/* High contrast: WCAG AAA-leaning, no translucency, no decorative pattern. */
+[data-theme="contrast"] {
+  --background: #000000;
+  --background-2: #000000;
+  --foreground: #ffffff;
+  --muted: #1a1a1a;
+  --muted-foreground: #e6e6e6;
+  --card: #000000;
+  --card-foreground: #ffffff;
+  --glass: #000000;
+  --border: #ffffff;
+  --primary: #ffd84d;
+  --primary-foreground: #000000;
+  --primary-soft: #333000;
+  --secondary: #ffffff;
+  --secondary-foreground: #000000;
+  --accent: #1a1a1a;
+  --accent-foreground: #ffd84d;
+  --gold: #ffd84d;
+  --gold-soft: #1a1a1a;
+  --success: #6dff9e;
+  --warning: #ffd84d;
+  --danger: #ff7b7b;
+  --ring: #00e5ff;
+  --pattern: #ffffff;
+  --pattern-opacity: 0;
+  --shadow: none;
+  --quran-bg: #000000;
+  color-scheme: dark;
+}
+
+/* ───────────────────────── Fonts per user selection ───────────────────────── */
+:root {
+  --font-latin: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --font-bn: "Noto Sans Bengali";
+  --font-quran: "Noto Naskh Arabic";
+  --font-arabic-ui: "Noto Naskh Arabic";
+  --font-urdu-ui: "Noto Nastaliq Urdu";
+  --quran-size: 1.9rem;
+  --quran-leading: 2.3;
+}
+[data-bn-font="hind"] { --font-bn: "Hind Siliguri"; }
+[data-bn-font="baloo"] { --font-bn: "Baloo Da 2"; }
+[data-bn-font="tiro"] { --font-bn: "Tiro Bangla"; }
+[data-ar-font="indopak"] { --font-quran: "Noto Naskh Arabic"; }
+[data-ar-font="nastaleeq"] { --font-quran: "Noto Nastaliq Urdu"; --quran-leading: 2.9; }
+[data-ar-font="uthmani"] { --font-quran: "Amiri Quran"; --quran-leading: 2.5; }
+[data-ar-font="hafs"] { --font-quran: "Scheherazade New"; }
+
+@theme inline {
+  --color-background: var(--background);
+  --color-background-2: var(--background-2);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-glass: var(--glass);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-ring: var(--ring);
+  --font-sans: var(--font-bn), var(--font-latin);
+  --font-display: var(--font-display);
+  --font-quran: var(--font-quran), "Noto Naskh Arabic", "Amiri Quran", serif;
+  --shadow-soft: var(--shadow);
+  --breakpoint-xs: 380px;
+}
+
+/* ───────────────────────── Base ───────────────────────── */
+@layer base {
+  * { border-color: var(--border); }
+  html { -webkit-text-size-adjust: 100%; text-rendering: optimizeLegibility; }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-bn), var(--font-latin);
+    min-height: 100dvh;
+    transition: background-color 250ms ease, color 250ms ease;
+  }
+  html[lang="ar"] body { font-family: var(--font-arabic-ui), var(--font-latin); }
+  html[lang="ur"] body { font-family: var(--font-urdu-ui), var(--font-arabic-ui), var(--font-latin); line-height: 1.9; }
+  html[lang="en"] body { font-family: var(--font-latin), var(--font-bn); }
+
+  :focus-visible { outline: 3px solid var(--ring); outline-offset: 2px; border-radius: 6px; }
+  ::selection { background: var(--gold-soft); color: var(--foreground); }
+  button, [role="button"] { -webkit-tap-highlight-color: transparent; }
+}
+
+/* ───────────────────────── Islamic background texture ─────────────────────────
+   Pure CSS: gradients + a tiny 8-point-star SVG used as a mask (inherits theme colour). */
+.app-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(60rem 30rem at 85% -10%, color-mix(in oklab, var(--gold) 14%, transparent), transparent 70%),
+    radial-gradient(50rem 30rem at -10% 110%, color-mix(in oklab, var(--primary) 16%, transparent), transparent 70%),
+    linear-gradient(180deg, var(--background), var(--background-2));
+}
+.app-backdrop::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--pattern);
+  opacity: var(--pattern-opacity);
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72'%3E%3Cg fill='none' stroke='black' stroke-width='1'%3E%3Cpath d='M36 6l8.8 21.2L66 36l-21.2 8.8L36 66l-8.8-21.2L6 36l21.2-8.8z'/%3E%3Cpath d='M15 15h42v42H15z' transform='rotate(45 36 36)'/%3E%3Ccircle cx='36' cy='36' r='6'/%3E%3C/g%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72'%3E%3Cg fill='none' stroke='black' stroke-width='1'%3E%3Cpath d='M36 6l8.8 21.2L66 36l-21.2 8.8L36 66l-8.8-21.2L6 36l21.2-8.8z'/%3E%3Cpath d='M15 15h42v42H15z' transform='rotate(45 36 36)'/%3E%3Ccircle cx='36' cy='36' r='6'/%3E%3C/g%3E%3C/svg%3E");
+  -webkit-mask-size: 72px 72px;
+  mask-size: 72px 72px;
+}
+.app-backdrop::after {
+  /* faint grain to avoid gradient banding */
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+[data-theme="contrast"] .app-backdrop { background: #000; }
+[data-theme="contrast"] .app-backdrop::after { display: none; }
+
+/* ───────────────────────── Utilities ───────────────────────── */
+@utility glass {
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  backdrop-filter: blur(14px) saturate(1.2);
+}
+@utility gold-rule {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: 0.6;
+}
+@utility font-quran {
+  font-family: var(--font-quran), "Noto Naskh Arabic", "Amiri Quran", serif;
+  font-size: var(--quran-size);
+  line-height: var(--quran-leading);
+  font-feature-settings: "liga", "calt";
+  word-spacing: 0.08em;
+}
+@utility font-arabic {
+  font-family: "Noto Naskh Arabic", "Amiri Quran", serif;
+}
+@utility safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+/* Quran reader size / spacing presets (set via data attributes on the reader). */
+[data-quran-size="sm"] { --quran-size: 1.5rem; }
+[data-quran-size="md"] { --quran-size: 1.9rem; }
+[data-quran-size="lg"] { --quran-size: 2.35rem; }
+[data-quran-size="xl"] { --quran-size: 2.9rem; }
+[data-quran-spacing="compact"] { --quran-leading: 1.9; }
+[data-quran-spacing="normal"] { --quran-leading: 2.3; }
+[data-quran-spacing="relaxed"] { --quran-leading: 2.9; }
+
+/* Tafsir & translation HTML (already sanitized server-side). */
+.prose-tafsir p { margin-block: 0.6em; }
+.prose-tafsir h2, .prose-tafsir h3 { font-weight: 600; margin-top: 1em; color: var(--primary); }
+.prose-tafsir sup { color: var(--gold); font-size: 0.7em; }
+
+/* Skeleton shimmer */
+@keyframes shimmer { 100% { transform: translateX(100%); } }
+.skeleton { position: relative; overflow: hidden; background: var(--muted); }
+.skeleton::after {
+  content: ""; position: absolute; inset: 0; transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--card) 70%, transparent), transparent);
+  animation: shimmer 1.4s infinite;
+}
+
+/* Reduced motion: honour OS setting and in-app toggle. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+[data-reduced-motion="true"] *, [data-reduced-motion="true"] *::before, [data-reduced-motion="true"] *::after {
+  animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important;
+}
+
+@keyframes sheet-in {
+  from { transform: translateY(24px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Nastaliq (Urdu) has tall ascenders/descenders: give UI text more room than
+   Tailwind's default leading so lines never overlap. */
+html[lang="ur"] :where(p, span, label, a, button, li, legend, h1, h2, h3, h4, dt, dd) {
+  line-height: 2.05;
 }

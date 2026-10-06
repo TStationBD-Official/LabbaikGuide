@@ -1,36 +1,89 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Haramain Companion · হারামাইন কম্প্যানিয়ন
 
-## Getting Started
+A production-grade, mobile-first Umrah & Hajj companion: Quran reader (IndoPak/Uthmani, Bangla translation & tafsir), zikr counter, Tawaf & Sa'i counters, Umrah and Hajj guides, a sourced dua library, Haram prayer times, Qibla and Hijri dates — in Bangla, English, Arabic and Urdu.
 
-First, run the development server:
+> **Religious accuracy over visual effects.** Nothing religious is invented. Every dua and guide step carries a Quran/hadith reference; scholarly differences are labelled; live data that cannot be confirmed is shown as unavailable — never guessed.
+
+## Quick start
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # fill in what you have; everything is optional
+npm run dev                  # http://localhost:3000
+npm run check                # lint → typecheck → tests → production build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Requires Node 20.9+ (tested on Node 22).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Next.js 16 (App Router, Turbopack) · React 19 · TypeScript (strict) · Tailwind CSS v4 · Zustand · TanStack Query (+ IndexedDB persistence) · Zod · Motion · Lucide · `adhan` · Vitest + Testing Library. Fonts are self-hosted via `@fontsource` (works offline, no Google Fonts requests).
 
-## Learn More
+## Architecture
 
-To learn more about Next.js, take a look at the following resources:
+```
+Browser ──► /api/quran/*  (Next route handlers: rate limit → Zod-validate query → upstream → Zod-validate → sanitize → normalize)
+                          └─► Quran Foundation API (OAuth2, server-only secrets) or public Quran.com v4 API
+Browser ──► /api/haramain/schedule ──► haramainScheduleService ──► official adapter (env-configured) ──► normalized model
+Prayer times: computed on-device with `adhan` (Umm al-Qura) for the Haram coordinates → works offline.
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+src/
+  app/                 routes (pages + API route handlers, manifest, sitemap, robots, OG image)
+  components/
+    ui/                design-system primitives (Button, Card, Sheet, SegmentedControl, Toggle, Progress, CircularProgress, …)
+    layout/            AppShell (sidebar / bottom nav / More sheet), selectors, install prompt, notifier
+    quran/ zikr/ prayer/ manasik/ dua/ home/ settings/ search/
+    providers/         preferences (cookie), i18n, TanStack Query (IndexedDB persister), service worker
+  config/              app config, server-only config, locations registry, navigation
+  data/                sourced religious content (duas, Umrah steps, Hajj stages, default zikr)
+  features/            pure, unit-tested logic (zikr, tawaf/sa'i, prayer/calendar/qibla, local search)
+  i18n/                bn/en/ar/ur dictionaries + typed `t()` (typos fail type-checking)
+  server/              server-only: Quran upstream + OAuth, service, sanitizer, rate limiter, Haramain service
+  services/            browser API client (typed errors), query hooks, IndexedDB storage
+  stores/              Zustand stores (local-first, persisted to IndexedDB)
+  types/               Zod schemas + TS types for normalized models
+  proxy.ts             per-request CSP nonce (Next 16 “proxy”, formerly middleware)
+public/sw.js           service worker (offline)
+tests/                 Vitest unit + component tests
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### State separation
+| Kind | Where | Examples |
+|---|---|---|
+| Appearance prefs | cookie `hc_prefs` (read by the server → no flash) | theme, language, fonts, text size, location |
+| Persistent local data | Zustand + IndexedDB | zikr counts/history, bookmarks, last-read, favourites, Umrah/Hajj progress |
+| Server state | TanStack Query (memory → IndexedDB → API) | Quran verses, translations, tafsir; Haramain schedule (not persisted) |
 
-## Deploy on Vercel
+Query keys include language, translation id, tafsir id and word-mode, so one language's cached text can never appear under another.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Haramain schedule (Imam / Muezzin / Iqamah)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+There is no public, documented official API wired in yet. `src/server/haramain/service.ts` defines the **adapter contract**. Point `HARAMAIN_SCHEDULE_URL` at a service that returns:
+
+```json
+{ "date": "2026-10-06", "location": "makkah", "scheduleDate": "2026-10-06", "sourceUrl": "https://…",
+  "prayers": [ { "name": "fajr", "adhan": "2026-10-06T04:57:00+03:00", "iqamah": "…", "imam": "…", "muezzin": "…" } ] }
+```
+
+Data for the wrong date/location, or that fails validation, is rejected and the UI shows *“ইমামের সময়সূচি এখন নিশ্চিতভাবে পাওয়া যাচ্ছে না।”*. Missing names stay `null` — never “Unknown Imam”.
+
+## Security
+- Secrets only in server env (`src/config/server.ts` imports `server-only`; the build fails if a client component imports it).
+- All upstream JSON is Zod-validated; translation/tafsir HTML is sanitized server-side to formatting tags with **no attributes**.
+- Strict CSP with per-request nonce (`src/proxy.ts`), HSTS, `X-Frame-Options: DENY`, restrictive `Permissions-Policy`.
+- Per-IP token-bucket rate limit on API routes (in-memory; swap for Redis/Upstash on multi-instance deployments).
+- User-entered zikr text is length-validated and rendered as text, never HTML.
+
+## Privacy
+No accounts, no ads, analytics off by default. Location is used only for Qibla, on-device. See `/privacy`.
+
+## Content review
+Guides and duas are compiled from the cited sources and **must be reviewed by a qualified scholar before public launch**. Explanatory content is authored in Bangla and English; Arabic/Urdu UIs show English explanations alongside the original Arabic.
+
+## Known limitations / next steps
+- Haramain official schedule adapter needs a real source (see above).
+- Prayer/zikr notifications fire while the app is open (no push server).
+- Tajweed colour-coded script not yet enabled (needs `text_uthmani_tajweed` rendering + sanitizer allow-list).
+- IndoPak renders with Noto Naskh / Noto Nastaliq; for a print-mushaf look, add a dedicated IndoPak font file to `public/fonts`.

@@ -1,0 +1,91 @@
+import type { Zikr } from "@/types/content";
+
+/**
+ * Default zikr. Arabic wording follows the cited hadith. Target counts are
+ * practical defaults the user can change — no reward numbers are claimed here.
+ */
+export const DEFAULT_ZIKR: Zikr[] = [
+  {
+    id: "subhanallah",
+    kind: "default",
+    name: { bn: "সুবহানাল্লাহ", en: "Subhan Allah" },
+    arabic: "سُبْحَانَ اللَّهِ",
+    pronunciation: { bn: "সুবহা-নাল্লা-হ", en: "Subḥāna-llāh" },
+    meaning: { bn: "আল্লাহ পবিত্র", en: "Glory be to Allah" },
+    target: 33,
+    references: [{ label: "Sahih Muslim 597" }],
+  },
+  {
+    id: "alhamdulillah",
+    kind: "default",
+    name: { bn: "আলহামদুলিল্লাহ", en: "Alhamdulillah" },
+    arabic: "الْحَمْدُ لِلَّهِ",
+    pronunciation: { bn: "আলহামদু লিল্লা-হ", en: "Al-ḥamdu lillāh" },
+    meaning: { bn: "সমস্ত প্রশংসা আল্লাহর", en: "All praise is for Allah" },
+    target: 33,
+    references: [{ label: "Sahih Muslim 597" }],
+  },
+  {
+    id: "allahuakbar",
+    kind: "default",
+    name: { bn: "আল্লাহু আকবার", en: "Allahu Akbar" },
+    arabic: "اللَّهُ أَكْبَرُ",
+    pronunciation: { bn: "আল্লা-হু আকবার", en: "Allāhu akbar" },
+    meaning: { bn: "আল্লাহ সর্বশ্রেষ্ঠ", en: "Allah is the Greatest" },
+    target: 33,
+    references: [{ label: "Sahih Muslim 597" }],
+  },
+  {
+    id: "tahlil",
+    kind: "default",
+    name: { bn: "লা ইলাহা ইল্লাল্লাহ", en: "La ilaha illallah" },
+    arabic: "لَا إِلَٰهَ إِلَّا اللَّهُ",
+    pronunciation: { bn: "লা- ইলা-হা ইল্লাল্লা-হ", en: "Lā ilāha illā-llāh" },
+    meaning: { bn: "আল্লাহ ছাড়া কোনো সত্য উপাস্য নেই", en: "There is no god but Allah" },
+    target: 100,
+    references: [{ label: "Sunan at-Tirmidhi 3383" }],
+  },
+  {
+    id: "astaghfirullah",
+    kind: "default",
+    name: { bn: "আস্তাগফিরুল্লাহ", en: "Astaghfirullah" },
+    arabic: "أَسْتَغْفِرُ اللَّهَ",
+    pronunciation: { bn: "আস্তাগফিরুল্লা-হ", en: "Astaghfiru-llāh" },
+    meaning: { bn: "আমি আল্লাহর কাছে ক্ষমা চাই", en: "I seek Allah's forgiveness" },
+    target: 100,
+    references: [{ label: "Sahih Muslim 2702" }],
+  },
+  {
+    id: "subhanallahi-wabihamdihi",
+    kind: "default",
+    name: { bn: "সুবহানাল্লাহি ওয়া বিহামদিহি", en: "Subhan Allahi wa bihamdihi" },
+    arabic: "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ",
+    pronunciation: { bn: "সুবহা-নাল্লা-হি ওয়া বিহামদিহ", en: "Subḥāna-llāhi wa bi-ḥamdih" },
+    meaning: { bn: "আল্লাহ পবিত্র এবং সকল প্রশংসা তাঁর", en: "Glory be to Allah and praise be to Him" },
+    target: 100,
+    references: [{ label: "Sahih al-Bukhari 6405" }, { label: "Sahih Muslim 2691" }],
+  },
+  {
+    id: "hawqala",
+    kind: "default",
+    name: { bn: "লা হাওলা ওয়ালা কুওয়াতা ইল্লা বিল্লাহ", en: "La hawla wa la quwwata illa billah" },
+    arabic: "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ",
+    pronunciation: { bn: "লা- হাওলা ওয়ালা- কুওয়াতা ইল্লা- বিল্লা-হ", en: "Lā ḥawla wa lā quwwata illā billāh" },
+    meaning: { bn: "আল্লাহর সাহায্য ছাড়া কোনো শক্তি ও সামর্থ্য নেই", en: "There is no power and no strength except with Allah" },
+    target: 100,
+    references: [{ label: "Sahih al-Bukhari 6384" }, { label: "Sahih Muslim 2704" }],
+  },
+  {
+    id: "durood",
+    kind: "default",
+    name: { bn: "দরুদ শরিফ", en: "Salawat (Durood)" },
+    arabic: "اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ",
+    pronunciation: { bn: "আল্লা-হুম্মা সাল্লি আলা- মুহাম্মাদিওঁ ওয়া আলা- আ-লি মুহাম্মাদ", en: "Allāhumma ṣalli ʿalā Muḥammadin wa ʿalā āli Muḥammad" },
+    meaning: {
+      bn: "হে আল্লাহ, মুহাম্মাদ ও মুহাম্মাদের পরিবারের উপর রহমত বর্ষণ করুন",
+      en: "O Allah, send blessings upon Muhammad and upon the family of Muhammad",
+    },
+    target: 100,
+    references: [{ label: "Sahih al-Bukhari 3370", detail: "opening of the Salat al-Ibrahimiyyah" }],
+  },
+];
