@@ -408,7 +408,7 @@
     "guidesTitle": "Umrah, Hajj guides and duas",
     "guidesBody": "Compiled from the Quran and hadith collections cited on each item (e.g. Sahih al-Bukhari, Sahih Muslim, Sunan Abi Dawud). Where scholars differ, the difference is labelled. This content should be reviewed by a qualified scholar before publication.",
     "fontsTitle": "Fonts",
-    "fontsBody": "UI: Lato, Anek Bangla, Noto Sans Bengali, Hind Siliguri, Baloo Da 2, Tiro Bangla, Noto Naskh Arabic, Noto Nastaliq Urdu (SIL Open Font License). Quran: KFGQPC Uthmanic Script Hafs © King Fahd Glorious Quran Printing Complex (distributed unmodified under its free licence); Amiri Quran, Scheherazade New (SIL OFL); IndoPak Al-Qalam font (Al QuranWBW)."
+    "fontsBody": "UI: Inter, Anek Bangla, Noto Sans Bengali, Hind Siliguri, Baloo Da 2, Tiro Bangla, Noto Naskh Arabic, Noto Nastaliq Urdu (SIL Open Font License). Quran: KFGQPC Uthmanic Script Hafs © King Fahd Glorious Quran Printing Complex (distributed unmodified under its free licence); Amiri Quran, Scheherazade New (SIL OFL); IndoPak Al-Qalam font (Al QuranWBW)."
   },
   "privacy": {
     "title": "Privacy",

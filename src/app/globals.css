@@ -3,8 +3,7 @@
 /* ───────────────────────── Self-hosted fonts (offline-friendly) ─────────────────────────
    @font-face rules only; each file downloads when first used. */
 @import "@fontsource-variable/anek-bangla/index.css";
-@import "@fontsource/lato/400.css";
-@import "@fontsource/lato/700.css";
+@import "@fontsource-variable/inter/index.css";
 @import "@fontsource/noto-sans-bengali/400.css";
 @import "@fontsource/noto-sans-bengali/600.css";
 @import "@fontsource/noto-sans-bengali/700.css";
@@ -221,7 +220,7 @@
 
 /* ───────────────────────── Fonts per user selection ───────────────────────── */
 :root {
-  --font-latin: "Lato", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-latin: "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-display: "Cormorant Garamond", Georgia, serif;
   --font-bn: "Anek Bangla Variable";
   --font-quran: "Quran IndoPak";
