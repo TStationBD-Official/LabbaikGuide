@@ -54,7 +54,7 @@ async function getJson(url: URL, headers: Record<string, string> = {}): Promise<
 }
 
 // ───────────────────────── haramainimams.com adapter ─────────────────────────
-const HiPerson = z.object({ nameEn: NAME, nameAr: NAME, image: z.string().max(1000).nullable().optional() }).passthrough();
+const HiPerson = z.object({ nameEn: NAME, nameAr: NAME, image: z.string().max(2000).nullable().optional() }).passthrough();
 const HiEntry = z
   .object({
     date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),

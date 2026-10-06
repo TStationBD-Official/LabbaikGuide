@@ -9,7 +9,7 @@ export const PersonNameSchema = z.object({
   en: z.string().min(1).max(160),
   ar: z.string().min(1).max(160),
   /** Same-origin photo URL (proxied via /api/haramain/photo), or null. */
-  image: z.string().startsWith("/api/haramain/photo?").max(1200).nullable().optional(),
+  image: z.string().startsWith("/api/haramain/photo?").max(6000).nullable().optional(),
 });
 export type PersonName = z.infer<typeof PersonNameSchema>;
 

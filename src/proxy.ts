@@ -13,7 +13,8 @@ export function proxy(request: NextRequest) {
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ""}`,
     // React renders `style` attributes; nonces cannot cover attributes.
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' blob: data:",
+    // Imam/Muezzin photos: normally via our /api/haramain/photo proxy; direct from the source's storage as fallback.
+    "img-src 'self' blob: data: https://objectstorage.me-jeddah-1.oraclecloud.com",
     "font-src 'self' data:",
     "media-src 'self' https://verses.quran.com https://*.quranicaudio.com",
     "connect-src 'self'",

@@ -174,9 +174,13 @@ export function DatesCard({ data }: { data: Data }) {
   );
 }
 
-/** Round photo from the schedule source (same-origin proxy), falling back to initials. */
+/** Round photo from the schedule source: proxy → original URL → initials. */
 export function PersonAvatar({ person, size = "md" }: { person: PersonName; size?: "sm" | "md" }) {
-  const [failed, setFailed] = useState(false);
+  // Try our same-origin proxy first (cached offline), then the source's original URL, then initials.
+  const direct = person.image ? new URLSearchParams(person.image.split("?")[1] ?? "").get("u") : null;
+  const sources = [person.image, direct].filter((x): x is string => Boolean(x));
+  const [attempt, setAttempt] = useState(0);
+  const src = sources[attempt];
   const initials = person.en
     .replace(/^((Prof|Dr)\.\s*|Sheikh\s+)+/i, "")
     .split(/\s+/)
@@ -185,12 +189,21 @@ export function PersonAvatar({ person, size = "md" }: { person: PersonName; size
     .join("")
     .slice(0, 2)
     .toUpperCase();
-  const dim = size === "sm" ? "size-8 text-[10px]" : "size-11 text-xs";
+  const dim = size === "sm" ? "size-9 text-[10px]" : "size-12 text-xs";
   return (
-    <span className={cn("relative grid shrink-0 place-items-center overflow-hidden rounded-full bg-primary-soft font-semibold text-primary ring-1 ring-border", dim)} aria-hidden>
-      {person.image && !failed ? (
-        // eslint-disable-next-line @next/next/no-img-element -- tiny same-origin proxied photo; next/image adds nothing here
-        <img src={person.image} alt="" loading="lazy" decoding="async" className="size-full object-cover object-top" onError={() => setFailed(true)} />
+    <span className={cn("relative grid shrink-0 place-items-center overflow-hidden rounded-full bg-primary-soft font-semibold text-primary ring-2 ring-primary/25", dim)} aria-hidden>
+      {src ? (
+        // eslint-disable-next-line @next/next/no-img-element -- tiny photo; next/image adds nothing here
+        <img
+          key={src}
+          src={src}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          referrerPolicy="no-referrer"
+          className="size-full object-cover object-top"
+          onError={() => setAttempt((a) => a + 1)}
+        />
       ) : (
         initials
       )}
