@@ -29,7 +29,7 @@ export function Countdown({ ms }: { ms: number }) {
   const { formatNumber } = useI18n();
   const { h, m, s } = splitDuration(ms);
   return (
-    <span className="font-display tabular-nums tracking-tight" dir="ltr" aria-hidden>
+    <span className="font-sans font-semibold tabular-nums tracking-tight [font-feature-settings:'tnum','lnum']" dir="ltr" aria-hidden>
       {pad2(h, formatNumber)}:{pad2(m, formatNumber)}:{pad2(s, formatNumber)}
     </span>
   );
