@@ -13,6 +13,7 @@ import { NextPrayerCard, NextPrayerStaffCard, PrayerSchedule } from "@/component
 import { ContinueReadingCard } from "@/components/quran/quran-home";
 import { HotelHomeCard } from "@/components/places/hotel-home-card";
 import { DualClock } from "@/components/home/dual-clock";
+import { AdhanWindowCard } from "@/components/prayer/adhan-guide";
 import { DuaCard } from "@/components/dua/dua-card";
 import { LOCATIONS } from "@/config/locations";
 import { DUAS } from "@/data/dua/duas";
@@ -109,6 +110,7 @@ export function HomeDashboard() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] lg:items-start">
         <div className="space-y-4">
+          <AdhanWindowCard data={data} />
           <NextPrayerCard data={data} stripClassName="lg:hidden" />
           <DualClock />
           <NextPrayerStaffCard data={data} />

@@ -4,6 +4,8 @@ import { useI18n } from "@/components/providers/i18n-provider";
 import { usePrefs } from "@/components/providers/preferences-provider";
 import { SectionHeader } from "@/components/ui/card";
 import { usePrayerData } from "@/hooks/use-prayer";
+import { AdhanGuide, AdhanWindowCard } from "./adhan-guide";
+import { Card } from "@/components/ui/card";
 import { DatesCard, NextPrayerCard, PrayerNotices, PrayerSchedule, StaffSchedule, UpcomingStaff } from "./prayer-widgets";
 
 export function PrayerDashboard() {
@@ -12,6 +14,7 @@ export function PrayerDashboard() {
   const data = usePrayerData(location);
   return (
     <div className="space-y-6">
+      <AdhanWindowCard data={data} />
       <NextPrayerCard data={data} strip={false} />
       <DatesCard data={data} />
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 [&>*]:min-w-0">
@@ -28,6 +31,13 @@ export function PrayerDashboard() {
           <UpcomingStaff data={data} />
         </div>
       </div>
+      <section id="adhan">
+        <SectionHeader title={t("adhan.sectionTitle")} />
+        <p className="-mt-1 mb-3 text-sm text-muted-foreground">{t("adhan.sectionHint")}</p>
+        <Card className="p-4">
+          <AdhanGuide prayer={null} />
+        </Card>
+      </section>
     </div>
   );
 }

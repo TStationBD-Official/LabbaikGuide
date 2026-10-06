@@ -655,5 +655,31 @@
     "promptDismiss": "Not needed",
     "placeholder": "— Choose a country —",
     "notSet": "No country chosen yet."
+  },
+  "adhan": {
+    "titleBefore": "{prayer} adhan is coming",
+    "titleDuring": "{prayer} adhan",
+    "inTime": "in {time}",
+    "now": "Now",
+    "tabAnswer": "Answer the adhan",
+    "tabDua": "Dua after adhan",
+    "answerHint": "Repeat what the muezzin says. Only at “Ḥayya ʿalaṣ-ṣalāh” and “Ḥayya ʿalal-falāḥ” say “Lā ḥawla wa lā quwwata illā billāh”.",
+    "muezzin": "Muezzin",
+    "you": "You say",
+    "same": "Repeat the same",
+    "next": "Next line",
+    "prev": "Previous",
+    "restart": "Restart",
+    "times": "×{n}",
+    "fajrOnly": "Fajr only",
+    "doneAnswer": "Adhan finished — now send salawat and make the dua",
+    "goDua": "Go to dua",
+    "betweenNote": "Dua between the adhan and iqamah is not rejected — make dua for yourself now.",
+    "betweenRef": "Sunan Abi Dawud 521",
+    "dismiss": "Close",
+    "source": "Source: {ref}",
+    "sectionTitle": "Answering the adhan & dua",
+    "sectionHint": "This also appears on Home from 5 minutes before each adhan until 10 minutes after.",
+    "answerRef": "Sahih al-Bukhari 611 · Sahih Muslim 383, 385"
   }
 }
