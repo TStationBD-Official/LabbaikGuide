@@ -14,10 +14,10 @@ export function AnimatedNumber({ value, className }: { value: number; className?
       <AnimatePresence mode="popLayout" initial={false}>
         <motion.span
           key={text}
-          initial={reduce ? false : { y: "60%", opacity: 0, filter: "blur(2px)" }}
-          animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
-          exit={reduce ? undefined : { y: "-60%", opacity: 0 }}
-          transition={{ duration: 0.18, ease: "easeOut" }}
+          initial={reduce ? false : { y: "55%", opacity: 0, scale: 1.12, filter: "blur(2px)" }}
+          animate={{ y: 0, opacity: 1, scale: 1, filter: "blur(0px)" }}
+          exit={reduce ? undefined : { y: "-55%", opacity: 0, scale: 0.9 }}
+          transition={{ y: { duration: 0.2, ease: "easeOut" }, opacity: { duration: 0.18 }, scale: { type: "spring", stiffness: 420, damping: 16 }, filter: { duration: 0.18 } }}
         >
           {text}
         </motion.span>

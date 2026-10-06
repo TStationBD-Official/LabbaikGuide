@@ -1,13 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { ChevronRight, Plus, RotateCcw, Undo2 } from "lucide-react";
 import { useI18n } from "@/components/providers/i18n-provider";
 import { Button } from "@/components/ui/button";
 import { CircularProgress } from "@/components/ui/progress";
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import { Toggle } from "@/components/ui/toggle";
+import { TapCircle } from "./tap-circle";
 import { useToast } from "@/components/ui/toast";
 import { lt, type Zikr } from "@/types/content";
 import { useZikrStore } from "@/stores/zikr-store";
@@ -23,12 +24,10 @@ const TAP_PULSE = 25;
 const DONE_PATTERN = [300, 120, 300];
 const ALL_DONE_PATTERN = [400, 150, 400, 150, 700];
 
-type Ripple = { id: number; x: number; y: number };
 
 export function ZikrCounter({ zikr, next }: { zikr: Zikr; next: Zikr | null }) {
   const { t, contentLocale, formatNumber } = useI18n();
   const toast = useToast();
-  const reduce = useReducedMotion();
   const count = useZikrStore((s) => s.counts[zikr.id] ?? 0);
   const target = useZikrStore((s) => s.targets[zikr.id] ?? zikr.target);
   const increment = useZikrStore((s) => s.increment);
@@ -48,13 +47,13 @@ export function ZikrCounter({ zikr, next }: { zikr: Zikr; next: Zikr | null }) {
     setAdvancing(false);
   }, []);
   const lastTap = useRef(0);
-  const [ripples, setRipples] = useState<Ripple[]>([]);
   const [pulse, setPulse] = useState(0);
+  const [burst, setBurst] = useState(0);
   const reached = count >= target;
   const reachedRef = useRef(reached);
 
   const tap = useCallback(
-    (x?: number, y?: number) => {
+    () => {
       const now = performance.now();
       if (advanceTimer.current) return; // moving on to the next zikr — don't count into a finished one
       if (now - lastTap.current < TAP_GUARD_MS) return;
@@ -62,19 +61,15 @@ export function ZikrCounter({ zikr, next }: { zikr: Zikr; next: Zikr | null }) {
       increment(zikr.id);
       setPulse((p) => p + 1);
       buzz(TAP_PULSE);
-      if (!reduce && x !== undefined && y !== undefined) {
-        const id = now;
-        setRipples((r) => [...r.slice(-4), { id, x, y }]);
-        setTimeout(() => setRipples((r) => r.filter((p) => p.id !== id)), 650);
-      }
     },
-    [increment, zikr.id, reduce, buzz],
+    [increment, zikr.id, buzz],
   );
 
   // Exactly once when the target is first reached: strong vibration, then move on to the next unfinished zikr.
   useEffect(() => {
     if (reached && !reachedRef.current) {
       const nx = next;
+      queueMicrotask(() => setBurst((b) => b + 1));
       if (autoAdvance && nx) {
         buzz(DONE_PATTERN);
         queueMicrotask(() => setAdvancing(true));
@@ -130,62 +125,31 @@ export function ZikrCounter({ zikr, next }: { zikr: Zikr; next: Zikr | null }) {
         <p dir="auto" className="mt-0.5 max-w-md text-center text-sm text-foreground/80">“{lt(zikr.meaning, contentLocale)}”</p>
       ) : null}
 
-      <button
-        type="button"
-        aria-label={`${t("zikr.increment")} — ${t("zikr.progress", { count, target })}`}
-        onPointerDown={(e) => {
-          if (e.button !== 0) return;
-          const rect = e.currentTarget.getBoundingClientRect();
-          tap(e.clientX - rect.left, e.clientY - rect.top);
-        }}
-        onClick={(e) => {
-          // Assistive tech activates with a synthetic click (detail === 0) and no pointer event.
-          if (e.detail === 0) tap();
-        }}
-        onKeyDown={(e) => {
-          if (e.key === " " || e.key === "Enter") {
-            e.preventDefault();
-            if (!e.repeat) tap();
-          }
-        }}
-        className="relative mt-6 touch-manipulation select-none overflow-hidden rounded-full outline-offset-4"
-        style={{ WebkitTouchCallout: "none" }}
+      <TapCircle
+        className="mt-6"
+        label={`${t("zikr.increment")} — ${t("zikr.progress", { count, target })}`}
+        onTap={() => tap()}
+        pulse={pulse}
+        burst={burst}
       >
-        <motion.div
-          key={pulse}
-          initial={reduce || pulse === 0 ? false : { scale: 0.965 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring", stiffness: 500, damping: 22 }}
-        >
-          <CircularProgress value={Math.min(count, target)} max={target} size={272} stroke={12} className="mx-auto">
-            <AnimatedNumber value={count} className="text-6xl font-bold text-foreground sm:text-7xl" />
-            <span className="mt-1 text-base text-muted-foreground">/ {formatNumber(target)}</span>
-            <AnimatePresence>
-              {reached ? (
-                <motion.span
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  className="mt-2 rounded-full bg-gold-soft px-3 py-1 text-xs font-medium text-gold"
-                >
-                  ✦ {advancing && next ? t("zikr.nextUp", { name: lt(next.name, contentLocale) }) : t("zikr.completed")}
-                </motion.span>
-              ) : null}
-            </AnimatePresence>
-          </CircularProgress>
-        </motion.div>
-        {ripples.map((r) => (
-          <motion.span
-            key={r.id}
-            aria-hidden
-            className="pointer-events-none absolute size-24 rounded-full border-2 border-gold/60"
-            style={{ left: r.x - 48, top: r.y - 48 }}
-            initial={{ scale: 0.2, opacity: 0.8 }}
-            animate={{ scale: 2.4, opacity: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-          />
-        ))}
-      </button>
+        <CircularProgress value={Math.min(count, target)} max={target} size={272} stroke={12} className="mx-auto">
+          <AnimatedNumber value={count} className="text-6xl font-bold text-foreground sm:text-7xl" />
+          <span className="mt-1 text-base text-muted-foreground">/ {formatNumber(target)}</span>
+          <AnimatePresence>
+            {reached ? (
+              <motion.span
+                initial={{ opacity: 0, y: 6, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ type: "spring", stiffness: 380, damping: 20 }}
+                className="mt-2 rounded-full bg-gold-soft px-3 py-1 text-xs font-medium text-gold"
+              >
+                ✦ {advancing && next ? t("zikr.nextUp", { name: lt(next.name, contentLocale) }) : t("zikr.completed")}
+              </motion.span>
+            ) : null}
+          </AnimatePresence>
+        </CircularProgress>
+      </TapCircle>
       {advancing ? (
         <div className="mt-3 w-full max-w-sm" aria-live="polite">
           <div className="h-1.5 overflow-hidden rounded-full bg-muted">

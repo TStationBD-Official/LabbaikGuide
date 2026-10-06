@@ -48,6 +48,7 @@ import { useNotificationStore } from "@/stores/notification-store";
 import { progressKey, usePlanStore, type PlanTrigger, type SalahName, type ZikrPlan } from "@/stores/zikr-plan-store";
 import { useZikrStore } from "@/stores/zikr-store";
 import { lt, type Zikr } from "@/types/content";
+import { TapCircle } from "./tap-circle";
 
 const SALAH_ICON: Record<SalahName, typeof Sun> = { fajr: Sunrise, dhuhr: Sun, asr: Sun, maghrib: Sunset, isha: Moon };
 const TAP_GUARD_MS = 90;
@@ -298,6 +299,7 @@ function PlanRunner({ plan, onClose, onEdit }: { plan: ZikrPlan; onClose: () => 
   const pauseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastTap = useRef(0);
   const [pulse, setPulse] = useState(0);
+  const [burst, setBurst] = useState(0);
 
   const buzz = useCallback((p: number | number[]) => (haptics ? vibrate(p) : null), [haptics]);
   useEffect(() => () => {
@@ -322,6 +324,7 @@ function PlanRunner({ plan, onClose, onEdit }: { plan: ZikrPlan; onClose: () => 
     if (r === "counted") buzz(TAP_PULSE);
     else if (r === "step-done") {
       buzz(STEP_DONE);
+      setBurst((b) => b + 1);
       setPausing(true);
       pauseTimer.current = setTimeout(() => {
         pauseTimer.current = null;
@@ -330,6 +333,7 @@ function PlanRunner({ plan, onClose, onEdit }: { plan: ZikrPlan; onClose: () => 
       }, STEP_PAUSE_MS);
     } else if (r === "plan-done") {
       buzz(PLAN_DONE);
+      setBurst((b) => b + 1);
       toast(t("zikrPlan.planDoneToast", { name }));
     }
   };
@@ -432,30 +436,24 @@ function PlanRunner({ plan, onClose, onEdit }: { plan: ZikrPlan; onClose: () => 
             </motion.div>
           </AnimatePresence>
 
-          <button
-            type="button"
-            aria-label={`${lt(z.name, contentLocale)} — ${pr.count}/${item.count}`}
-            onPointerDown={(e) => {
-              if (e.button === 0) onTap();
-            }}
-            onClick={(e) => {
-              if (e.detail === 0) onTap();
-            }}
-            className="relative mt-5 touch-manipulation select-none rounded-full outline-offset-4"
-            style={{ WebkitTouchCallout: "none" }}
-          >
-            <motion.div key={pulse} initial={reduce || pulse === 0 ? false : { scale: 0.965 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 500, damping: 22 }}>
-              <CircularProgress value={Math.min(pr.count, item.count)} max={item.count} size={232} stroke={11} className="mx-auto">
-                <AnimatedNumber value={pr.count} className="text-6xl font-bold text-foreground" />
-                <span className="mt-1 text-base text-muted-foreground">/ {formatNumber(item.count)}</span>
+          <TapCircle className="mt-5" label={`${lt(z.name, contentLocale)} — ${pr.count}/${item.count}`} onTap={onTap} pulse={pulse} burst={burst}>
+            <CircularProgress value={Math.min(pr.count, item.count)} max={item.count} size={232} stroke={11} className="mx-auto">
+              <AnimatedNumber value={pr.count} className="text-6xl font-bold text-foreground" />
+              <span className="mt-1 text-base text-muted-foreground">/ {formatNumber(item.count)}</span>
+              <AnimatePresence>
                 {pausing && nextZ ? (
-                  <span className="mt-2 max-w-[11rem] truncate rounded-full bg-gold-soft px-3 py-1 text-xs font-medium text-gold">
+                  <motion.span
+                    initial={{ opacity: 0, y: 6, scale: 0.9 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="mt-2 max-w-[11rem] truncate rounded-full bg-gold-soft px-3 py-1 text-xs font-medium text-gold"
+                  >
                     {t("zikrPlan.next", { name: lt(nextZ.name, contentLocale) })}
-                  </span>
+                  </motion.span>
                 ) : null}
-              </CircularProgress>
-            </motion.div>
-          </button>
+              </AnimatePresence>
+            </CircularProgress>
+          </TapCircle>
           <p className="mt-3 text-center text-xs text-muted-foreground">{t("zikrPlan.tapHint")}</p>
 
           <div className="mt-4 grid w-full max-w-sm grid-cols-3 gap-2">
