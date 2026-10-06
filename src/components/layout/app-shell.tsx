@@ -13,6 +13,7 @@ import { Logo } from "./logo";
 import { AccentSelector, LanguageSelector, LocationSwitcher } from "./selectors";
 import { InstallPrompt } from "./install-prompt";
 import { Notifier } from "./notifier";
+import { ThemeColorSync } from "./theme-color-sync";
 
 function isActive(item: NavItem, path: string) {
   return item.match ? item.match(path) : path === item.href;
@@ -205,6 +206,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <MoreSheet open={moreOpen} onClose={() => setMoreOpen(false)} path={path} />
       <InstallPrompt />
       <Notifier />
+      <ThemeColorSync />
     </>
   );
 }
