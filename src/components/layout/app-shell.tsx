@@ -54,9 +54,12 @@ function Sidebar({ path }: { path: string }) {
   return (
     <aside className="sticky top-0 hidden h-dvh w-72 shrink-0 flex-col border-e border-border/70 bg-card/40 px-4 py-5 backdrop-blur lg:flex">
       <Logo />
-      <div className="mt-5">
-        <LocationSwitcher size="sm" />
-      </div>
+      {/* Makkah/Madinah switch only on Home (Settings has its own). */}
+      {path === "/" ? (
+        <div className="mt-5">
+          <LocationSwitcher size="sm" />
+        </div>
+      ) : null}
       <nav aria-label={t("nav.mainNav")} className="mt-5 flex flex-1 flex-col gap-1 overflow-y-auto">
         {[...PRIMARY_NAV, ...SECONDARY_NAV].map((item) => (
           <SidebarLink key={item.href} item={item} path={path} />
@@ -74,7 +77,7 @@ function Sidebar({ path }: { path: string }) {
   );
 }
 
-function MobileHeader() {
+function MobileHeader({ path }: { path: string }) {
   const { t } = useI18n();
   return (
     <header className="glass sticky top-0 z-40 border-b border-border/60 px-4 pb-2.5 pt-[max(0.6rem,env(safe-area-inset-top))] lg:hidden">
@@ -88,9 +91,12 @@ function MobileHeader() {
           <Search className="size-5" aria-hidden />
         </Link>
       </div>
-      <div className="mt-2.5">
-        <LocationSwitcher size="sm" />
-      </div>
+      {/* Makkah/Madinah switch only on Home (Settings has its own). */}
+      {path === "/" ? (
+        <div className="mt-2.5">
+          <LocationSwitcher size="sm" />
+        </div>
+      ) : null}
     </header>
   );
 }
@@ -189,7 +195,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="flex min-h-dvh">
         <Sidebar path={path} />
         <div className="flex min-w-0 flex-1 flex-col">
-          <MobileHeader />
+          <MobileHeader path={path} />
           <main id="main" tabIndex={-1} className="mx-auto w-full max-w-5xl flex-1 px-4 pb-28 pt-5 outline-none sm:px-6 lg:px-10 lg:pb-12 lg:pt-8">
             {children}
           </main>
