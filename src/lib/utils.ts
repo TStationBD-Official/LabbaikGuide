@@ -66,10 +66,20 @@ export async function shareOrCopy(data: {
   return (await copyText(body)) ? "copied" : "failed";
 }
 
-export function vibrate(pattern: number | number[]) {
+export type VibrateResult = "ok" | "unsupported" | "blocked";
+
+/**
+ * Vibration API wrapper. Not available on iPhone/iPad (any browser) or recent
+ * Firefox; Chrome only allows it after the user has touched the page, and the
+ * phone's own vibration/haptics, silent and battery-saver settings still apply.
+ */
+export function vibrate(pattern: number | number[]): VibrateResult {
   try {
-    if (typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate(pattern);
+    if (typeof navigator === "undefined" || typeof navigator.vibrate !== "function") return "unsupported";
+    return navigator.vibrate(pattern) ? "ok" : "blocked";
   } catch {
-    /* unsupported — ignore */
+    return "unsupported";
   }
 }
+
+export const canVibrate = () => typeof navigator !== "undefined" && typeof navigator.vibrate === "function";

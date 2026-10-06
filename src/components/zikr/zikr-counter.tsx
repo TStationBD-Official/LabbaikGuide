@@ -11,15 +11,17 @@ import { Toggle } from "@/components/ui/toggle";
 import { useToast } from "@/components/ui/toast";
 import { lt, type Zikr } from "@/types/content";
 import { useZikrStore } from "@/stores/zikr-store";
-import { vibrate } from "@/lib/utils";
+import { canVibrate, cn, vibrate, type VibrateResult } from "@/lib/utils";
 
 /** Taps closer together than this are treated as one (prevents double counting). */
 const TAP_GUARD_MS = 90;
 /** Pause on a completed zikr before moving on (taps are ignored meanwhile, so none spill over). */
 const ADVANCE_DELAY_MS = 1400;
-/** Distinct "done" buzz: long–short–long. */
-const DONE_PATTERN = [180, 80, 180];
-const ALL_DONE_PATTERN = [200, 90, 200, 90, 400];
+/** Per-tap tick: long enough that budget phone motors actually move (very short pulses are often ignored). */
+const TAP_PULSE = 25;
+/** Distinct, strong "done" buzz: long–pause–long. */
+const DONE_PATTERN = [300, 120, 300];
+const ALL_DONE_PATTERN = [400, 150, 400, 150, 700];
 
 type Ripple = { id: number; x: number; y: number };
 
@@ -35,6 +37,10 @@ export function ZikrCounter({ zikr, next }: { zikr: Zikr; next: Zikr | null }) {
   const setActive = useZikrStore((s) => s.setActive);
   const autoAdvance = useZikrStore((s) => s.autoAdvance);
   const setAutoAdvance = useZikrStore((s) => s.setAutoAdvance);
+  const haptics = useZikrStore((s) => s.haptics);
+  const setHaptics = useZikrStore((s) => s.setHaptics);
+  const [vibeTest, setVibeTest] = useState<VibrateResult | null>(null);
+  const buzz = useCallback((p: number | number[]) => (haptics ? vibrate(p) : null), [haptics]);
   const [advancing, setAdvancing] = useState(false);
   const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cancelAdvance = useCallback(() => {
@@ -56,14 +62,14 @@ export function ZikrCounter({ zikr, next }: { zikr: Zikr; next: Zikr | null }) {
       lastTap.current = now;
       increment(zikr.id);
       setPulse((p) => p + 1);
-      vibrate(8);
+      buzz(TAP_PULSE);
       if (!reduce && x !== undefined && y !== undefined) {
         const id = now;
         setRipples((r) => [...r.slice(-4), { id, x, y }]);
         setTimeout(() => setRipples((r) => r.filter((p) => p.id !== id)), 650);
       }
     },
-    [increment, zikr.id, reduce],
+    [increment, zikr.id, reduce, buzz],
   );
 
   // Exactly once when the target is first reached: strong vibration, then move on to the next unfinished zikr.
@@ -71,19 +77,19 @@ export function ZikrCounter({ zikr, next }: { zikr: Zikr; next: Zikr | null }) {
     if (reached && !reachedRef.current) {
       const nx = next;
       if (autoAdvance && nx) {
-        vibrate(DONE_PATTERN);
+        buzz(DONE_PATTERN);
         queueMicrotask(() => setAdvancing(true));
         advanceTimer.current = setTimeout(() => {
           advanceTimer.current = null;
           setActive(nx.id);
         }, ADVANCE_DELAY_MS);
       } else {
-        vibrate(nx ? DONE_PATTERN : ALL_DONE_PATTERN);
+        buzz(nx ? DONE_PATTERN : ALL_DONE_PATTERN);
         toast(nx ? t("zikr.completed") : t("zikr.allDone"));
       }
     }
     reachedRef.current = reached;
-  }, [reached, toast, t, autoAdvance, setActive, contentLocale, next]);
+  }, [reached, toast, t, autoAdvance, setActive, contentLocale, next, buzz]);
 
   useEffect(() => () => {
     if (advanceTimer.current) clearTimeout(advanceTimer.current);
@@ -239,6 +245,24 @@ export function ZikrCounter({ zikr, next }: { zikr: Zikr; next: Zikr | null }) {
 
       <div className="mt-5 w-full max-w-sm border-t border-border/70 pt-3">
         <Toggle compact checked={autoAdvance} onChange={setAutoAdvance} label={t("zikr.autoAdvance")} description={t("zikr.autoAdvanceHint")} />
+        <Toggle compact checked={haptics} onChange={setHaptics} label={t("zikr.haptics")} />
+        <div className="flex flex-wrap items-center gap-2 py-1">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              // Called directly from the tap, so the browser treats it as user-initiated.
+              setVibeTest(vibrate([300, 120, 300]));
+            }}
+          >
+            {t("zikr.testVibration")}
+          </Button>
+        </div>
+        {vibeTest || !canVibrate() ? (
+          <p className={cn("text-xs", vibeTest === "ok" ? "text-muted-foreground" : "text-warning")} aria-live="polite">
+            {vibeTest === "ok" ? t("zikr.vibeOk") : vibeTest === "blocked" ? t("zikr.vibeBlocked") : t("zikr.vibeUnsupported")}
+          </p>
+        ) : null}
         {autoAdvance && next ? (
           <button
             type="button"

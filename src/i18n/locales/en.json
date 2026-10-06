@@ -231,7 +231,12 @@
     "stayHere": "Stay here",
     "autoAdvance": "Move to the next zikr when done",
     "autoAdvanceHint": "When a target is reached the phone vibrates and the next unfinished zikr starts.",
-    "allDone": "All zikr completed — Alhamdulillah"
+    "allDone": "All zikr completed — Alhamdulillah",
+    "haptics": "Vibration",
+    "testVibration": "Test vibration",
+    "vibeOk": "Didn't feel it? Turn on vibration/haptics in your phone's Settings → Sound & vibration, and switch off silent mode, Do Not Disturb and battery saver, then try again.",
+    "vibeBlocked": "The browser blocked vibration. Tap the page once and try again, or open the app in Chrome.",
+    "vibeUnsupported": "This browser doesn't let websites vibrate the phone (it's disabled on iPhone and in Firefox). On Android, open the app in Chrome. Counting and moving to the next zikr still work."
   },
   "tawaf": {
     "title": "Tawaf Counter",

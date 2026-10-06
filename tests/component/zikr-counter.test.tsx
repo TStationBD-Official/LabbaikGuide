@@ -26,7 +26,7 @@ let clock = 1000;
 
 describe("<ZikrCounter>", () => {
   beforeEach(() => {
-    useZikrStore.setState({ counts: {}, history: {}, undo: [], autoAdvance: true, activeId: DEFAULT_ZIKR[0].id });
+    useZikrStore.setState({ counts: {}, history: {}, undo: [], autoAdvance: true, haptics: true, activeId: DEFAULT_ZIKR[0].id });
     clock = 1000;
     // Control the double-tap guard deterministically.
     performance.now = () => clock;
@@ -70,7 +70,7 @@ describe("<ZikrCounter>", () => {
     const tap = screen.getByRole("button", { name: /Count one —/ });
     act(() => void fireEvent.pointerDown(tap, { button: 0 }));
     expect(count()).toBe(33);
-    expect(vib).toHaveBeenLastCalledWith([180, 80, 180]);
+    expect(vib).toHaveBeenLastCalledWith([300, 120, 300]);
     clock += 300;
     act(() => void fireEvent.pointerDown(tap, { button: 0 })); // during the hand-over: ignored
     expect(count()).toBe(33);

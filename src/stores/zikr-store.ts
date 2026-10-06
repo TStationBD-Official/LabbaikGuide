@@ -30,6 +30,9 @@ type ZikrState = {
   /** When a target is reached, vibrate and move on to the next unfinished zikr. */
   autoAdvance: boolean;
   setAutoAdvance: (v: boolean) => void;
+  /** Vibrate on taps and on reaching the target. */
+  haptics: boolean;
+  setHaptics: (v: boolean) => void;
   setActive: (id: string) => void;
   increment: (id: string) => void;
   reset: (id: string) => void;
@@ -63,6 +66,8 @@ export const useZikrStore = create<ZikrState>()(
       history: {},
       autoAdvance: true,
       setAutoAdvance: (v) => set({ autoAdvance: v }),
+      haptics: true,
+      setHaptics: (v) => set({ haptics: v }),
       undo: [],
       setActive: (activeId) => set({ activeId }),
       increment: (id) =>
@@ -125,6 +130,7 @@ export const useZikrStore = create<ZikrState>()(
         order: s.order,
         history: s.history,
         autoAdvance: s.autoAdvance,
+        haptics: s.haptics,
       }),
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<ZikrState>;
