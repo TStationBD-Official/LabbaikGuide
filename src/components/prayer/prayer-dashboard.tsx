@@ -4,7 +4,7 @@ import { useI18n } from "@/components/providers/i18n-provider";
 import { usePrefs } from "@/components/providers/preferences-provider";
 import { SectionHeader } from "@/components/ui/card";
 import { usePrayerData } from "@/hooks/use-prayer";
-import { DatesCard, NextPrayerCard, PrayerNotices, PrayerSchedule, StaffSchedule } from "./prayer-widgets";
+import { DatesCard, NextPrayerCard, PrayerNotices, PrayerSchedule, StaffSchedule, UpcomingStaff } from "./prayer-widgets";
 
 export function PrayerDashboard() {
   const { t } = useI18n();
@@ -25,6 +25,7 @@ export function PrayerDashboard() {
         <div className="space-y-6">
           <StaffSchedule data={data} kind="imam" />
           <StaffSchedule data={data} kind="muezzin" />
+          <UpcomingStaff data={data} />
         </div>
       </div>
     </div>

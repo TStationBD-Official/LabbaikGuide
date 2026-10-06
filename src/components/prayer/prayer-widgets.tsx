@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "motion/react";
-import { Clock3, MapPin, Moon, Sunrise, User, Mic } from "lucide-react";
+import { useState } from "react";
+import { CalendarDays, Clock3, MapPin, Moon, Sunrise, User, Mic } from "lucide-react";
 import { useI18n } from "@/components/providers/i18n-provider";
 import { usePrefs } from "@/components/providers/preferences-provider";
 import { Badge, Card, GlassCard, SectionHeader } from "@/components/ui/card";
@@ -173,12 +174,41 @@ export function DatesCard({ data }: { data: Data }) {
   );
 }
 
+/** Round photo from the schedule source (same-origin proxy), falling back to initials. */
+export function PersonAvatar({ person, size = "md" }: { person: PersonName; size?: "sm" | "md" }) {
+  const [failed, setFailed] = useState(false);
+  const initials = person.en
+    .replace(/^(Prof\.|Dr\.|Sheikh)\s+/gi, "")
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+  const dim = size === "sm" ? "size-8 text-[10px]" : "size-11 text-xs";
+  return (
+    <span className={cn("relative grid shrink-0 place-items-center overflow-hidden rounded-full bg-primary-soft font-semibold text-primary ring-1 ring-border", dim)} aria-hidden>
+      {person.image && !failed ? (
+        // eslint-disable-next-line @next/next/no-img-element -- tiny same-origin proxied photo; next/image adds nothing here
+        <img src={person.image} alt="" loading="lazy" decoding="async" className="size-full object-cover object-top" onError={() => setFailed(true)} />
+      ) : (
+        initials
+      )}
+    </span>
+  );
+}
+
+function useDisplayName() {
+  const { locale } = useI18n();
+  // Names are shown exactly as the source publishes them: Arabic for Arabic/Urdu UIs, English otherwise.
+  return (n: PersonName) => (locale === "ar" || locale === "ur" ? n.ar : n.en);
+}
+
 /** Imam & Muezzin. Shows only sourced, validated names for today; otherwise an explicit "unavailable" notice. */
 export function StaffSchedule({ data, kind }: { data: Data; kind: "imam" | "muezzin" }) {
-  const { t, intlLocale, locale } = useI18n();
+  const { t, intlLocale } = useI18n();
+  const display = useDisplayName();
   const { schedule, days, staleSchedule } = data;
-  // Names are shown exactly as the source publishes them: Arabic for Arabic/Urdu UIs, English otherwise.
-  const display = (n: PersonName | null) => (n ? (locale === "ar" || locale === "ur" ? n.ar : n.en) : null);
   const title = kind === "imam" ? t("prayer.imamTitle") : t("prayer.muezzinTitle");
   const unavailableMsg = kind === "imam" ? t("prayer.imamUnavailable") : t("prayer.muezzinUnavailable");
   const Icon = kind === "imam" ? User : Mic;
@@ -195,32 +225,41 @@ export function StaffSchedule({ data, kind }: { data: Data; kind: "imam" | "muez
   } else {
     const s = schedule.data;
     const rows = days.today.prayers.filter((p) => SALAH.includes(p.name));
-    const anyName = rows.some((p) => (kind === "imam" ? p.imam : p.muezzin));
-    body = anyName ? (
-      <>
-        <ul className="divide-y divide-border/70">
-          {rows.map((p) => {
-            const name = display(kind === "imam" ? p.imam : p.muezzin);
-            return (
-              <li key={p.name} className="flex min-h-12 items-center justify-between gap-3 py-2">
-                <span className="text-sm text-muted-foreground">{t(prayerLabelKey(p.name, days.today.isFriday))}</span>
-                <span dir="auto" className={cn("text-end text-sm font-medium", !name && "text-muted-foreground")}>
-                  {name ?? t("prayer.notAvailable")}
-                </span>
-              </li>
-            );
-          })}
-        </ul>
-        <div className="mt-3 space-y-1 text-xs text-muted-foreground">
-          {s.source ? <p>{t("prayer.officialSource", { name: s.source.name })}</p> : null}
-          {s.source?.scheduleDate ? <p>{t("prayer.scheduleDate", { date: s.source.scheduleDate })}</p> : null}
-          <p>{t("common.updated", { time: formatTime(new Date(s.fetchedAt), intlLocale, undefined) })}</p>
-          {staleSchedule ? <p className="font-medium text-warning">{t("common.stale")}</p> : null}
-        </div>
-      </>
-    ) : (
-      <UnavailableNotice message={unavailableMsg} />
-    );
+    const missing = rows.filter((p) => !(kind === "imam" ? p.imam : p.muezzin)).length;
+    body =
+      missing < rows.length ? (
+        <>
+          <ul className="divide-y divide-border/70">
+            {rows.map((p) => {
+              const person = kind === "imam" ? p.imam : p.muezzin;
+              return (
+                <li key={p.name} className="flex min-h-14 items-center justify-between gap-3 py-2">
+                  <span className="text-sm text-muted-foreground">{t(prayerLabelKey(p.name, days.today.isFriday))}</span>
+                  {person ? (
+                    <span className="flex min-w-0 items-center gap-2.5">
+                      <span dir="auto" className="text-end text-sm font-medium">
+                        {display(person)}
+                      </span>
+                      <PersonAvatar person={person} />
+                    </span>
+                  ) : (
+                    <span className="text-end text-xs text-muted-foreground">{t("prayer.notPublished")}</span>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+          <div className="mt-3 space-y-1 text-xs text-muted-foreground">
+            {missing ? <p>{t("prayer.partialNote")}</p> : null}
+            {s.source ? <p>{t("prayer.officialSource", { name: s.source.name })}</p> : null}
+            {s.source?.scheduleDate ? <p>{t("prayer.scheduleDate", { date: s.source.scheduleDate })}</p> : null}
+            <p>{t("common.updated", { time: formatTime(new Date(s.fetchedAt), intlLocale, undefined) })}</p>
+            {staleSchedule ? <p className="font-medium text-warning">{t("common.stale")}</p> : null}
+          </div>
+        </>
+      ) : (
+        <UnavailableNotice message={unavailableMsg} />
+      );
   }
 
   return (
@@ -229,6 +268,85 @@ export function StaffSchedule({ data, kind }: { data: Data; kind: "imam" | "muez
       <Card className="p-4">{body}</Card>
     </section>
   );
+}
+
+/** Coming days' Imams & Muezzins — only what the source has already published, never inferred. */
+export function UpcomingStaff({ data }: { data: Data }) {
+  const { t, intlLocale } = useI18n();
+  const display = useDisplayName();
+  const upcoming = data.schedule.data?.upcoming ?? [];
+  const [sel, setSel] = useState(0);
+  if (!upcoming.length) return null;
+  const idx = Math.min(sel, upcoming.length - 1);
+  const day = upcoming[idx];
+  const ymd = (d: string) => {
+    const [y, m, dd] = d.split("-").map(Number);
+    return { y, m, d: dd };
+  };
+  const label = (d: string, short: boolean) =>
+    new Intl.DateTimeFormat(`${intlLocale}-u-ca-gregory`, {
+      timeZone: "UTC",
+      weekday: short ? "short" : "long",
+      day: "numeric",
+      month: short ? "short" : "long",
+    }).format(new Date(Date.UTC(ymd(d).y, ymd(d).m - 1, ymd(d).d, 12)));
+  const isFriday = new Date(Date.UTC(ymd(day.date).y, ymd(day.date).m - 1, ymd(day.date).d, 12)).getUTCDay() === 5;
+  const rows = day.prayers.filter((p) => SALAH.includes(p.name));
+
+  return (
+    <section>
+      <SectionHeader as="h3" title={<span className="flex items-center gap-2"><CalendarDays className="size-4 text-gold" aria-hidden />{t("prayer.upcomingTitle")}</span>} />
+      <Card className="p-4">
+        <div role="tablist" aria-label={t("prayer.upcomingTitle")} className="-mx-1 mb-3 flex gap-2 overflow-x-auto px-1 pb-1">
+          {upcoming.map((d, i) => (
+            <button
+              key={d.date}
+              type="button"
+              role="tab"
+              aria-selected={i === idx}
+              onClick={() => setSel(i)}
+              className={cn(
+                "shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors",
+                i === idx ? "border-primary bg-primary-soft text-primary" : "border-border bg-card hover:bg-muted",
+              )}
+            >
+              {i === 0 && d.date === nextDayKey(data.schedule.data!.date) ? t("prayer.tomorrow") : label(d.date, true)}
+            </button>
+          ))}
+        </div>
+        <p className="mb-2 text-sm font-medium">{label(day.date, false)}</p>
+        <ul role="tabpanel" className="divide-y divide-border/70">
+          {rows.map((p) => (
+            <li key={p.name} className="py-2.5">
+              <p className="mb-1.5 text-sm font-semibold text-primary">{t(prayerLabelKey(p.name, isFriday))}</p>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {(["imam", "muezzin"] as const).map((k) => {
+                  const person = p[k];
+                  return (
+                    <div key={k} className="flex min-w-0 items-center gap-2.5">
+                      {person ? <PersonAvatar person={person} size="sm" /> : <span className="size-8 shrink-0 rounded-full border border-dashed border-border" aria-hidden />}
+                      <div className="min-w-0">
+                        <p className="text-[11px] text-muted-foreground">{k === "imam" ? t("prayer.imamLabel") : t("prayer.muezzinLabel")}</p>
+                        <p dir="auto" className={cn("truncate text-sm", person ? "font-medium" : "text-xs text-muted-foreground")}>
+                          {person ? display(person) : t("prayer.notPublished")}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-3 text-xs text-muted-foreground">{t("prayer.upcomingNote")}</p>
+      </Card>
+    </section>
+  );
+}
+
+function nextDayKey(d: string) {
+  const [y, m, dd] = d.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, dd + 1)).toISOString().slice(0, 10);
 }
 
 /** Calculation-method disclosure + edge-case notes (Friday, Ramadan, clock skew). */

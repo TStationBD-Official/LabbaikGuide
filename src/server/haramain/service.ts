@@ -31,6 +31,7 @@ function unavailable(location: LocationId, date: string): HaramainSchedule {
     location,
     status: "unavailable",
     prayers: [],
+    upcoming: [],
     source: null,
     fetchedAt: now.toISOString(),
     expiresAt: new Date(now.getTime() + 5 * 60_000).toISOString(),
@@ -52,7 +53,7 @@ async function getJson(url: URL, headers: Record<string, string> = {}): Promise<
 }
 
 // ───────────────────────── haramainimams.com adapter ─────────────────────────
-const HiPerson = z.object({ nameEn: NAME, nameAr: NAME }).passthrough();
+const HiPerson = z.object({ nameEn: NAME, nameAr: NAME, image: z.string().max(1000).nullable().optional() }).passthrough();
 const HiEntry = z
   .object({
     date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
@@ -66,35 +67,64 @@ const HiEntry = z
 const HiFeed = z.array(HiEntry).max(500);
 
 const HI_SLUG: Record<LocationId, string> = { makkah: "mecca", madinah: "madinah" };
+const ORDER = ["fajr", "sunrise", "dhuhr", "asr", "maghrib", "isha"] as const;
+/** How many future days of already-published assignments to pass through. */
+const UPCOMING_DAYS = 7;
+
+/** Photos are only accepted from the source's own object storage, and served through our origin. */
+export const PHOTO_HOST = "objectstorage.me-jeddah-1.oraclecloud.com";
+export function isAllowedPhotoUrl(raw: string): boolean {
+  try {
+    const u = new URL(raw);
+    return u.protocol === "https:" && u.hostname === PHOTO_HOST && !u.username && !u.password && !u.port;
+  } catch {
+    return false;
+  }
+}
+const photo = (raw: string | null | undefined) =>
+  raw && isAllowedPhotoUrl(raw) ? `/api/haramain/photo?u=${encodeURIComponent(raw)}` : null;
 const person = (p: z.infer<typeof HiPerson> | null | undefined): PersonName | null =>
-  p ? { en: p.nameEn, ar: p.nameAr } : null;
+  p ? { en: p.nameEn, ar: p.nameAr, image: photo(p.image) } : null;
 
 export function normalizeHaramainImams(raw: unknown, location: LocationId, date: string, baseUrl: string): HaramainSchedule {
   const parsed = HiFeed.safeParse(raw);
   if (!parsed.success) return unavailable(location, date);
 
-  const prayers: HaramainSchedule["prayers"] = [];
-  const seen = new Set<string>();
+  // Group by date; first entry per (date, prayer) wins; drop rows with no names at all.
+  const byDate = new Map<string, Map<string, { imam: PersonName | null; muezzin: PersonName | null }>>();
   for (const e of parsed.data) {
-    if (e.date !== date) continue; // only today's assignments, never another day's
+    if (e.date < date) continue; // past days are never shown
     const name = PRAYER.safeParse(e.prayer);
-    if (!name.success || seen.has(name.data)) continue;
-    seen.add(name.data);
+    if (!name.success) continue;
     const imam = person(e.imam);
     const muezzin = person(e.muezzin);
     if (!imam && !muezzin) continue;
-    // Adhan times stay calculated (Umm al-Qura) in the UI; only staff names come from this feed.
-    prayers.push({ name: name.data, adhan: null, iqamah: null, imam, muezzin });
+    const day = byDate.get(e.date) ?? new Map();
+    if (!day.has(name.data)) day.set(name.data, { imam, muezzin });
+    byDate.set(e.date, day);
   }
-  if (!prayers.length) return unavailable(location, date);
+  const sortDay = (m: Map<string, { imam: PersonName | null; muezzin: PersonName | null }>) =>
+    ORDER.filter((n) => m.has(n)).map((n) => ({ name: n, ...m.get(n)! }));
+
+  const today = byDate.get(date);
+  // Adhan times stay calculated (Umm al-Qura) in the UI; only staff names come from this feed.
+  const prayers = today ? sortDay(today).map((p) => ({ ...p, adhan: null, iqamah: null })) : [];
+  const upcoming = [...byDate.keys()]
+    .filter((d) => d > date)
+    .sort()
+    .slice(0, UPCOMING_DAYS)
+    .map((d) => ({ date: d, prayers: sortDay(byDate.get(d)!) }));
+  if (!prayers.length && !upcoming.length) return unavailable(location, date);
 
   const now = new Date();
   return {
     date,
     timezone: "Asia/Riyadh",
     location,
-    status: "available",
+    // "available" means the source answered for today; future-only data keeps today "unavailable".
+    status: prayers.length ? "available" : "unavailable",
     prayers,
+    upcoming,
     source: { name: "Haramain Schedules (haramainimams.com)", url: baseUrl, scheduleDate: date },
     fetchedAt: now.toISOString(),
     expiresAt: new Date(now.getTime() + SERVER_CONFIG.haramain.revalidateSeconds * 1000).toISOString(),
@@ -150,6 +180,7 @@ const customAdapter: Adapter = async (location, date) => {
       imam: p.imam ?? null,
       muezzin: p.muezzin ?? null,
     })),
+    upcoming: [],
     source: { name: sourceName || url.hostname, url: parsed.data.sourceUrl ?? null, scheduleDate: parsed.data.scheduleDate ?? date },
     fetchedAt: now.toISOString(),
     expiresAt: new Date(now.getTime() + revalidateSeconds * 1000).toISOString(),

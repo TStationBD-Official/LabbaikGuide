@@ -287,7 +287,14 @@
     "fridayNote": "Today is Friday — Jumu'ah replaces Dhuhr.",
     "hijriNote": "Hijri date uses the Umm al-Qura calendar; local moon sighting may differ by a day.",
     "notAvailable": "—",
-    "ledBy": "Imam: {name}"
+    "ledBy": "Imam: {name}",
+    "notPublished": "Not yet published",
+    "partialNote": "The source has published only these for today so far. The rest will appear here automatically once published.",
+    "upcomingTitle": "Upcoming Imams & Muezzins",
+    "upcomingNote": "Only assignments the source has already published are shown; they may change.",
+    "imamLabel": "Imam",
+    "muezzinLabel": "Muezzin",
+    "tomorrow": "Tomorrow"
   },
   "qibla": {
     "title": "Qibla Direction",

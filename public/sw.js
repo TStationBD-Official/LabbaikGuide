@@ -4,6 +4,7 @@
  *  - Static build assets (/_next/static), fonts, icons: cache-first (immutable).
  *  - Quran API (/api/quran/*): stale-while-revalidate (Quran text never changes).
  *  - Live data (/api/haramain, /api/time): network-only — never served stale as "live".
+ *    (Imam/Muezzin photos under /api/haramain/photo are static images: cache-first.)
  *  - Page navigations: network-first → cached copy → /offline.html.
  *
  * Precaching: every app page (and the JS/CSS each page needs) is cached on
@@ -193,6 +194,8 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
+  // Photos are static images: cache-first so they also show offline (they are never "live" data).
+  if (url.pathname === "/api/haramain/photo") return event.respondWith(cacheFirst(req));
   if (url.pathname.startsWith("/api/haramain") || url.pathname.startsWith("/api/time")) return; // network-only
   if (url.pathname.startsWith("/api/quran/")) return event.respondWith(staleWhileRevalidate(req));
   if (
