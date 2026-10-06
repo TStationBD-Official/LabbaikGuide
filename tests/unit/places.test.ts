@@ -8,6 +8,9 @@ import {
   directionsLinks,
   distanceM,
   parseCoordinates,
+  pointAhead,
+  remainingPath,
+  routeProgress,
   tilesForArea,
   tileXY,
   walkingMinutes,
@@ -89,6 +92,34 @@ describe("geo helpers", () => {
     expect(l.google).toContain("destination=21.422487,39.826206");
     expect(l.apple).toContain("dirflg=w");
     expect(l.osm).toContain("openstreetmap.org/directions");
+  });
+});
+
+describe("route progress", () => {
+  // L-shaped route: 200 m east, then 200 m north.
+  const a = { lat: 21.42, lon: 39.82 };
+  const b = destination(a, 90, 200);
+  const c = destination(b, 0, 200);
+  const route: [number, number][] = [[a.lon, a.lat], [b.lon, b.lat], [c.lon, c.lat]];
+
+  it("projects the user onto the route and measures what is left", () => {
+    const me = destination(destination(a, 90, 50), 0, 10); // 50 m along, 10 m off to the north
+    const p = routeProgress(route, me)!;
+    expect(p.segment).toBe(0);
+    expect(p.offRouteM).toBeCloseTo(10, 0);
+    expect(p.remainingM).toBeCloseTo(350, -1);
+  });
+
+  it("aims a point ahead along the route, around corners", () => {
+    const me = destination(a, 90, 190);
+    const p = routeProgress(route, me)!;
+    const ahead = pointAhead(route, p, 30); // 10 m to the corner, then 20 m north
+    expect(distanceM(ahead, destination(b, 0, 20))).toBeLessThan(1.5);
+    expect(remainingPath(route, p)).toHaveLength(3);
+  });
+
+  it("handles degenerate routes", () => {
+    expect(routeProgress([[39.8, 21.4]], a)).toBeNull();
   });
 });
 

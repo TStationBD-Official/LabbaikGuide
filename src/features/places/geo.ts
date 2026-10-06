@@ -155,3 +155,70 @@ export function directionsLinks(to: LatLon, from?: LatLon | null) {
     geo: `geo:${d}?q=${d}`,
   };
 }
+
+// ── Route helpers (walking route along roads) ──────────────────────────────
+
+/** Local planar projection around `origin` (metres); accurate for the few-km scale of a walk. */
+function toXY(origin: LatLon, p: LatLon): [number, number] {
+  const kx = 111_320 * Math.cos(toRad(origin.lat));
+  return [(p.lon - origin.lon) * kx, (p.lat - origin.lat) * 110_574];
+}
+
+export type RouteProgress = {
+  /** Distance from the user to the nearest point on the route (m). */
+  offRouteM: number;
+  /** Remaining distance along the route from the projected point to the end (m). */
+  remainingM: number;
+  /** Index of the segment the user is on. */
+  segment: number;
+  /** Projected position on the route. */
+  snapped: LatLon;
+};
+
+/** Project `p` onto a polyline (`coords` as [lon, lat]) and measure progress. */
+export function routeProgress(coords: [number, number][], p: LatLon): RouteProgress | null {
+  if (coords.length < 2) return null;
+  let best = { d: Infinity, seg: 0, t: 0 };
+  for (let i = 0; i < coords.length - 1; i++) {
+    const a = { lon: coords[i][0], lat: coords[i][1] };
+    const b = { lon: coords[i + 1][0], lat: coords[i + 1][1] };
+    const [ax, ay] = [0, 0];
+    const [bx, by] = toXY(a, b);
+    const [px, py] = toXY(a, p);
+    const len2 = bx * bx + by * by;
+    const t = len2 ? Math.max(0, Math.min(1, ((px - ax) * bx + (py - ay) * by) / len2)) : 0;
+    const d = Math.hypot(px - t * bx, py - t * by);
+    if (d < best.d) best = { d, seg: i, t };
+  }
+  const a = { lon: coords[best.seg][0], lat: coords[best.seg][1] };
+  const b = { lon: coords[best.seg + 1][0], lat: coords[best.seg + 1][1] };
+  const snapped = { lat: a.lat + (b.lat - a.lat) * best.t, lon: a.lon + (b.lon - a.lon) * best.t };
+  let remaining = distanceM(snapped, b);
+  for (let i = best.seg + 1; i < coords.length - 1; i++) {
+    remaining += distanceM({ lon: coords[i][0], lat: coords[i][1] }, { lon: coords[i + 1][0], lat: coords[i + 1][1] });
+  }
+  return { offRouteM: best.d, remainingM: remaining, segment: best.seg, snapped };
+}
+
+/** Point `aheadM` metres further along the route from the user's projected position. */
+export function pointAhead(coords: [number, number][], prog: RouteProgress, aheadM: number): LatLon {
+  let left = aheadM;
+  let from = prog.snapped;
+  for (let i = prog.segment + 1; i < coords.length; i++) {
+    const next = { lon: coords[i][0], lat: coords[i][1] };
+    const d = distanceM(from, next);
+    if (d >= left) {
+      const k = left / d;
+      return { lat: from.lat + (next.lat - from.lat) * k, lon: from.lon + (next.lon - from.lon) * k };
+    }
+    left -= d;
+    from = next;
+  }
+  const last = coords[coords.length - 1];
+  return { lon: last[0], lat: last[1] };
+}
+
+/** The part of the route still ahead of the user (for drawing). */
+export function remainingPath(coords: [number, number][], prog: RouteProgress): [number, number][] {
+  return [[prog.snapped.lon, prog.snapped.lat], ...coords.slice(prog.segment + 1)];
+}

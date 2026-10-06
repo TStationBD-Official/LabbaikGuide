@@ -18,6 +18,13 @@ export const SERVER_CONFIG = {
     timeoutMs: Number(process.env.QURAN_TIMEOUT_MS ?? 10000),
     revalidateSeconds: 60 * 60 * 24,
   },
+  routing: {
+    /** OSRM-compatible base URL serving a foot profile. Default: FOSSGIS public router (fair use ≤1 req/s). */
+    osrmUrl: process.env.ROUTING_OSRM_URL ?? "https://routing.openstreetmap.de/routed-foot",
+    sourceName: process.env.ROUTING_SOURCE_NAME ?? "OSRM · FOSSGIS · © OpenStreetMap",
+    sourceUrl: process.env.ROUTING_SOURCE_URL ?? "https://routing.openstreetmap.de/about.html",
+    timeoutMs: 8000,
+  },
   haramain: {
     /** "haramainimams" (default) | "custom" | "none" — see src/server/haramain/service.ts */
     provider: process.env.HARAMAIN_SCHEDULE_PROVIDER ?? "haramainimams",

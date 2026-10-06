@@ -538,7 +538,7 @@
     },
     "places": "Saved places",
     "addPlace": "Add place",
-    "privacy": "Your location stays on this phone — it is never sent to our server.",
+    "privacy": "Saved places stay on this phone. To draw a walking route only the start and end points (no identity) go to the routing service — they are not stored.",
     "offlineMap": "Map couldn't load (no internet). The arrow and distance below still work.",
     "mapLoading": "Loading map…",
     "mapLabel": "Map",
@@ -551,6 +551,14 @@
     "shareText": "{name} — location",
     "navigatingTo": "Destination",
     "roomShort": "Room {room}",
-    "call": "Call"
+    "call": "Call",
+    "viaRoads": "via roads",
+    "routeLoading": "Finding a walking route along the roads…",
+    "rerouting": "You left the route — finding a new one…",
+    "routeOffline": "Offline — showing the last route found.",
+    "routeUnavailable": "Road route unavailable right now — showing a straight line.",
+    "straightIs": "straight line {d}",
+    "routeSource": "Route:",
+    "fixMap": "Map wrong? Report it"
   }
 }

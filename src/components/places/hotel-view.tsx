@@ -38,6 +38,8 @@ import {
   directionsLinks,
   distanceM,
   parseCoordinates,
+  pointAhead,
+  remainingPath,
   walkingMinutes,
   type Fix,
   type LatLon,
@@ -46,6 +48,7 @@ import { useCompass } from "@/hooks/use-compass";
 import { captureLocation, geolocationGranted, useLiveLocation, type CaptureProgress, type GeoStatus } from "@/hooks/use-geolocation";
 import { useStoreHydrated } from "@/hooks/use-hydrated";
 import { useWakeLock } from "@/hooks/use-wake-lock";
+import { useWalkingRoute } from "@/hooks/use-walking-route";
 import { cn, copyText, shareOrCopy, vibrate } from "@/lib/utils";
 import { usePlacesStore, type Place, type PlaceKind } from "@/stores/places-store";
 import type { MapViewHandle } from "./map-view";
@@ -135,6 +138,8 @@ export function HotelView() {
   const [link, setLink] = useState("");
   const [linkError, setLinkError] = useState(false);
   const captureAbort = useRef<AbortController | null>(null);
+  const walk = useWalkingRoute(live.fix, active && !draft ? active : null, Boolean(active) && !draft);
+  const routePath = walk.route ? (walk.progress ? remainingPath(walk.route.coordinates, walk.progress) : walk.route.coordinates) : null;
 
   // Resume tracking automatically if the user already allowed location before.
   useEffect(() => {
@@ -195,7 +200,13 @@ export function HotelView() {
     const base = draft?.pos ?? (live.fix ? { lat: live.fix.lat, lon: live.fix.lon } : active ?? haram);
     setDraft((d) => ({ ...(d ?? emptyDraft()), pos: { lat: base.lat, lon: base.lon, accuracy: null, source: "map" } }));
     setPicking(true);
+    revealMap();
   };
+
+  /** On phones the controls sit below the map: bring the map into view when it needs a tap. */
+  const mapCard = useRef<HTMLDivElement>(null);
+  const revealMap = () =>
+    requestAnimationFrame(() => mapCard.current?.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" }));
 
   const useLink = () => {
     const p = parseCoordinates(link);
@@ -204,6 +215,7 @@ export function HotelView() {
     setDraft((d) => ({ ...(d ?? emptyDraft()), pos: { ...p, accuracy: null, source: "link" } }));
     setPicking(true);
     mapRef.current?.centerOn(p, 17);
+    revealMap();
   };
 
   const saveDraft = () => {
@@ -270,7 +282,7 @@ export function HotelView() {
       ) : null}
 
       {/* Map */}
-      <Card className="overflow-hidden p-0">
+      <Card className="scroll-mt-28 overflow-hidden p-0" ref={mapCard}>
         <div className="relative">
           <MapView
             ref={mapRef}
@@ -280,6 +292,7 @@ export function HotelView() {
             heading={compass.state === "active" ? compass.heading : (live.fix?.speed ?? 0) > 1 ? (live.fix?.heading ?? null) : null}
             follow={follow}
             onFollowChange={setFollow}
+            route={draft ? null : routePath}
             pick={picking && draft?.pos ? { value: draft.pos, onChange: (p) => setDraft((x) => (x ? { ...x, pos: { ...p, accuracy: null, source: "map" } } : x)) } : null}
             initialCenter={haram}
             dark={dark}
@@ -302,7 +315,7 @@ export function HotelView() {
             </MapButton>
           </div>
           {picking ? (
-            <p className="absolute inset-x-2 top-2 z-10 rounded-xl bg-card/95 px-3 py-2 text-center text-xs font-medium shadow-soft sm:inset-x-auto sm:start-2 sm:max-w-sm">
+            <p className="absolute top-2 right-14 left-2 z-10 rounded-xl bg-card/95 px-3 py-2 text-center text-xs font-medium shadow-soft sm:right-auto sm:max-w-sm">
               {t("hotel.dragHint")}
             </p>
           ) : null}
@@ -330,7 +343,7 @@ export function HotelView() {
         />
       ) : active ? (
         <>
-          <Navigator place={active} live={live} compass={compass} wake={wake} onFollow={() => setFollow(true)} />
+          <Navigator place={active} live={live} walk={walk} compass={compass} wake={wake} onFollow={() => setFollow(true)} />
           <PlaceDetails
             place={active}
             from={live.fix}
@@ -338,6 +351,7 @@ export function HotelView() {
             onMove={() => {
               startEdit(active);
               setPicking(true);
+              revealMap();
             }}
             onRecapture={() => {
               startEdit(active);
@@ -383,12 +397,14 @@ function MapButton({ label, active, onClick, children }: { label: string; active
 function Navigator({
   place,
   live,
+  walk,
   compass,
   wake,
   onFollow,
 }: {
   place: Place;
   live: ReturnType<typeof useLiveLocation>;
+  walk: ReturnType<typeof useWalkingRoute>;
   compass: ReturnType<typeof useCompass>;
   wake: ReturnType<typeof useWakeLock>;
   onFollow: () => void;
@@ -397,9 +413,24 @@ function Navigator({
   const fmt = useFormatters();
   const now = useNow();
   const fix = live.fix;
-  const dist = fix ? distanceM(fix, place) : null;
-  const bearing = fix ? bearingDeg(fix, place) : null;
-  const arrived = fix && dist !== null ? dist <= arrivalRadius(fix.accuracy) : false;
+  const straight = fix ? distanceM(fix, place) : null;
+  const arrived = fix && straight !== null ? straight <= arrivalRadius(fix.accuracy) : false;
+  const { route, progress } = walk;
+  // Walking distance along roads: gap to the route + remaining route + route end → door.
+  const routeDist =
+    route && progress
+      ? progress.offRouteM + progress.remainingM + distanceM({ lon: route.coordinates[route.coordinates.length - 1][0], lat: route.coordinates[route.coordinates.length - 1][1] }, place)
+      : null;
+  const dist = routeDist ?? straight;
+  const onRoute = Boolean(progress && fix && progress.offRouteM <= Math.max(35, fix.accuracy * 1.2));
+  // Arrow follows the road: aim ~30 m ahead on the route; off-route, aim back at the route; else straight.
+  const aim =
+    route && progress && fix && straight !== null && straight > 40
+      ? onRoute
+        ? pointAhead(route.coordinates, progress, 30)
+        : progress.snapped
+      : place;
+  const bearing = fix ? bearingDeg(fix, aim) : null;
   const ageS = fix ? Math.max(0, Math.round((now - fix.time) / 1000)) : 0;
   const stale = fix && ageS > 30;
   const weak = fix && fix.accuracy > 50;
@@ -413,6 +444,16 @@ function Navigator({
       vibrate([60, 60, 120]);
     } else if (!arrived && dist !== null && fix && dist > arrivalRadius(fix.accuracy) + 30) arrivedOnce.current = false;
   }, [arrived, dist, fix]);
+  const routeMsg =
+    walk.status === "loading"
+      ? t("hotel.routeLoading")
+      : walk.status === "rerouting"
+        ? t("hotel.rerouting")
+        : walk.status === "offline"
+          ? t("hotel.routeOffline")
+          : walk.status === "unavailable" && !route
+            ? t("hotel.routeUnavailable")
+            : null;
 
   const tracking = live.status === "tracking" || live.status === "requesting";
   const errKey = statusMessageKey[live.status];
@@ -443,7 +484,12 @@ function Navigator({
               <p className="mt-1 text-3xl font-semibold tabular-nums text-gold [font-feature-settings:'tnum','lnum']" dir="ltr" style={{ textAlign: "start" }}>
                 {fmt.dist(dist)}
               </p>
-              {!arrived && dist < 30_000 ? <p className="text-sm text-muted-foreground">{t("hotel.walk", { min: formatNumber(walkingMinutes(dist)) })}</p> : null}
+              {!arrived && dist < 30_000 ? (
+                <p className="text-sm text-muted-foreground">
+                  {t("hotel.walk", { min: formatNumber(walkingMinutes(dist)) })}
+                  {routeDist !== null ? ` · ${t("hotel.viaRoads")}` : ""}
+                </p>
+              ) : null}
             </>
           ) : (
             <p className="mt-1 text-sm text-muted-foreground">{tracking ? t("hotel.locating") : "—"}</p>
@@ -459,7 +505,25 @@ function Navigator({
         {errKey ? <UnavailableNotice message={t(errKey)} /> : null}
       </div>
 
-      {fix && !weak ? <p className="mt-2 text-xs text-muted-foreground">{t("hotel.accuracy", { m: fmt.n(fix.accuracy) })} · {t("hotel.straightLine")}</p> : null}
+      {routeMsg && !arrived ? <p className="mt-2 text-xs font-medium text-primary">{routeMsg}</p> : null}
+      {fix && !weak ? (
+        <p className="mt-2 text-xs text-muted-foreground">
+          {t("hotel.accuracy", { m: fmt.n(fix.accuracy) })} ·{" "}
+          {routeDist !== null && straight !== null ? t("hotel.straightIs", { d: fmt.dist(straight) }) : t("hotel.straightLine")}
+        </p>
+      ) : null}
+      {route ? (
+        <p className="mt-1 text-[11px] text-muted-foreground">
+          {t("hotel.routeSource")}{" "}
+          <a href={route.source.url} target="_blank" rel="noopener noreferrer" className="underline">
+            {route.source.name}
+          </a>{" "}
+          ·{" "}
+          <a href="https://www.openstreetmap.org/fixthemap" target="_blank" rel="noopener noreferrer" className="underline">
+            {t("hotel.fixMap")}
+          </a>
+        </p>
+      ) : null}
 
       {bearing !== null && compass.state === "unavailable" ? (
         <p className="mt-2 text-xs text-muted-foreground">{t("hotel.noCompass", { deg: formatNumber(Math.round(bearing)) })}</p>

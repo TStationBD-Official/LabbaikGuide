@@ -39,6 +39,8 @@ export type MapViewProps = {
   onFollowChange: (follow: boolean) => void;
   /** When set, the target marker is draggable and a tap moves it. */
   pick?: { value: LatLon; onChange: (p: LatLon) => void } | null;
+  /** Remaining walking route along roads ([lon, lat]); null → straight dashed guide. */
+  route?: [number, number][] | null;
   initialCenter: LatLon;
   dark: boolean;
   labels: { map: string; you: string; offline: string; loading: string };
@@ -50,14 +52,15 @@ function hotelPinEl(label: string) {
   el.className = "hc-pin";
   el.setAttribute("role", "img");
   el.setAttribute("aria-label", label);
-  el.innerHTML = `
+  // Animations go on the inner span: maplibre positions the marker element itself with `transform`.
+  el.innerHTML = `<span class="hc-pin-inner">
     <svg viewBox="0 0 40 52" width="40" height="52" aria-hidden="true">
       <defs><filter id="hcs" x="-30%" y="-20%" width="160%" height="160%"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity=".35"/></filter></defs>
       <path filter="url(#hcs)" d="M20 2C10.6 2 3 9.5 3 18.8 3 31.4 20 50 20 50s17-18.6 17-31.2C37 9.5 29.4 2 20 2z" fill="var(--primary)" stroke="#fff" stroke-width="2.5"/>
       <g transform="translate(10.5 9.5)" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
         <path d="M2 18V4.5A1.5 1.5 0 0 1 3.5 3h12A1.5 1.5 0 0 1 17 4.5V18"/><path d="M0.5 18h18"/><path d="M7.5 18v-3.5h4V18"/><path d="M6 7h.01M9.5 7h.01M13 7h.01M6 10.5h.01M9.5 10.5h.01M13 10.5h.01"/>
       </g>
-    </svg>`;
+    </svg></span>`;
   return el;
 }
 
@@ -83,6 +86,25 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
   const latest = useRef(props);
   latest.current = props;
   const [state, setState] = useState<"loading" | "ready" | "offline">("loading");
+
+  /** Dashed guide lines; reads the latest props so it can run inside animation frames. */
+  const drawGuide = () => {
+    const m = map.current;
+    const src = m?.getSource("hc-guide") as GeoJSONSource | undefined;
+    if (!src) return;
+    const p = latest.current;
+    const me = shown.current;
+    const tgt = p.pick?.value ?? p.target;
+    const r = p.pick ? null : p.route;
+    const lines: [number, number][][] = [];
+    if (me && tgt) {
+      if (r && r.length > 1) {
+        lines.push([[me.lon, me.lat], r[0]]);
+        lines.push([r[r.length - 1], [tgt.lon, tgt.lat]]);
+      } else lines.push([[me.lon, me.lat], [tgt.lon, tgt.lat]]);
+    }
+    src.setData({ type: "Feature", properties: {}, geometry: { type: "MultiLineString", coordinates: lines } });
+  };
   const [styleTick, setStyleTick] = useState(0);
   const styleKey = useRef<"light" | "dark" | "raster">(props.dark ? "dark" : "light");
 
@@ -123,13 +145,32 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
           m.addLayer({ id: "hc-acc-line", type: "line", source: "hc-acc", paint: { "line-color": "#2f7cf6", "line-opacity": 0.45, "line-width": 1 } });
         }
         if (!m.getSource("hc-route")) {
+          // Real walking route: white casing + solid line, drawn under the markers.
           m.addSource("hc-route", { type: "geojson", data: EMPTY });
+          m.addLayer({
+            id: "hc-route-casing",
+            type: "line",
+            source: "hc-route",
+            layout: { "line-cap": "round", "line-join": "round" },
+            paint: { "line-color": "#ffffff", "line-width": 9, "line-opacity": 0.9 },
+          });
           m.addLayer({
             id: "hc-route",
             type: "line",
             source: "hc-route",
+            layout: { "line-cap": "round", "line-join": "round" },
+            paint: { "line-color": "#2f7cf6", "line-width": 5.5 },
+          });
+        }
+        if (!m.getSource("hc-guide")) {
+          // Dashed guide: straight line when no route, or the short gaps route↔you / route↔destination.
+          m.addSource("hc-guide", { type: "geojson", data: EMPTY });
+          m.addLayer({
+            id: "hc-guide",
+            type: "line",
+            source: "hc-guide",
             layout: { "line-cap": "round" },
-            paint: { "line-color": "#c9a227", "line-width": 3.5, "line-dasharray": [0.6, 1.8], "line-opacity": 0.95 },
+            paint: { "line-color": "#c9a227", "line-width": 3, "line-dasharray": [0.6, 1.8], "line-opacity": 0.95 },
           });
         }
         setState("ready");
@@ -211,13 +252,12 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
     if (!m || !ml || state !== "ready") return;
     const u = props.user;
     const acc = m.getSource("hc-acc") as GeoJSONSource | undefined;
-    const route = m.getSource("hc-route") as GeoJSONSource | undefined;
     if (!u) {
       userMarker.current?.remove();
       userMarker.current = null;
       shown.current = null;
       acc?.setData(EMPTY);
-      route?.setData(EMPTY);
+      drawGuide();
       return;
     }
     if (!userMarker.current) {
@@ -239,18 +279,23 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
       shown.current = cur;
       userMarker.current?.setLngLat([cur.lon, cur.lat]);
       acc?.setData({ type: "Feature", properties: {}, geometry: { type: "Polygon", coordinates: [circleRing(cur, u.accuracy)] } });
-      const tgt = latest.current.pick?.value ?? latest.current.target;
-      route?.setData(
-        tgt
-          ? { type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: [[cur.lon, cur.lat], [tgt.lon, tgt.lat]] } }
-          : EMPTY,
-      );
+      drawGuide();
       if (k < 1) anim.current = requestAnimationFrame(step);
     };
     anim.current = requestAnimationFrame(step);
     userMarker.current.getElement().classList.toggle("hc-user-stale", Date.now() - u.time > 30_000);
     if (props.follow) m.easeTo({ center: [u.lon, u.lat], duration: 650, zoom: Math.max(m.getZoom(), 16) });
   }, [props.user, props.follow, state, styleTick]);
+
+  // Real route line (only while not placing a pin).
+  useEffect(() => {
+    const m = map.current;
+    if (!m || state !== "ready") return;
+    const src = m.getSource("hc-route") as GeoJSONSource | undefined;
+    const r = props.pick ? null : props.route;
+    src?.setData(r && r.length > 1 ? { type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: r } } : EMPTY);
+    drawGuide();
+  }, [props.route, props.pick, props.target, state, styleTick]);
 
   // Heading cone on the user dot.
   useEffect(() => {
