@@ -43,6 +43,11 @@ export function TapCircle({
   useEffect(() => {
     const el = box.current;
     if (!el) return;
+    if (typeof ResizeObserver === "undefined") {
+      // Older browsers: measure once.
+      if (el.offsetWidth) queueMicrotask(() => setRadius(el.offsetWidth / 2));
+      return;
+    }
     const ro = new ResizeObserver(() => setRadius(el.offsetWidth / 2));
     ro.observe(el);
     return () => ro.disconnect();
