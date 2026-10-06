@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Check, ChevronLeft, ChevronRight, RotateCcw, Volume2, X } from "lucide-react";
 import { useI18n } from "@/components/providers/i18n-provider";
@@ -23,7 +23,7 @@ function DuaBlock({ d }: { d: AdhanDua }) {
   return (
     <div className="rounded-2xl border border-border bg-card/70 p-4">
       <p className="text-sm font-semibold text-primary">{lt(d.title, contentLocale)}</p>
-      <p lang="ar" dir="rtl" className="font-arabic mt-2 text-[clamp(1.35rem,5.5vw,1.9rem)] leading-[2] text-foreground">
+      <p lang="ar" dir="rtl" className="font-dua mt-2 text-[clamp(1.35rem,5.5vw,1.9rem)] leading-[2] text-foreground">
         {d.arabic}
       </p>
       <p className="mt-2 text-sm text-muted-foreground">{lt(d.translit, contentLocale)}</p>
@@ -43,12 +43,22 @@ export function AdhanGuide({ prayer, initialTab = "answer" }: { prayer: PrayerNa
   const [step, setStep] = useState(0);
   const lines = ADHAN_LINES.filter((l) => !l.fajrOnly || prayer === "fajr" || prayer === null);
   const done = step >= lines.length;
+  const listRef = useRef<HTMLOListElement>(null);
+  const moved = useRef(false);
+
+  // Keep the current line in view while stepping (not on first render).
+  useEffect(() => {
+    if (!moved.current) return;
+    const el = listRef.current?.querySelector<HTMLElement>('[aria-current="step"]');
+    el?.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
+  }, [step]);
 
   useEffect(() => {
     queueMicrotask(() => setTab(initialTab));
   }, [initialTab]);
 
   const go = (d: 1 | -1) => {
+    moved.current = true;
     if (haptics) vibrate(d === 1 && step + 1 >= lines.length ? [120, 60, 120] : 15);
     setStep((s) => Math.max(0, Math.min(lines.length, s + d)));
   };
@@ -68,7 +78,7 @@ export function AdhanGuide({ prayer, initialTab = "answer" }: { prayer: PrayerNa
       {tab === "answer" ? (
         <div className="space-y-3">
           <p className="text-sm text-muted-foreground">{t("adhan.answerHint")}</p>
-          <ol className="space-y-2">
+          <ol ref={listRef} className="space-y-2">
             {lines.map((l, i) => {
               const current = i === step;
               const past = i < step;
@@ -76,7 +86,8 @@ export function AdhanGuide({ prayer, initialTab = "answer" }: { prayer: PrayerNa
                 <li key={l.id}>
                   <button
                     type="button"
-                    onClick={() => setStep(i)}
+                    // Tap the highlighted line to move on; tap any other line to jump there.
+                    onClick={() => (current ? go(1) : ((moved.current = true), setStep(i)))}
                     aria-current={current ? "step" : undefined}
                     className={cn(
                       "w-full rounded-2xl border p-3 text-start transition-colors",
@@ -92,7 +103,7 @@ export function AdhanGuide({ prayer, initialTab = "answer" }: { prayer: PrayerNa
                       {l.fajrOnly ? <span className="rounded-full bg-muted px-2 py-0.5">{t("adhan.fajrOnly")}</span> : null}
                       {past ? <Check className="size-4 text-primary" aria-hidden /> : null}
                     </div>
-                    <p lang="ar" dir="rtl" className="font-arabic mt-1 text-[clamp(1.2rem,5vw,1.6rem)] leading-[1.9]">
+                    <p lang="ar" dir="rtl" className="font-dua mt-1 text-[clamp(1.2rem,5vw,1.6rem)] leading-[1.9]">
                       {l.arabic}
                     </p>
                     <p className="text-xs text-muted-foreground">
@@ -102,7 +113,7 @@ export function AdhanGuide({ prayer, initialTab = "answer" }: { prayer: PrayerNa
                       <p className="text-[11px] font-semibold opacity-90">{t("adhan.you")}</p>
                       {l.reply ? (
                         <>
-                          <p lang="ar" dir="rtl" className="font-arabic text-[clamp(1.15rem,4.8vw,1.5rem)] leading-[1.9]">
+                          <p lang="ar" dir="rtl" className="font-dua text-[clamp(1.15rem,4.8vw,1.5rem)] leading-[1.9]">
                             {l.reply.arabic}
                           </p>
                           <p className="text-xs opacity-90">
@@ -143,7 +154,7 @@ export function AdhanGuide({ prayer, initialTab = "answer" }: { prayer: PrayerNa
             ) : null}
           </AnimatePresence>
 
-          <div className="sticky bottom-20 z-10 grid grid-cols-[1fr_2fr_auto] gap-2 rounded-2xl bg-background/85 p-1 backdrop-blur lg:bottom-4">
+          <div className="grid grid-cols-[1fr_2fr_auto] gap-2 pt-1">
             <Button variant="outline" onClick={() => go(-1)} disabled={step === 0}>
               <ChevronLeft className="size-4 rtl:rotate-180" aria-hidden />
               <span className="max-xs:sr-only">{t("adhan.prev")}</span>

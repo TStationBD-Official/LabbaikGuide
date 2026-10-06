@@ -414,7 +414,7 @@ function PlanRunner({ plan, onClose, onEdit }: { plan: ZikrPlan; onClose: () => 
             >
               <p className="text-base font-semibold">{lt(z.name, contentLocale)}</p>
               {z.arabic ? (
-                <p lang="ar" dir="rtl" className="font-arabic mt-1 max-w-xl text-[clamp(1.5rem,6vw,2.25rem)] leading-[1.9] text-primary">
+                <p lang="ar" dir="rtl" className="font-dua mt-1 max-w-xl text-[clamp(1.5rem,6vw,2.25rem)] leading-[1.9] text-primary">
                   {z.arabic}
                 </p>
               ) : null}

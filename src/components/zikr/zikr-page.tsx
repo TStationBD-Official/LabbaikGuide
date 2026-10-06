@@ -56,7 +56,7 @@ function ZikrItem({
             {zikr.kind === "custom" ? <Badge tone="gold">{t("zikr.custom")}</Badge> : null}
           </span>
           {zikr.arabic ? (
-            <span lang="ar" dir="rtl" className="font-arabic mt-0.5 block truncate text-lg text-primary">
+            <span lang="ar" dir="rtl" className="font-dua mt-0.5 block truncate text-lg text-primary">
               {zikr.arabic}
             </span>
           ) : null}

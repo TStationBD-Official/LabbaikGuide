@@ -349,6 +349,11 @@
 @utility font-arabic {
   font-family: var(--font-quran), "Quran IndoPak", "Noto Naskh Arabic", serif;
 }
+/* Non-Quran Arabic (adhkar, duas, adhan): a full Naskh text font with Arabic punctuation (،).
+   Quran-specific fonts (e.g. IndoPak) lack some text glyphs and would show ◌. */
+@utility font-dua {
+  font-family: "Quran Naskh", "Noto Naskh Arabic", "Quran Amiri", serif;
+}
 @utility safe-bottom {
   padding-bottom: env(safe-area-inset-bottom);
 }

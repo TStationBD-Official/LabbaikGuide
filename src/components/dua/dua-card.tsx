@@ -57,7 +57,7 @@ export function DuaCard({
           </IconButton>
         </div>
       </div>
-      <p lang="ar" dir="rtl" className={cn("font-arabic mt-3 text-right leading-[2.1] text-primary", compact ? "text-xl" : "text-2xl")}>
+      <p lang="ar" dir="rtl" className={cn("font-dua mt-3 text-right leading-[2.1] text-primary", compact ? "text-xl" : "text-2xl")}>
         {dua.arabic}
       </p>
       <p dir="auto" className="mt-3 text-sm italic text-muted-foreground">{lt(dua.pronunciation, contentLocale)}</p>
