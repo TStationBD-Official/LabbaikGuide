@@ -11,7 +11,7 @@ import { Toggle } from "@/components/ui/toggle";
 import { useToast } from "@/components/ui/toast";
 import { lt, type Zikr } from "@/types/content";
 import { useZikrStore } from "@/stores/zikr-store";
-import { canVibrate, cn, vibrate, type VibrateResult } from "@/lib/utils";
+import { vibrate } from "@/lib/utils";
 
 /** Taps closer together than this are treated as one (prevents double counting). */
 const TAP_GUARD_MS = 90;
@@ -39,7 +39,6 @@ export function ZikrCounter({ zikr, next }: { zikr: Zikr; next: Zikr | null }) {
   const setAutoAdvance = useZikrStore((s) => s.setAutoAdvance);
   const haptics = useZikrStore((s) => s.haptics);
   const setHaptics = useZikrStore((s) => s.setHaptics);
-  const [vibeTest, setVibeTest] = useState<VibrateResult | null>(null);
   const buzz = useCallback((p: number | number[]) => (haptics ? vibrate(p) : null), [haptics]);
   const [advancing, setAdvancing] = useState(false);
   const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -246,23 +245,6 @@ export function ZikrCounter({ zikr, next }: { zikr: Zikr; next: Zikr | null }) {
       <div className="mt-5 w-full max-w-sm border-t border-border/70 pt-3">
         <Toggle compact checked={autoAdvance} onChange={setAutoAdvance} label={t("zikr.autoAdvance")} description={t("zikr.autoAdvanceHint")} />
         <Toggle compact checked={haptics} onChange={setHaptics} label={t("zikr.haptics")} />
-        <div className="flex flex-wrap items-center gap-2 py-1">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              // Called directly from the tap, so the browser treats it as user-initiated.
-              setVibeTest(vibrate([300, 120, 300]));
-            }}
-          >
-            {t("zikr.testVibration")}
-          </Button>
-        </div>
-        {vibeTest || !canVibrate() ? (
-          <p className={cn("text-xs", vibeTest === "ok" ? "text-muted-foreground" : "text-warning")} aria-live="polite">
-            {vibeTest === "ok" ? t("zikr.vibeOk") : vibeTest === "blocked" ? t("zikr.vibeBlocked") : t("zikr.vibeUnsupported")}
-          </p>
-        ) : null}
         {autoAdvance && next ? (
           <button
             type="button"
