@@ -1,15 +1,14 @@
 import { Suspense } from "react";
-import { PageHeader } from "@/components/ui/card";
+import { PageTitle } from "@/components/ui/page-title";
 import { GlobalSearch } from "@/components/search/global-search";
-import { getServerT, pageMetadata } from "@/i18n/server";
+import { pageMetadata } from "@/i18n/server";
 
 export const generateMetadata = () => pageMetadata("/search", "search.title", "search.hint");
 
-export default async function Page() {
-  const { t } = await getServerT();
+export default function Page() {
   return (
     <>
-      <PageHeader title={t("search.title")} />
+      <PageTitle titleKey="search.title" />
       <Suspense>
         <GlobalSearch />
       </Suspense>

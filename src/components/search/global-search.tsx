@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
 import { useI18n } from "@/components/providers/i18n-provider";
 import { Badge, Card, SectionHeader } from "@/components/ui/card";
@@ -18,7 +18,6 @@ const CAT_TONE = { quran: "primary", dua: "gold", umrah: "neutral", hajj: "neutr
 export function GlobalSearch() {
   const { t, locale, contentLocale } = useI18n();
   const params = useSearchParams();
-  const router = useRouter();
   const pathname = usePathname();
   const [q, setQ] = useState(params.get("q") ?? "");
   const debounced = useDebounce(q, 300);
@@ -26,10 +25,11 @@ export function GlobalSearch() {
 
   useEffect(() => inputRef.current?.focus(), []);
   // Keep the query in the URL so results are shareable and survive reloads.
+  // Uses the History API directly: no server round-trip, so it also works offline.
   useEffect(() => {
-    const next = debounced.trim() ? `?q=${encodeURIComponent(debounced.trim())}` : "";
-    router.replace(`${pathname}${next}`, { scroll: false });
-  }, [debounced, pathname, router]);
+    const next = `${pathname}${debounced.trim() ? `?q=${encodeURIComponent(debounced.trim())}` : ""}`;
+    if (next !== `${window.location.pathname}${window.location.search}`) window.history.replaceState(window.history.state, "", next);
+  }, [debounced, pathname]);
 
   const local = useMemo(() => searchLocal(debounced, contentLocale), [debounced, contentLocale]);
   const translations = useResources("translations", locale);

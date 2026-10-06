@@ -17,6 +17,8 @@ export class ApiError extends Error {
     public kind: ApiErrorKind,
     public status?: number,
     message?: string,
+    /** Seconds the server asked us to wait (429 Retry-After). */
+    public retryAfter?: number,
   ) {
     super(message ?? kind);
     this.name = "ApiError";
@@ -85,7 +87,10 @@ export async function apiGet<S extends z.ZodTypeAny>(
     clearTimeout(timer);
     signal?.removeEventListener("abort", onAbort);
   }
-  if (!res.ok) throw new ApiError(kindFromStatus(res.status), res.status);
+  if (!res.ok) {
+    const ra = Number(res.headers.get("retry-after"));
+    throw new ApiError(kindFromStatus(res.status), res.status, undefined, Number.isFinite(ra) && ra > 0 ? ra : undefined);
+  }
   let json: unknown;
   try {
     json = await res.json();

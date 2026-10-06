@@ -98,3 +98,6 @@ export const MODE_UPSTREAM: Record<ReadingMode, string> = {
   page: "by_page",
   hizb: "by_hizb",
 };
+
+export const SurahFullSchema = z.object({ chapter: z.number().int(), verses: z.array(VerseSchema) });
+export const TafsirChapterSchema = z.object({ resourceId: z.number().int(), entries: z.record(z.string(), z.string()) });

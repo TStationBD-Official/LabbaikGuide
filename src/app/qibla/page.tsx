@@ -1,14 +1,13 @@
-import { PageHeader } from "@/components/ui/card";
+import { PageTitle } from "@/components/ui/page-title";
 import { QiblaView } from "@/components/prayer/qibla-view";
-import { getServerT, pageMetadata } from "@/i18n/server";
+import { pageMetadata } from "@/i18n/server";
 
 export const generateMetadata = () => pageMetadata("/qibla", "qibla.title");
 
-export default async function Page() {
-  const { t } = await getServerT();
+export default function Page() {
   return (
     <>
-      <PageHeader title={`🧭 ${t("qibla.title")}`} />
+      <PageTitle titleKey="qibla.title" prefix="🧭" />
       <QiblaView />
     </>
   );

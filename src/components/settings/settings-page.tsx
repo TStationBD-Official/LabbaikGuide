@@ -16,6 +16,7 @@ import { LayerToggles } from "@/components/quran/layer-toggles";
 import { clearAllLocalData } from "@/services/storage/idb-storage";
 import { useNotificationStore, type NotificationMode } from "@/stores/notification-store";
 import { APP_CONFIG } from "@/config/app";
+import { OfflineSection } from "./offline-section";
 
 function Section({ title, children, id }: { title: string; children: React.ReactNode; id: string }) {
   return (
@@ -124,6 +125,8 @@ export function SettingsPage() {
       </Section>
 
       <Section id="s-offline" title={t("settings.offlineData")}>
+        <OfflineSection />
+        <div className="gold-rule" aria-hidden />
         <p className="text-sm text-muted-foreground">{t("settings.clearDataDesc")}</p>
         <Button
           variant="outline"

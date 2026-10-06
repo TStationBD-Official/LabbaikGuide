@@ -56,6 +56,12 @@ export async function clearAllLocalData() {
   memory.clear();
   const s = getIdb();
   if (s) await clear(s).catch(() => undefined);
+  if (typeof indexedDB !== "undefined") {
+    await new Promise<void>((resolve) => {
+      const req = indexedDB.deleteDatabase("hc-quran-offline");
+      req.onsuccess = req.onerror = req.onblocked = () => resolve();
+    });
+  }
   if ("caches" in globalThis) {
     const keys = await caches.keys();
     await Promise.all(keys.filter((k) => k.startsWith("hc-")).map((k) => caches.delete(k)));

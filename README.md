@@ -70,6 +70,18 @@ Query keys include language, translation id, tafsir id and word-mode, so one lan
 
 Only entries for **today's Riyadh date** are used; anything that fails validation becomes *“ইমামের সময়সূচি এখন নিশ্চিতভাবে পাওয়া যাচ্ছে না।”*. Names are never invented and missing ones stay `null`. Adhan times remain the calculated Umm al-Qura times. haramainimams.com is a third-party site, not an official API, so ask its operators for permission before relying on it publicly; switching provider is one env var.
 
+## Offline
+
+| What | How it works offline |
+|---|---|
+| Every app page | Service worker saves all pages + their JS/CSS + needed font subsets on first visit, and re-saves after each deploy (build id check) |
+| Whole Quran | Settings → Offline data → **Download Quran**: all 114 surahs (IndoPak + Uthmani + selected translation, ~6–10 MB) into IndexedDB, plus the 144 reader pages; optional tafsir. Paced to stay under the API rate limit; resumable |
+| Reader / tafsir / Quran search | Network first, automatic fallback to the offline copy; a translation is only shown offline if it matches the current language + selection |
+| Prayer times, Hijri, Qibla | Calculated on the device |
+| Zikr, duas, guides, Tawaf/Sa'i, bookmarks, settings | Stored locally (IndexedDB) |
+| Language switching | All four dictionaries are bundled; titles are translated on the device |
+| **Not offline** | Recitation audio, word-by-word meanings, live Imam/Muezzin names (shown as unavailable, never stale) |
+
 ## Security
 - Secrets only in server env (`src/config/server.ts` imports `server-only`; the build fails if a client component imports it).
 - All upstream JSON is Zod-validated; translation/tafsir HTML is sanitized server-side to formatting tags with **no attributes**.

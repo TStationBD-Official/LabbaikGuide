@@ -33,3 +33,7 @@ export const SearchQuery = z.object({
   lang,
   translation: optionalId,
 });
+
+const chapter = z.coerce.number().int().min(1).max(114);
+export const SurahFullQuery = z.object({ id: chapter, lang, translation: optionalId });
+export const TafsirChapterQuery = z.object({ id: z.coerce.number().int().positive().max(100000), chapter });

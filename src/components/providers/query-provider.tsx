@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { QueryClient } from "@tanstack/react-query";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
@@ -40,6 +40,13 @@ export function QueryProvider({ children }: { children: ReactNode }) {
       throttleTime: 2000,
     }),
   );
+
+  // Anything served from the offline copy while disconnected is refreshed on reconnect.
+  useEffect(() => {
+    const onOnline = () => void client.invalidateQueries({ queryKey: ["quran"] });
+    window.addEventListener("online", onOnline);
+    return () => window.removeEventListener("online", onOnline);
+  }, [client]);
 
   return (
     <PersistQueryClientProvider

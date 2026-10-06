@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import {
   contentLocaleFor,
   INTL_LOCALE,
@@ -37,6 +38,7 @@ export function I18nProvider({
 }) {
   const [bundle, setBundle] = useState({ locale: initialLocale, messages: initialMessages });
   const setPrefs = usePrefs((s) => s.set);
+  const router = useRouter();
 
   const setLocale = useCallback(
     async (next: Locale) => {
@@ -44,8 +46,10 @@ export function I18nProvider({
       const messages = await loadMessages(next);
       setBundle({ locale: next, messages });
       setPrefs({ locale: next });
+      // Online: also refresh server-rendered parts (page <title>, metadata). Offline the UI is already fully translated.
+      if (navigator.onLine) router.refresh();
     },
-    [setPrefs],
+    [setPrefs, router],
   );
 
   const value = useMemo<I18nValue>(() => {

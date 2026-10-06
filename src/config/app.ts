@@ -20,10 +20,11 @@ export const APP_CONFIG = {
   cache: {
     /** Quran text never changes; translations rarely. */
     quranStaleMs: 1000 * 60 * 60 * 24 * 7,
-    quranGcMs: 1000 * 60 * 60 * 24 * 30,
+    /** Must stay below 2^31 ms (~24.8 days): longer timers overflow to 1 ms in browsers. */
+    quranGcMs: 1000 * 60 * 60 * 24 * 20,
     /** Haramain schedules are time-sensitive. */
     scheduleStaleMs: 1000 * 60 * 15,
-    persistMaxAgeMs: 1000 * 60 * 60 * 24 * 30,
+    persistMaxAgeMs: 1000 * 60 * 60 * 24 * 20,
   },
   prayer: {
     refreshIntervalMs: 1000 * 60 * 15,

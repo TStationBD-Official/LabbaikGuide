@@ -1,14 +1,13 @@
-import { PageHeader } from "@/components/ui/card";
+import { PageTitle } from "@/components/ui/page-title";
 import { ZikrPage } from "@/components/zikr/zikr-page";
-import { getServerT, pageMetadata } from "@/i18n/server";
+import { pageMetadata } from "@/i18n/server";
 
 export const generateMetadata = () => pageMetadata("/zikr", "zikr.title");
 
-export default async function Page() {
-  const { t } = await getServerT();
+export default function Page() {
   return (
     <>
-      <PageHeader title={t("zikr.title")} />
+      <PageTitle titleKey="zikr.title" />
       <ZikrPage />
     </>
   );

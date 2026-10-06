@@ -1,20 +1,19 @@
 import { InfoPage } from "@/components/common/info-page";
-import { getServerT, pageMetadata } from "@/i18n/server";
+import { pageMetadata } from "@/i18n/server";
 
 export const generateMetadata = () => pageMetadata("/privacy", "privacy.title", "privacy.intro");
 
-export default async function Page() {
-  const { t } = await getServerT();
+export default function Page() {
   return (
     <InfoPage
-      title={t("privacy.title")}
-      intro={t("privacy.intro")}
+      titleKey="privacy.title"
+      introKey="privacy.intro"
       sections={[
-        { title: t("privacy.localTitle"), body: t("privacy.localBody") },
-        { title: t("privacy.locationTitle"), body: t("privacy.locationBody") },
-        { title: t("privacy.networkTitle"), body: t("privacy.networkBody") },
-        { title: t("privacy.analyticsTitle"), body: t("privacy.analyticsBody") },
-        { title: t("privacy.notifTitle"), body: t("privacy.notifBody") },
+        { title: "privacy.localTitle", body: "privacy.localBody" },
+        { title: "privacy.locationTitle", body: "privacy.locationBody" },
+        { title: "privacy.networkTitle", body: "privacy.networkBody" },
+        { title: "privacy.analyticsTitle", body: "privacy.analyticsBody" },
+        { title: "privacy.notifTitle", body: "privacy.notifBody" },
       ]}
     />
   );

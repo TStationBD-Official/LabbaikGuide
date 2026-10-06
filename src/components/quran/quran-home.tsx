@@ -11,6 +11,7 @@ import { useStoreHydrated } from "@/hooks/use-hydrated";
 import { useChapters } from "@/services/quran/queries";
 import { useQuranStore } from "@/stores/quran-store";
 import type { Chapter } from "@/types/quran";
+import { OfflineQuranBanner } from "@/components/settings/offline-section";
 
 type Tab = "surahs" | "juz" | "bookmarks";
 
@@ -103,6 +104,7 @@ export function QuranHome() {
   return (
     <div className="space-y-5">
       <ContinueReadingCard />
+      <OfflineQuranBanner />
 
       <Link
         href="/search?cat=quran"

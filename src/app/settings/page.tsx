@@ -1,14 +1,13 @@
-import { PageHeader } from "@/components/ui/card";
+import { PageTitle } from "@/components/ui/page-title";
 import { SettingsPage } from "@/components/settings/settings-page";
-import { getServerT, pageMetadata } from "@/i18n/server";
+import { pageMetadata } from "@/i18n/server";
 
 export const generateMetadata = () => pageMetadata("/settings", "settings.title");
 
-export default async function Page() {
-  const { t } = await getServerT();
+export default function Page() {
   return (
     <>
-      <PageHeader title={t("settings.title")} />
+      <PageTitle titleKey="settings.title" />
       <SettingsPage />
     </>
   );

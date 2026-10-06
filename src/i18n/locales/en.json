@@ -423,5 +423,31 @@
     "analyticsBody": "Analytics are off by default. If enabled, only technical events (page views, errors) are recorded — never which verses you read, which duas you save, or your location.",
     "notifTitle": "Notifications",
     "notifBody": "Notifications are only enabled after you allow them, and can be turned off at any time."
+  },
+  "offline": {
+    "title": "Offline",
+    "appReady": "All app pages are saved on this device and open without internet.",
+    "appSaving": "Saving app pages for offline use…",
+    "appUnsupported": "This browser does not support offline mode.",
+    "quranTitle": "Quran for offline reading",
+    "quranDesc": "Downloads all 114 surahs (IndoPak and Uthmani Arabic) with your selected translation — roughly 6–10 MB.",
+    "includeTafsir": "Also download tafsir: {name}",
+    "tafsirNote": "Tafsir is large (can be 20–60 MB). Use Wi-Fi if possible.",
+    "download": "Download Quran",
+    "resume": "Resume download",
+    "cancel": "Cancel",
+    "remove": "Remove offline Quran",
+    "progress": "{done} of {total}",
+    "phaseText": "Downloading Quran text…",
+    "phaseTafsir": "Downloading tafsir…",
+    "phasePages": "Saving reader pages…",
+    "done": "Downloaded — the Quran now works offline.",
+    "error": "Download stopped. Check your connection and tap Resume.",
+    "status": "Saved: {surahs} of 114 surahs · {translation}",
+    "statusTafsir": "Tafsir saved: {surahs} of 114 surahs · {name}",
+    "mismatch": "Saved with a different language or translation. Download again to match your current selection.",
+    "notIncluded": "Not available offline: recitation audio, word-by-word meanings, and live Imam/Muezzin names (shown again when you are back online).",
+    "banner": "Download the Quran to read it without internet.",
+    "bannerAction": "Download"
   }
 }

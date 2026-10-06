@@ -1,14 +1,13 @@
-import { PageHeader } from "@/components/ui/card";
+import { PageTitle } from "@/components/ui/page-title";
 import { ManasikHub } from "@/components/manasik/manasik-hub";
-import { getServerT, pageMetadata } from "@/i18n/server";
+import { pageMetadata } from "@/i18n/server";
 
 export const generateMetadata = () => pageMetadata("/manasik", "manasik.title", "manasik.subtitle");
 
-export default async function Page() {
-  const { t } = await getServerT();
+export default function Page() {
   return (
     <>
-      <PageHeader title={t("manasik.title")} subtitle={t("manasik.subtitle")} />
+      <PageTitle titleKey="manasik.title" subtitleKey="manasik.subtitle" />
       <ManasikHub />
     </>
   );

@@ -1,14 +1,13 @@
-import { PageHeader } from "@/components/ui/card";
+import { PageTitle } from "@/components/ui/page-title";
 import { PrayerDashboard } from "@/components/prayer/prayer-dashboard";
-import { getServerT, pageMetadata } from "@/i18n/server";
+import { pageMetadata } from "@/i18n/server";
 
 export const generateMetadata = () => pageMetadata("/prayer", "prayer.title");
 
-export default async function Page() {
-  const { t } = await getServerT();
+export default function Page() {
   return (
     <>
-      <PageHeader title={`🕌 ${t("prayer.title")}`} />
+      <PageTitle titleKey="prayer.title" prefix="🕌" />
       <PrayerDashboard />
     </>
   );

@@ -1,4 +1,5 @@
 import "server-only";
+import { z } from "zod";
 import { APP_CONFIG } from "@/config/app";
 import type { Locale } from "@/lib/preferences";
 import {
@@ -50,6 +51,8 @@ export type VersesQuery = {
   translationId?: number;
   words: boolean;
   audio: boolean;
+  /** Override page size (whole-surah offline download uses the upstream maximum). */
+  perPage?: number;
 };
 
 export async function getVerses(q: VersesQuery): Promise<VersesResponse> {
@@ -61,7 +64,7 @@ export async function getVerses(q: VersesQuery): Promise<VersesResponse> {
     // Arabic text comes straight from the API — IndoPak is never converted from Uthmani.
     fields: "text_uthmani,text_indopak",
     audio: q.audio ? APP_CONFIG.quran.defaultRecitationId : undefined,
-    per_page: APP_CONFIG.quran.versesPerPage,
+    per_page: q.perPage ?? APP_CONFIG.quran.versesPerPage,
     page: q.page,
   });
   const data = parse(UpVerses, raw);
@@ -154,4 +157,53 @@ export async function searchQuran(query: string, lang: Locale, translationId?: n
       translationHtml: r.translations?.[0] ? sanitizeInline(r.translations[0].text) : null,
     })),
   };
+}
+
+/** Upstream maximum page size for verses/tafsir listings. */
+const UPSTREAM_MAX_PER_PAGE = 50;
+
+/**
+ * Every verse of a surah in one response (Arabic in both scripts + one
+ * translation) — used by the "download for offline" feature. No word-by-word
+ * data or audio, to keep the download small.
+ */
+export async function getSurahFull(chapter: number, lang: Locale, translationId?: number): Promise<QuranVerse[]> {
+  const out: QuranVerse[] = [];
+  for (let page = 1; page <= 10; page++) {
+    const r = await getVerses({ mode: "surah", id: chapter, page, lang, translationId, words: false, audio: false, perPage: UPSTREAM_MAX_PER_PAGE });
+    out.push(...r.verses);
+    if (!r.pagination.next) break;
+  }
+  return out;
+}
+
+const UpTafsirChapter = z.object({
+  tafsirs: z.array(
+    z
+      .object({
+        verse_key: z.string().regex(/^\d{1,3}:\d{1,3}$/).optional(),
+        verse_id: z.number().optional(),
+        text: z.string().nullable().optional(),
+      })
+      .passthrough(),
+  ),
+  pagination: z.object({ next_page: z.number().nullable().optional() }).partial().optional(),
+});
+
+/** Whole-surah tafsir as verseKey → sanitized HTML (offline download). */
+export async function getTafsirChapter(tafsirId: number, chapter: number): Promise<{ resourceId: number; entries: Record<string, string> }> {
+  const entries: Record<string, string> = {};
+  for (let page = 1; page <= 20; page++) {
+    const data = parse(
+      UpTafsirChapter,
+      await quranFetch(`tafsirs/${tafsirId}/by_chapter/${chapter}`, { per_page: UPSTREAM_MAX_PER_PAGE, page }),
+    );
+    for (const t of data.tafsirs) {
+      if (!t.verse_key) continue; // cannot place it reliably → skip rather than guess
+      const html = sanitizeRich(t.text ?? "");
+      if (html) entries[t.verse_key] = html;
+    }
+    if (!data.pagination?.next_page) break;
+  }
+  return { resourceId: tafsirId, entries };
 }

@@ -1,14 +1,13 @@
-import { PageHeader } from "@/components/ui/card";
+import { PageTitle } from "@/components/ui/page-title";
 import { QuranHome } from "@/components/quran/quran-home";
-import { getServerT, pageMetadata } from "@/i18n/server";
+import { pageMetadata } from "@/i18n/server";
 
 export const generateMetadata = () => pageMetadata("/quran", "quran.title");
 
-export default async function QuranPage() {
-  const { t } = await getServerT();
+export default function QuranPage() {
   return (
     <>
-      <PageHeader title={t("quran.title")} />
+      <PageTitle titleKey="quran.title" />
       <QuranHome />
     </>
   );

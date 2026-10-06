@@ -1,14 +1,13 @@
-import { PageHeader } from "@/components/ui/card";
+import { PageTitle } from "@/components/ui/page-title";
 import { RitualCounterView } from "@/components/manasik/ritual-counter";
-import { getServerT, pageMetadata } from "@/i18n/server";
+import { pageMetadata } from "@/i18n/server";
 
 export const generateMetadata = () => pageMetadata("/sai", "sai.title");
 
-export default async function Page() {
-  const { t } = await getServerT();
+export default function Page() {
   return (
     <>
-      <PageHeader title={t("sai.title")} />
+      <PageTitle titleKey="sai.title" />
       <RitualCounterView kind="sai" />
     </>
   );

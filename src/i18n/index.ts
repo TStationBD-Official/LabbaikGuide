@@ -1,5 +1,9 @@
 import type en from "./locales/en.json";
 import type { Locale } from "@/lib/preferences";
+import bn from "./locales/bn.json";
+import enMessages from "./locales/en.json";
+import ar from "./locales/ar.json";
+import ur from "./locales/ur.json";
 
 export type Messages = typeof en;
 
@@ -12,15 +16,20 @@ type Paths<T> = T extends string
 export type TKey = Paths<Messages>;
 export type TVars = Record<string, string | number>;
 
-const loaders: Record<Locale, () => Promise<Messages>> = {
-  bn: () => import("./locales/bn.json").then((m) => m.default as Messages),
-  en: () => import("./locales/en.json").then((m) => m.default as Messages),
-  ar: () => import("./locales/ar.json").then((m) => m.default as Messages),
-  ur: () => import("./locales/ur.json").then((m) => m.default as Messages),
+
+/**
+ * All four dictionaries are bundled (~15 KB gzipped together) so switching
+ * language works instantly and offline — no extra network request.
+ */
+const DICTIONARIES: Record<Locale, Messages> = {
+  bn: bn as Messages,
+  en: enMessages,
+  ar: ar as Messages,
+  ur: ur as Messages,
 };
 
 export function loadMessages(locale: Locale): Promise<Messages> {
-  return loaders[locale]();
+  return Promise.resolve(DICTIONARIES[locale]);
 }
 
 function lookup(messages: unknown, key: string): string | undefined {

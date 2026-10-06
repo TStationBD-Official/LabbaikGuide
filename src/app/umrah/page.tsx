@@ -1,14 +1,13 @@
-import { PageHeader } from "@/components/ui/card";
+import { PageTitle } from "@/components/ui/page-title";
 import { UmrahGuide } from "@/components/manasik/guide";
-import { getServerT, pageMetadata } from "@/i18n/server";
+import { pageMetadata } from "@/i18n/server";
 
 export const generateMetadata = () => pageMetadata("/umrah", "manasik.umrahGuide", "manasik.umrahDesc");
 
-export default async function Page() {
-  const { t } = await getServerT();
+export default function Page() {
   return (
     <>
-      <PageHeader title={`🕋 ${t("manasik.umrahGuide")}`} subtitle={t("manasik.umrahDesc")} />
+      <PageTitle titleKey="manasik.umrahGuide" subtitleKey="manasik.umrahDesc" prefix="🕋" />
       <UmrahGuide />
     </>
   );
