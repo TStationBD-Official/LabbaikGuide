@@ -2,57 +2,50 @@ import { NextResponse } from "next/server";
 
 /**
  * TEMPORARY diagnostic — remove after the Haramain schedule adapter is built.
- * Fetches a fixed, public URL (no user input → no SSRF) and reports which data
- * endpoints its JavaScript bundles reference, so we can integrate the feed.
+ * Fetches fixed public URLs only (no user input → no SSRF).
  */
 const ORIGIN = "https://haramainimams.com";
 const UA = "Mozilla/5.0 (LabbaikGuide diagnostic)";
 
 async function get(url: string) {
-  const res = await fetch(url, { headers: { "user-agent": UA }, signal: AbortSignal.timeout(10000), cache: "no-store" });
+  const res = await fetch(url, { headers: { "user-agent": UA, accept: "application/json, */*" }, signal: AbortSignal.timeout(10000), cache: "no-store" });
   return { status: res.status, type: res.headers.get("content-type") ?? "", text: await res.text() };
+}
+
+function around(text: string, needle: string, radius = 500, max = 4) {
+  const out: string[] = [];
+  let i = text.indexOf(needle);
+  while (i !== -1 && out.length < max) {
+    out.push(text.slice(Math.max(0, i - radius), i + radius));
+    i = text.indexOf(needle, i + needle.length);
+  }
+  return out;
 }
 
 export async function GET() {
   const report: Record<string, unknown> = {};
   try {
     const home = await get(ORIGIN + "/");
-    report.homeStatus = home.status;
-    const scripts = [...home.text.matchAll(/<script[^>]+src="([^"]+)"/g)].map((m) => new URL(m[1], ORIGIN).toString());
-    report.scripts = scripts;
-    const inline = [...home.text.matchAll(/<script(?![^>]*src)[^>]*>([\s\S]*?)<\/script>/g)].map((m) => m[1].slice(0, 400));
-    report.inlineScriptsPreview = inline.slice(0, 5);
+    const src = [...home.text.matchAll(/<script[^>]+src="([^"]+)"/g)].map((m) => new URL(m[1], ORIGIN).toString())[0];
+    const js = (await get(src)).text;
+    report.bundleSize = js.length;
+    report.employeesContext = around(js, "/api/employees", 700, 3);
+    report.fetchCalls = around(js, "fetch(", 250, 8);
+    report.absoluteUrls = [...new Set([...js.matchAll(/https?:\/\/[a-zA-Z0-9.-]+\.[a-z]{2,}[\w./-]*/g)].map((m) => m[0]))]
+      .filter((u) => !/w3\.org|reactjs\.org|react\.dev|mozilla\.org|github\.com|fb\.me|schema\.org/i.test(u))
+      .slice(0, 60);
+    report.envHints = [...new Set([...js.matchAll(/VITE_[A-Z0-9_]+/g)].map((m) => m[0]))];
 
-    const found = new Set<string>();
-    const patterns = [
-      /https?:\/\/[a-zA-Z0-9.-]+(?:\/[\w./?=&%-]*)?/g,
-      /["'`](\/(?:api|data|json|v1|v2|schedule|schedules|imams?)[\w./?=&%-]*)["'`]/g,
-    ];
-    const interesting = /api|json|schedule|imam|supabase|firebase|firestore|sheet|airtable|graphql|\.json/i;
-    for (const src of scripts.slice(0, 15)) {
-      try {
-        const js = await get(src);
-        for (const p of patterns) for (const m of js.text.matchAll(p)) {
-          const u = m[1] ?? m[0];
-          if (interesting.test(u) && !/w3\.org|reactjs|github\.com\/facebook|googleapis\.com\/css/i.test(u)) found.add(u);
-        }
-      } catch {
-        /* skip */
-      }
-    }
-    report.candidateEndpoints = [...found].slice(0, 80);
-
-    // Probe a few common paths.
-    const probes: Record<string, string> = {};
-    for (const p of ["/api/schedule", "/api/schedules", "/api/imams", "/api/today", "/data.json", "/schedule.json"]) {
+    const tries: Record<string, string> = {};
+    for (const p of ["/api/employees", "/api/employees?mosque=haram", "/api/employees?location=makkah"]) {
       try {
         const r = await get(ORIGIN + p);
-        probes[p] = `${r.status} ${r.type.split(";")[0]} ${r.text.slice(0, 160).replace(/\s+/g, " ")}`;
+        tries[p] = `${r.status} ${r.type.split(";")[0]} ${r.text.slice(0, 1500)}`;
       } catch (e) {
-        probes[p] = `error ${(e as Error).message}`;
+        tries[p] = `error ${(e as Error).message}`;
       }
     }
-    report.probes = probes;
+    report.tries = tries;
   } catch (e) {
     report.error = (e as Error).message;
   }
