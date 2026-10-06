@@ -114,17 +114,17 @@ export function HomeDashboard() {
 
       <section>
         <SectionHeader title={t("home.quickActions")} />
-        <motion.ul variants={container} initial="hidden" animate="show" className="grid grid-cols-4 gap-2 sm:gap-3 lg:grid-cols-8">
+        <motion.ul variants={container} initial="hidden" animate="show" className="grid auto-rows-fr grid-cols-4 gap-2 sm:gap-3 lg:grid-cols-8">
           {QUICK.map((q) => (
-            <motion.li key={q.href} variants={item}>
+            <motion.li key={q.href} variants={item} className="h-full">
               <Link
                 href={q.href}
-                className="flex min-h-20 flex-col items-center justify-center gap-1.5 rounded-2xl border border-border bg-card/80 p-2 text-center text-xs font-medium shadow-soft transition-colors hover:border-gold sm:text-sm"
+                className="flex h-full min-h-20 flex-col items-center justify-start gap-1.5 rounded-2xl border border-border bg-card/80 p-2 text-center text-xs font-medium shadow-soft transition-colors hover:border-gold sm:text-sm"
               >
                 <span className="grid size-10 place-items-center rounded-xl bg-primary-soft text-primary">
                   <q.icon className="size-5" aria-hidden />
                 </span>
-                {t(q.label)}
+                <span className="line-clamp-2 min-h-[2lh] leading-tight">{t(q.label)}</span>
               </Link>
             </motion.li>
           ))}

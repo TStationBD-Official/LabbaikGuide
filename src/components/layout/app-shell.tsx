@@ -138,23 +138,23 @@ function MoreSheet({ open, onClose, path }: { open: boolean; onClose: () => void
   return (
     <Sheet open={open} onClose={onClose} title={t("nav.more")}>
       <nav aria-label={t("nav.more")}>
-        <ul className="grid grid-cols-3 gap-2">
+        <ul className="grid auto-rows-fr grid-cols-3 gap-2">
           {[...SECONDARY_NAV, ...FOOTER_NAV].map((item) => {
             const Icon = item.icon;
             const active = isActive(item, path);
             return (
-              <li key={item.href}>
+              <li key={item.href} className="h-full">
                 <Link
                   href={item.href}
                   onClick={onClose}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "flex min-h-20 flex-col items-center justify-center gap-1.5 rounded-2xl border p-2 text-center text-xs font-medium",
+                    "flex h-full min-h-20 flex-col items-center justify-start gap-1.5 rounded-2xl border p-2 text-center text-xs font-medium",
                     active ? "border-primary bg-primary-soft text-primary" : "border-border bg-card hover:bg-muted",
                   )}
                 >
-                  <Icon className="size-5 text-gold" aria-hidden />
-                  {t(item.labelKey)}
+                  <Icon className="mt-1 size-5 shrink-0 text-gold" aria-hidden />
+                  <span className="line-clamp-2 min-h-[2lh] leading-tight">{t(item.labelKey)}</span>
                 </Link>
               </li>
             );

@@ -60,7 +60,7 @@ export function ThemeSelector() {
   return (
     <fieldset>
       <legend className="mb-2 text-sm font-medium">{t("theme.label")}</legend>
-      <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+      <div className="grid auto-rows-fr grid-cols-3 gap-2 sm:grid-cols-6">
         {THEMES.map((th) => (
           <button
             key={th}
@@ -73,7 +73,7 @@ export function ThemeSelector() {
             )}
           >
             {THEME_ICONS[th]}
-            {t(`theme.${th}`)}
+            <span className="line-clamp-2 leading-tight">{t(`theme.${th}`)}</span>
           </button>
         ))}
       </div>
@@ -91,7 +91,7 @@ export function AccentSelector() {
   return (
     <fieldset disabled={disabled} aria-describedby={disabled ? "accent-note" : undefined}>
       <legend className="mb-2 text-sm font-medium">{t("theme.accent")}</legend>
-      <div className={cn("grid grid-cols-3 gap-2 sm:grid-cols-5", disabled && "opacity-50")}>
+      <div className={cn("grid auto-rows-fr grid-cols-3 gap-2 sm:grid-cols-5", disabled && "opacity-50")}>
         {ACCENTS.map((a) => {
           const selected = accent === a;
           return (
