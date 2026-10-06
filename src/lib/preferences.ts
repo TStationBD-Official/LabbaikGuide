@@ -90,17 +90,25 @@ export const PREFS_COOKIE = "hc_prefs";
 export const DEFAULT_PREFERENCES: Preferences = PreferencesSchema.parse({});
 
 /** Parse untrusted cookie content. Always returns valid preferences. */
+/**
+ * Bump when a default changes and existing users should receive it.
+ * v2: Bangla font default → Anek Bangla (saved cookies from v1 carried Noto Sans Bengali).
+ */
+export const PREFS_VERSION = 2;
+
 export function parsePreferences(raw: string | undefined | null): Preferences {
   if (!raw) return DEFAULT_PREFERENCES;
   try {
-    return PreferencesSchema.parse(JSON.parse(decodeURIComponent(raw)));
+    const data = JSON.parse(decodeURIComponent(raw)) as Record<string, unknown>;
+    if (data.v !== PREFS_VERSION) delete data.banglaFont; // migrate to the new default
+    return PreferencesSchema.parse(data);
   } catch {
     return DEFAULT_PREFERENCES;
   }
 }
 
 export function serializePreferences(p: Preferences): string {
-  return encodeURIComponent(JSON.stringify(p));
+  return encodeURIComponent(JSON.stringify({ ...p, v: PREFS_VERSION }));
 }
 
 /** Attributes applied to <html>. Shared by SSR and client updates. */

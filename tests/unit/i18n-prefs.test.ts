@@ -63,3 +63,13 @@ describe("colour themes", () => {
     expect(htmlAttributes({ ...DEFAULT_PREFERENCES, accent: "rose" })["data-accent"]).toBe("rose");
   });
 });
+
+describe("Bangla font default", () => {
+  it("is Anek Bangla, and old cookies are migrated to it", () => {
+    expect(DEFAULT_PREFERENCES.banglaFont).toBe("anek");
+    // A v1 cookie (no version) that saved Noto Sans Bengali is migrated.
+    expect(parsePreferences(encodeURIComponent(JSON.stringify({ banglaFont: "noto", locale: "bn" }))).banglaFont).toBe("anek");
+    // A choice made after the migration is respected.
+    expect(parsePreferences(serializePreferences({ ...DEFAULT_PREFERENCES, banglaFont: "hind" })).banglaFont).toBe("hind");
+  });
+});
