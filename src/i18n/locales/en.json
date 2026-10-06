@@ -628,7 +628,7 @@
     "enableBody": "Get a notification to do your adhkar after each prayer.",
     "enable": "Turn on notifications",
     "pushActive": "Reminders arrive even when the app is closed.",
-    "pushInApp": "For now, reminders arrive only while the app is open.",
+    "pushInApp": "Reminders appear while the app is open.",
     "pushUnsupported": "This browser has no background notifications. On iPhone, use Share → Add to Home Screen and open the app from its icon.",
     "pushDenied": "Notifications are blocked — allow them for this site in your browser settings.",
     "timeHint": "Times are Makkah/Madinah local time.",
