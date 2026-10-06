@@ -28,12 +28,17 @@ describe("haramainimams.com adapter", () => {
   it("passes through already-published future days in order, without past days or empty rows", () => {
     const s = normalizeHaramainImams(FEED, "madinah", "2026-10-06", "x");
     expect(s.upcoming.map((d) => d.date)).toEqual(["2026-10-07", "2026-10-08"]);
-    expect(s.upcoming[0].prayers.map((p) => p.name)).toEqual(["fajr", "isha"]);
+    // 7 Oct: Fajr/Isha own names; Dhuhr filled from 6 Oct (dated); Asr filled from 8 Oct (dated).
+    expect(s.upcoming[0].prayers.map((p) => p.name)).toEqual(["fajr", "dhuhr", "asr", "isha"]);
+    const d1 = s.upcoming[0].prayers;
+    expect(d1[0].imamFrom).toBeNull();
+    expect(d1[1]).toMatchObject({ imamFrom: "2026-10-06" });
+    expect(d1[2]).toMatchObject({ imamFrom: "2026-10-08" });
   });
 
   it("only proxies photos from the source's own storage host", () => {
     const s = normalizeHaramainImams(FEED, "madinah", "2026-10-06", "x");
-    expect(s.upcoming[1].prayers[0].imam?.image).toBe(`/api/haramain/photo?u=${encodeURIComponent(PHOTO)}`);
+    expect(s.upcoming[1].prayers.find((p) => p.name === "asr")?.imam?.image).toBe(`/api/haramain/photo?u=${encodeURIComponent(PHOTO)}`);
     expect(isAllowedPhotoUrl(PHOTO)).toBe(true);
     expect(isAllowedPhotoUrl("https://example.com/a.jpg")).toBe(false);
     expect(isAllowedPhotoUrl("http://objectstorage.me-jeddah-1.oraclecloud.com/x.jpg")).toBe(false);

@@ -243,8 +243,9 @@ function pickStaff(s: HaramainSchedule | undefined, name: PrayerName, dateKey: s
     const r = s.recent.find((x) => x.name === name)?.[kind];
     return r ? { person: r.person, date: r.date } : null;
   }
-  const p = s.upcoming.find((d) => d.date === dateKey)?.prayers.find((x) => x.name === name)?.[kind];
-  return p ? { person: p, date: null } : null;
+  const row = s.upcoming.find((d) => d.date === dateKey)?.prayers.find((x) => x.name === name);
+  const p = row?.[kind];
+  return p ? { person: p, date: (kind === "imam" ? row.imamFrom : row.muezzinFrom) ?? null } : null;
 }
 
 /** Home: who leads / calls the next prayer, with photos. */
@@ -276,7 +277,7 @@ export function NextPrayerStaffCard({ data }: { data: Data }) {
               <p dir="auto" className={cn("text-sm", pick ? "font-medium" : "text-xs text-muted-foreground")}>
                 {pick ? display(pick.person) : t("prayer.notPublished")}
               </p>
-              {pick?.date ? <DatedTag date={pick.date} relativeTo={s.date} /> : null}
+              {pick?.date ? <DatedTag date={pick.date} relativeTo={dateKey} /> : null}
             </div>
           </div>
         ))}
@@ -417,14 +418,16 @@ export function UpcomingStaff({ data }: { data: Data }) {
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {(["imam", "muezzin"] as const).map((k) => {
                   const person = p[k];
+                  const from = k === "imam" ? p.imamFrom : p.muezzinFrom;
                   return (
                     <div key={k} className="flex min-w-0 items-center gap-2.5">
                       {person ? <PersonAvatar person={person} size="sm" /> : <span className="size-8 shrink-0 rounded-full border border-dashed border-border" aria-hidden />}
                       <div className="min-w-0">
                         <p className="text-[11px] text-muted-foreground">{k === "imam" ? t("prayer.imamLabel") : t("prayer.muezzinLabel")}</p>
-                        <p dir="auto" className={cn("truncate text-sm", person ? "font-medium" : "text-xs text-muted-foreground")}>
+                        <p dir="auto" className={cn("text-sm", person ? "font-medium" : "text-xs text-muted-foreground")}>
                           {person ? display(person) : t("prayer.notPublished")}
                         </p>
+                        {person && from ? <DatedTag date={from} relativeTo={day.date} /> : null}
                       </div>
                     </div>
                   );
@@ -433,7 +436,10 @@ export function UpcomingStaff({ data }: { data: Data }) {
             </li>
           ))}
         </ul>
-        <p className="mt-3 text-xs text-muted-foreground">{t("prayer.upcomingNote")}</p>
+        <p className="mt-3 text-xs text-muted-foreground">
+          {rows.some((p) => p.imamFrom || p.muezzinFrom) ? `${t("prayer.upcomingFillNote")} ` : ""}
+          {t("prayer.upcomingNote")}
+        </p>
       </Card>
     </section>
   );

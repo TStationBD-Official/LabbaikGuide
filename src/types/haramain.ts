@@ -21,7 +21,7 @@ export const PrayerEntrySchema = z.object({
   muezzin: PersonNameSchema.nullable(),
 });
 
-/** Assignments the source has already published for the coming days (never inferred). */
+/** Coming days from the source; names not published for a day are filled from the nearest published day, with that date. */
 export const UpcomingDaySchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   prayers: z.array(
@@ -29,6 +29,9 @@ export const UpcomingDaySchema = z.object({
       name: z.enum(["fajr", "sunrise", "dhuhr", "asr", "maghrib", "isha"]),
       imam: PersonNameSchema.nullable(),
       muezzin: PersonNameSchema.nullable(),
+      /** Set when the name was not published for this day and comes from the nearest published day. */
+      imamFrom: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),
+      muezzinFrom: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),
     }),
   ),
 });

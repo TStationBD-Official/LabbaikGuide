@@ -98,44 +98,68 @@ export function normalizeHaramainImams(raw: unknown, location: LocationId, date:
   if (!parsed.success) return unavailable(location, date);
 
   // Group by date; first entry per (date, prayer) wins; drop rows with no names at all.
-  const byDate = new Map<string, Map<string, { imam: PersonName | null; muezzin: PersonName | null }>>();
-  // Nearest published assignment on another day, per prayer and role (dated; never presented as today's).
+  type Pair = { imam: PersonName | null; muezzin: PersonName | null };
   type Dated = { date: string; person: PersonName };
-  const recentMap = new Map<string, { imam: Dated | null; muezzin: Dated | null }>();
-  const oldest = minusDays(date, RECENT_LOOKBACK_DAYS);
-  const newest = minusDays(date, -RECENT_LOOKBACK_DAYS);
+  const byDate = new Map<string, Map<string, Pair>>();
   for (const e of parsed.data) {
     const name = PRAYER.safeParse(e.prayer);
     if (!name.success) continue;
     const imam = person(e.imam);
     const muezzin = person(e.muezzin);
     if (!imam && !muezzin) continue;
-    if (e.date !== date && e.date >= oldest && e.date <= newest) {
-      // Nearest other day: the latest past day wins; a future day is used only when no past one exists.
-      const better = (cur: Dated | null) =>
-        !cur || (e.date < date ? cur.date > date || e.date > cur.date : cur.date > date && e.date < cur.date);
-      const r = recentMap.get(name.data) ?? { imam: null, muezzin: null };
-      if (imam && better(r.imam)) r.imam = { date: e.date, person: imam };
-      if (muezzin && better(r.muezzin)) r.muezzin = { date: e.date, person: muezzin };
-      recentMap.set(name.data, r);
-    }
-    if (e.date < date) continue;
-    const day = byDate.get(e.date) ?? new Map();
+    const day = byDate.get(e.date) ?? new Map<string, Pair>();
     if (!day.has(name.data)) day.set(name.data, { imam, muezzin });
     byDate.set(e.date, day);
   }
-  const sortDay = (m: Map<string, { imam: PersonName | null; muezzin: PersonName | null }>) =>
-    ORDER.filter((n) => m.has(n)).map((n) => ({ name: n, ...m.get(n)! }));
+  const dates = [...byDate.keys()].sort();
+
+  /**
+   * Nearest other published day for a prayer and role, relative to `target`:
+   * the latest earlier day wins; a later day is used only when no earlier one exists.
+   * Always carries its date, so it is never presented as `target`'s own assignment.
+   */
+  const nearest = (name: string, kind: keyof Pair, target: string): Dated | null => {
+    const lo = minusDays(target, RECENT_LOOKBACK_DAYS);
+    const hi = minusDays(target, -RECENT_LOOKBACK_DAYS);
+    const has = (d: string) => byDate.get(d)?.get(name)?.[kind];
+    const past = [...dates].reverse().find((d) => d < target && d >= lo && has(d));
+    const future = dates.find((d) => d > target && d <= hi && has(d));
+    const d = past ?? future;
+    return d ? { date: d, person: has(d)! } : null;
+  };
+  const SALAH_ORDER = ORDER.filter((n) => n !== "sunrise");
 
   const today = byDate.get(date);
   // Adhan times stay calculated (Umm al-Qura) in the UI; only staff names come from this feed.
-  const prayers = today ? sortDay(today).map((p) => ({ ...p, adhan: null, iqamah: null })) : [];
-  const upcoming = [...byDate.keys()]
+  const prayers = today
+    ? ORDER.filter((n) => today.has(n)).map((n) => ({ name: n, ...today.get(n)!, adhan: null, iqamah: null }))
+    : [];
+  const upcoming = dates
     .filter((d) => d > date)
-    .sort()
     .slice(0, UPCOMING_DAYS)
-    .map((d) => ({ date: d, prayers: sortDay(byDate.get(d)!) }));
-  const recent = ORDER.filter((n) => recentMap.has(n)).map((n) => ({ name: n, ...recentMap.get(n)! }));
+    .map((d) => {
+      const day = byDate.get(d)!;
+      return {
+        date: d,
+        prayers: SALAH_ORDER.flatMap((n) => {
+          const own = day.get(n);
+          const fill = (kind: keyof Pair) => {
+            if (own?.[kind]) return { person: own[kind], from: null };
+            const near = nearest(n, kind, d);
+            return near ? { person: near.person, from: near.date } : { person: null, from: null };
+          };
+          const im = fill("imam");
+          const mu = fill("muezzin");
+          if (!im.person && !mu.person) return [];
+          return [{ name: n, imam: im.person, muezzin: mu.person, imamFrom: im.from, muezzinFrom: mu.from }];
+        }),
+      };
+    });
+  const recent = SALAH_ORDER.flatMap((n) => {
+    const imam = today?.get(n)?.imam ? null : nearest(n, "imam", date);
+    const muezzin = today?.get(n)?.muezzin ? null : nearest(n, "muezzin", date);
+    return imam || muezzin ? [{ name: n, imam, muezzin }] : [];
+  });
   if (!prayers.length && !upcoming.length && !recent.length) return unavailable(location, date);
 
   const now = new Date();
