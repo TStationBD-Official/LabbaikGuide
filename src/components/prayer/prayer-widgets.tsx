@@ -15,6 +15,8 @@ import { usePrayerData } from "@/hooks/use-prayer";
 import { cn } from "@/lib/utils";
 import type { TKey } from "@/i18n";
 import type { HaramainSchedule, PersonName } from "@/types/haramain";
+import { useClockStore } from "@/stores/clock-store";
+import { findZone, zoneLabel } from "@/features/clock/timezones";
 
 type Data = ReturnType<typeof usePrayerData>;
 
@@ -101,6 +103,8 @@ function CountdownRing({ progress, ms, label }: { progress: number; ms: number; 
 export function NextPrayerCard({ data, strip = true, stripClassName }: { data: Data; strip?: boolean; stripClassName?: string }) {
   const { t, intlLocale } = useI18n();
   const location = usePrefs((s) => s.location);
+  const showHome = useClockStore((s) => s.showHome);
+  const homeTz = useClockStore((s) => s.homeTz);
   const { info, days, now } = data;
 
   if (!info || !days || !now) return <Skeleton className="h-64 w-full rounded-3xl" />;
@@ -176,6 +180,12 @@ export function NextPrayerCard({ data, strip = true, stripClassName }: { data: D
               <span className="text-xs opacity-75">{t("prayer.adhan")}</span>
               <span className="text-[clamp(1.05rem,5vw,1.5rem)] font-semibold tabular-nums">{formatTime(info.next.adhan, intlLocale)}</span>
             </p>
+            {showHome && homeTz && homeTz !== "Asia/Riyadh" ? (
+              <p className="mt-0.5 truncate text-xs opacity-75">
+                {findZone(homeTz)?.flag ?? "🌐"}{" "}
+                {t("clock.adhanAtHome", { place: zoneLabel(findZone(homeTz), homeTz, intlLocale), time: formatTime(info.next.adhan, intlLocale, homeTz) })}
+              </p>
+            ) : null}
           </div>
           <CountdownRing progress={progress} ms={info.msUntilNext} label={t("prayer.remaining")} />
         </div>

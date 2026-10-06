@@ -14,6 +14,7 @@ import { useToast } from "@/components/ui/toast";
 import { AccentSelector, FontSelectors, LanguageSelector, LocationSwitcher, ThemeSelector } from "@/components/layout/selectors";
 import { LayerToggles } from "@/components/quran/layer-toggles";
 import { clearAllLocalData } from "@/services/storage/idb-storage";
+import { HomeClockSettings } from "@/components/home/dual-clock";
 import { useNotificationStore, type NotificationMode } from "@/stores/notification-store";
 import { APP_CONFIG } from "@/config/app";
 import { OfflineSection } from "./offline-section";
@@ -109,6 +110,10 @@ export function SettingsPage() {
 
       <Section id="s-quran" title={t("settings.quran")}>
         <LayerToggles />
+      </Section>
+
+      <Section id="s-clock" title={t("clock.title")}>
+        <HomeClockSettings />
       </Section>
 
       <Section id="s-location" title={t("settings.location")}>

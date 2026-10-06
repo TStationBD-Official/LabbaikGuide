@@ -635,5 +635,25 @@
     "sunnahNote": "Order and counts: Sahih Muslim 591 & 597; Ayat al-Kursi — an-Nasa'i, as-Sunan al-Kubra.",
     "planDoneToast": "{name} complete — Alhamdulillah",
     "undo": "Undo"
+  },
+  "clock": {
+    "title": "Two clocks",
+    "show": "Show home-country time on Home",
+    "showDesc": "Your country's time next to Makkah/Madinah time.",
+    "choose": "Your country / city",
+    "device": "This device",
+    "change": "Change country",
+    "same": "Same time",
+    "ahead": "{d} ahead",
+    "behind": "{d} behind",
+    "h": "{h} h",
+    "hm": "{h} h {m} min",
+    "adhanAtHome": "{place}: {time}",
+    "promptTitle": "Also show your home time",
+    "promptBody": "It's {time} in Makkah now. Choose your country to see both times side by side — handy for calling family.",
+    "promptSet": "Choose country",
+    "promptDismiss": "Not needed",
+    "placeholder": "— Choose a country —",
+    "notSet": "No country chosen yet."
   }
 }
