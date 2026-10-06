@@ -7,8 +7,8 @@ const securityHeaders = [
   { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
   {
     key: "Permissions-Policy",
-    // Geolocation and motion sensors only for our own origin (Qibla); everything else off.
-    value: "camera=(), microphone=(), payment=(), usb=(), geolocation=(self), accelerometer=(self), gyroscope=(self), magnetometer=(self)",
+    // Geolocation and motion sensors only for our own origin (Qibla, My Hotel); everything else off.
+    value: "camera=(), microphone=(), payment=(), usb=(), geolocation=(self), accelerometer=(self), gyroscope=(self), magnetometer=(self), screen-wake-lock=(self)",
   },
 ];
 

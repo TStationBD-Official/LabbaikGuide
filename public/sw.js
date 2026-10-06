@@ -18,12 +18,17 @@ const PAGES = `hc-pages-${VERSION}`;
 const API = `hc-api-${VERSION}`;
 const MAX_API_ENTRIES = 600;
 const MAX_PAGE_ENTRIES = 400;
+/** Map tiles survive SW updates (not versioned); capped so storage stays modest. */
+const TILES = "hc-tiles";
+const MAX_TILE_ENTRIES = 4000;
+const TILE_HOSTS = ["tiles.openfreemap.org", "tile.openstreetmap.org"];
 
 const CORE_PAGES = [
   "/", "/quran", "/quran/surah/1", "/zikr", "/manasik", "/umrah", "/hajj", "/tawaf", "/sai",
-  "/duas", "/prayer", "/qibla", "/search", "/settings", "/sources", "/privacy",
+  "/duas", "/prayer", "/qibla", "/hotel", "/search", "/settings", "/sources", "/privacy",
 ];
 const CORE_ASSETS = [
+  "/vendor/maplibre-gl-csp-worker.js",
   "/offline.html", "/manifest.webmanifest", "/icons/icon.svg", "/icons/icon-192.png", "/icons/icon-512.png",
   "/fonts/quran/indopak-alqalam.ttf", "/fonts/quran/kfgqpc-uthmanic-hafs.otf", "/fonts/quran/amiri-quran.woff2",
   "/fonts/quran/scheherazade-new.woff2", "/fonts/quran/noto-naskh-arabic.woff2", "/fonts/quran/noto-nastaliq-urdu.woff2",
@@ -119,7 +124,7 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches
       .keys()
-      .then((keys) => Promise.all(keys.filter((k) => k.startsWith("hc-") && !k.endsWith(VERSION)).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.filter((k) => k.startsWith("hc-") && k !== TILES && !k.endsWith(VERSION)).map((k) => caches.delete(k))))
       .then(() => self.clients.claim()),
   );
 });
@@ -131,6 +136,12 @@ self.addEventListener("message", (event) => {
   } else if (data.type === "precache-pages" && Array.isArray(data.urls)) {
     const urls = data.urls.filter((u) => typeof u === "string" && u.startsWith("/") && !u.startsWith("//")).slice(0, 300);
     event.waitUntil(precache(urls).then((count) => notify({ type: "precache-done", scope: "pages", count })));
+  } else if (data.type === "cache-tiles" && Array.isArray(data.urls)) {
+    // Small area around the saved hotel so the map also works offline (no bulk downloads).
+    const urls = data.urls
+      .filter((u) => typeof u === "string" && TILE_HOSTS.includes(safeHost(u)))
+      .slice(0, 400);
+    event.waitUntil(cacheTiles(urls));
   } else if (data.type === "status") {
     event.waitUntil(
       caches.open(PAGES).then(async (c) => {
@@ -141,6 +152,53 @@ self.addEventListener("message", (event) => {
     );
   }
 });
+
+function safeHost(u) {
+  try {
+    return new URL(u).hostname;
+  } catch {
+    return "";
+  }
+}
+
+async function cacheTiles(urls) {
+  const cache = await caches.open(TILES);
+  const queue = [...urls];
+  const worker = async () => {
+    while (queue.length) {
+      const u = queue.shift();
+      if (await cache.match(u)) continue;
+      try {
+        const res = await fetch(u, { mode: "cors", credentials: "omit" });
+        if (res.ok) await cache.put(u, res);
+      } catch {
+        /* offline or blocked — try again next time */
+      }
+    }
+  };
+  await Promise.all([worker(), worker(), worker()]);
+  await trim(TILES, MAX_TILE_ENTRIES);
+}
+
+/** Map data: tiles, fonts and sprites cache-first; style/TileJSON documents stale-while-revalidate. */
+async function mapRequest(req) {
+  const cache = await caches.open(TILES);
+  const url = new URL(req.url);
+  const isDoc = url.pathname.startsWith("/styles/") || /^\/[a-z0-9_-]+$/i.test(url.pathname);
+  const cached = await cache.match(req.url);
+  if (cached && !isDoc) return cached;
+  const network = fetch(req)
+    .then((res) => {
+      if (res.ok) {
+        cache.put(req.url, res.clone());
+        trim(TILES, MAX_TILE_ENTRIES);
+      }
+      return res;
+    })
+    .catch(() => undefined);
+  if (cached) return cached;
+  return (await network) || new Response("", { status: 504 });
+}
 
 async function cacheFirst(req) {
   const cached = await caches.match(req);
@@ -192,6 +250,7 @@ self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
+  if (TILE_HOSTS.includes(url.hostname)) return event.respondWith(mapRequest(req));
   if (url.origin !== self.location.origin) return;
 
   // Photos are static images: cache-first so they also show offline (they are never "live" data).
@@ -201,6 +260,7 @@ self.addEventListener("fetch", (event) => {
   if (
     url.pathname.startsWith("/_next/static/") ||
     url.pathname.startsWith("/icons/") ||
+    url.pathname.startsWith("/vendor/") ||
     url.pathname.startsWith("/fonts/") ||
     /\.(woff2?|ttf|otf)$/.test(url.pathname)
   ) {

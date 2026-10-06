@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { Compass, LocateFixed } from "lucide-react";
 import { useI18n } from "@/components/providers/i18n-provider";
@@ -11,59 +11,10 @@ import { UnavailableNotice } from "@/components/ui/states";
 import { LOCATIONS } from "@/config/locations";
 import { angleDiff, distanceToKaabaKm, qiblaBearing } from "@/features/prayer/qibla";
 import { cn, vibrate } from "@/lib/utils";
+import { useCompass } from "@/hooks/use-compass";
 
 type Origin = { kind: "makkah" | "madinah" | "device"; lat: number; lon: number };
 type GeoState = "idle" | "locating" | "denied" | "unsupported";
-type CompassState = "off" | "active" | "unavailable";
-
-type OrientationEventIOS = DeviceOrientationEvent & { webkitCompassHeading?: number };
-type OrientationCtor = typeof DeviceOrientationEvent & { requestPermission?: () => Promise<"granted" | "denied"> };
-
-/** Device compass heading (degrees from North), where supported. */
-function useCompass() {
-  const [state, setState] = useState<CompassState>("off");
-  const [heading, setHeading] = useState<number | null>(null);
-
-  const start = useCallback(async () => {
-    if (typeof window === "undefined" || !("DeviceOrientationEvent" in window)) return setState("unavailable");
-    const Ctor = DeviceOrientationEvent as OrientationCtor;
-    try {
-      if (typeof Ctor.requestPermission === "function") {
-        const r = await Ctor.requestPermission(); // iOS 13+: must be from a user gesture
-        if (r !== "granted") return setState("unavailable");
-      }
-    } catch {
-      return setState("unavailable");
-    }
-    setState("active");
-  }, []);
-
-  useEffect(() => {
-    if (state !== "active") return;
-    let got = false;
-    const onOrient = (e: Event) => {
-      const ev = e as OrientationEventIOS;
-      let h: number | null = null;
-      if (typeof ev.webkitCompassHeading === "number") h = ev.webkitCompassHeading;
-      else if (ev.absolute && typeof ev.alpha === "number") h = (360 - ev.alpha) % 360;
-      if (h !== null) {
-        got = true;
-        setHeading(h);
-      }
-    };
-    const evName = "ondeviceorientationabsolute" in window ? "deviceorientationabsolute" : "deviceorientation";
-    window.addEventListener(evName, onOrient, true);
-    const timer = setTimeout(() => {
-      if (!got) setState("unavailable"); // desktop or sensor without absolute heading
-    }, 2500);
-    return () => {
-      window.removeEventListener(evName, onOrient, true);
-      clearTimeout(timer);
-    };
-  }, [state]);
-
-  return { state, heading, start };
-}
 
 export function QiblaView() {
   const { t, formatNumber } = useI18n();

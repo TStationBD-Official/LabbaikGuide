@@ -10,7 +10,9 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "check": "npm run lint && npm run typecheck && npm run test && npm run build"
+    "check": "npm run lint && npm run typecheck && npm run test && npm run build",
+    "prebuild": "node scripts/copy-maplibre-worker.mjs",
+    "predev": "node scripts/copy-maplibre-worker.mjs"
   },
   "dependencies": {
     "@fontsource-variable/anek-bangla": "^5.3.0",
@@ -31,6 +33,7 @@
     "clsx": "^2.1.1",
     "idb-keyval": "^6.3.0",
     "lucide-react": "^1.52.0",
+    "maplibre-gl": "^5.24.0",
     "motion": "^14.0.0",
     "next": "16.3.8",
     "react": "19.2.8",

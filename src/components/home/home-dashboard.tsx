@@ -11,6 +11,7 @@ import { Progress } from "@/components/ui/progress";
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import { NextPrayerCard, NextPrayerStaffCard, PrayerSchedule } from "@/components/prayer/prayer-widgets";
 import { ContinueReadingCard } from "@/components/quran/quran-home";
+import { HotelHomeCard } from "@/components/places/hotel-home-card";
 import { DuaCard } from "@/components/dua/dua-card";
 import { LOCATIONS } from "@/config/locations";
 import { DUAS } from "@/data/dua/duas";
@@ -109,6 +110,7 @@ export function HomeDashboard() {
         <div className="space-y-4">
           <NextPrayerCard data={data} />
           <NextPrayerStaffCard data={data} />
+          <HotelHomeCard />
         </div>
         <div className="hidden lg:block">
           <PrayerSchedule data={data} compact />

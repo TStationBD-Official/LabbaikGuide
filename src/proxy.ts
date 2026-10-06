@@ -2,8 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 
 /**
  * Per-request CSP with a nonce. Next.js applies the nonce to its own scripts
- * automatically. Audio is allowed from the Quran CDN only; all API traffic
- * goes through our own origin.
+ * automatically. Audio is allowed from the Quran CDN only; map tiles from
+ * OpenFreeMap/OpenStreetMap only; all other API traffic goes through our own origin.
  */
 export function proxy(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
@@ -17,7 +17,8 @@ export function proxy(request: NextRequest) {
     "img-src 'self' blob: data: https://objectstorage.me-jeddah-1.oraclecloud.com",
     "font-src 'self' data:",
     "media-src 'self' https://verses.quran.com https://*.quranicaudio.com",
-    "connect-src 'self'",
+    // Map data for "My Hotel": OpenFreeMap vector tiles (OSM raster as fallback).
+    "connect-src 'self' https://tiles.openfreemap.org https://tile.openstreetmap.org",
     "worker-src 'self'",
     "manifest-src 'self'",
     "object-src 'none'",

@@ -467,3 +467,20 @@ html[lang="ur"] :where(p, span, label, a, button, li, legend, h1, h2, h3, h4, dt
   --accent-foreground: light-dark(#334155, #e2e8f0);
   --success: light-dark(#1d7a4f, #49c08b);
 }
+
+/* ── My Hotel map markers ─────────────────────────────────────────────── */
+.hc-pin { width: 40px; height: 52px; cursor: default; }
+.hc-pin-pick { cursor: grab; animation: hc-bob 1.6s ease-in-out infinite; }
+.hc-pin-pick:active { cursor: grabbing; }
+@keyframes hc-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+.hc-user { position: relative; width: 22px; height: 22px; }
+.hc-user-dot { position: absolute; inset: 3px; border-radius: 9999px; background: #2f7cf6; border: 3px solid #fff; box-shadow: 0 1px 4px rgb(0 0 0 / 0.4); }
+.hc-user-pulse { position: absolute; inset: -8px; border-radius: 9999px; background: rgb(47 124 246 / 0.35); animation: hc-pulse 2s ease-out infinite; }
+.hc-user-cone { position: absolute; left: 50%; bottom: 50%; width: 46px; height: 46px; margin-left: -23px; transform-origin: 50% 100%;
+  background: radial-gradient(circle at 50% 100%, rgb(47 124 246 / 0.55), rgb(47 124 246 / 0) 70%);
+  clip-path: polygon(50% 100%, 18% 0, 82% 0); }
+.hc-user-stale .hc-user-dot { background: #8b95a5; }
+.hc-user-stale .hc-user-pulse { animation: none; opacity: 0; }
+@keyframes hc-pulse { 0% { transform: scale(0.5); opacity: 0.9; } 100% { transform: scale(1.6); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .hc-user-pulse, .hc-pin-pick { animation: none; } }
+.maplibregl-ctrl-attrib, .maplibregl-ctrl-scale { font-family: var(--font-latin); }

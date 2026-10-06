@@ -13,6 +13,7 @@ import {
   CircleDot,
   Footprints,
   Landmark,
+  Hotel,
   type LucideIcon,
 } from "lucide-react";
 import type { TKey } from "@/i18n";
@@ -35,6 +36,7 @@ export const PRIMARY_NAV: NavItem[] = [
 ];
 
 export const SECONDARY_NAV: NavItem[] = [
+  { href: "/hotel", labelKey: "nav.hotel", icon: Hotel, match: starts("/hotel") },
   { href: "/duas", labelKey: "nav.duas", icon: HandHeart, match: starts("/duas") },
   { href: "/prayer", labelKey: "nav.prayer", icon: Clock, match: starts("/prayer") },
   { href: "/qibla", labelKey: "nav.qibla", icon: Compass, match: starts("/qibla") },
