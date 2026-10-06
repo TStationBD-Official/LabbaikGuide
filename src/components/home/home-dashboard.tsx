@@ -116,9 +116,14 @@ export function HomeDashboard() {
           <NextPrayerStaffCard data={data} />
           <HotelHomeCard />
         </div>
-        <div className="hidden lg:block">
+        {/* Wide screens: schedule (and on xl the dua of the day) stay in view beside the main column. */}
+        <aside className="hidden space-y-6 lg:sticky lg:top-24 lg:block">
           <PrayerSchedule data={data} compact />
-        </div>
+          <section className="hidden xl:block">
+            <SectionHeader title={t("home.quickDua")} action={<Link href="/duas" className="text-sm text-primary">{t("common.viewAll")}</Link>} />
+            <DuaCard dua={dua} />
+          </section>
+        </aside>
       </div>
 
       <section>
@@ -153,7 +158,7 @@ export function HomeDashboard() {
         <PrayerSchedule data={data} compact />
       </section>
 
-      <section>
+      <section className="xl:hidden">
         <SectionHeader title={t("home.quickDua")} action={<Link href="/duas" className="text-sm text-primary">{t("common.viewAll")}</Link>} />
         <DuaCard dua={dua} />
       </section>

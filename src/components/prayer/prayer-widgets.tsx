@@ -6,7 +6,7 @@ import { useState } from "react";
 import { CalendarDays, Clock3, MapPin, Moon, Sunrise, User, Mic } from "lucide-react";
 import { useI18n } from "@/components/providers/i18n-provider";
 import { usePrefs } from "@/components/providers/preferences-provider";
-import { Badge, Card, GlassCard, SectionHeader } from "@/components/ui/card";
+import { Badge, Card, SectionHeader } from "@/components/ui/card";
 import { Skeleton, UnavailableNotice } from "@/components/ui/states";
 import { LOCATIONS } from "@/config/locations";
 import { formatGregorian, formatHijri, formatTime } from "@/features/prayer/calendar";

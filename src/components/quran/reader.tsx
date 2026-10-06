@@ -240,7 +240,7 @@ export function QuranReader({ mode, id, initialAyah }: { mode: ReadingMode; id: 
         </div>
       </header>
 
-      <div className="glass sticky top-[7.6rem] z-30 -mx-4 mb-4 border-y border-border/60 px-4 py-2 sm:-mx-6 sm:px-6 lg:top-0 lg:mx-0 lg:rounded-2xl lg:border">
+      <div className="glass sticky top-[calc(max(0.6rem,env(safe-area-inset-top))+3.45rem)] z-30 -mx-4 mb-4 border-y border-border/60 px-4 py-2 sm:-mx-6 sm:px-6 md:top-[4.5rem] md:mx-0 md:rounded-2xl md:border">
         <LayerToggles />
       </div>
 
@@ -271,7 +271,7 @@ export function QuranReader({ mode, id, initialAyah }: { mode: ReadingMode; id: 
       ) : verses.isError && !allVerses.length ? (
         <ErrorState error={verses.error} onRetry={() => verses.refetch()} />
       ) : (
-        <div className="space-y-4">
+        <div className="mx-auto max-w-4xl space-y-4">
           {allVerses.map((v) => (
             <AyahCard
               key={v.key}

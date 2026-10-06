@@ -23,7 +23,17 @@
     "sai": "Sa'i Tracker",
     "guides": "Guides",
     "mainNav": "Main navigation",
-    "hotel": "My Hotel"
+    "hotel": "My Hotel",
+    "short": {
+      "prayer": "Prayer",
+      "tawaf": "Tawaf",
+      "sai": "Sa'i",
+      "hotel": "Hotel"
+    },
+    "collapse": "Collapse menu",
+    "expand": "Expand menu",
+    "searchHint": "Search Quran, duas, guides…",
+    "toggleTheme": "Switch light/dark"
   },
   "location": {
     "makkah": "Makkah",

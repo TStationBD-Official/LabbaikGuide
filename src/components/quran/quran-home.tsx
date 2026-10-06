@@ -147,7 +147,7 @@ export function QuranHome() {
           ) : filtered.length === 0 ? (
             <p className="p-6 text-center text-sm text-muted-foreground">{t("common.noResults")}</p>
           ) : (
-            <ul className="grid grid-cols-1 gap-1 md:grid-cols-2">
+            <ul className="grid grid-cols-1 gap-1 md:grid-cols-2 2xl:grid-cols-3">
               {filtered.map((c) => (
                 <SurahRow key={c.id} c={c} />
               ))}

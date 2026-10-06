@@ -21,11 +21,11 @@ export function LogoMark({ className = "size-9" }: { className?: string }) {
 export function Logo() {
   const { t } = useI18n();
   return (
-    <Link href="/" className="flex items-center gap-2.5 rounded-xl" aria-label={t("app.name")}>
-      <LogoMark />
-      <span className="flex flex-col leading-tight">
+    <Link href="/" className="flex min-w-0 items-center gap-2.5 rounded-xl" aria-label={t("app.name")}>
+      <LogoMark className="size-9 shrink-0" />
+      <span className="flex min-w-0 flex-col leading-tight">
         <span className="text-[0.95rem] font-semibold text-foreground">{t("app.name")}</span>
-        <span className="text-[0.7rem] text-muted-foreground">{t("app.tagline")}</span>
+        <span className="truncate text-[0.7rem] text-muted-foreground">{t("app.tagline")}</span>
       </span>
     </Link>
   );

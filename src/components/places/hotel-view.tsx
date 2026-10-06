@@ -281,12 +281,14 @@ export function HotelView() {
         </div>
       ) : null}
 
+      {/* Wide screens: map stays in view on the left, details on the right. */}
+      <div className="space-y-5 lg:grid lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:items-start lg:gap-5 lg:space-y-0">
       {/* Map */}
-      <Card className="scroll-mt-28 overflow-hidden p-0" ref={mapCard}>
+      <Card className="scroll-mt-28 overflow-hidden p-0 md:scroll-mt-24 lg:sticky lg:top-[4.75rem]" ref={mapCard}>
         <div className="relative">
           <MapView
             ref={mapRef}
-            className="h-[52vh] min-h-[300px] w-full sm:h-[460px]"
+            className="h-[52vh] min-h-[300px] w-full sm:h-[460px] lg:h-[calc(100dvh-7rem)] lg:max-h-[52rem] lg:min-h-[28rem]"
             target={target ? { lat: target.lat, lon: target.lon, label: targetLabel } : null}
             user={live.fix}
             heading={compass.state === "active" ? compass.heading : (live.fix?.speed ?? 0) > 1 ? (live.fix?.heading ?? null) : null}
@@ -322,6 +324,7 @@ export function HotelView() {
         </div>
       </Card>
 
+      <div className="min-w-0 space-y-5">
       {showEditor ? (
         <Editor
           draft={d}
@@ -369,6 +372,8 @@ export function HotelView() {
         <ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
         {t("hotel.privacy")}
       </p>
+      </div>
+      </div>
     </div>
   );
 }

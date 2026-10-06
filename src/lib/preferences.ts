@@ -82,6 +82,8 @@ export const PreferencesSchema = z.object({
     .enum(LOCATION_IDS as [LocationId, ...LocationId[]])
     .catch(APP_CONFIG.defaults.location),
   reducedMotion: z.boolean().catch(false),
+  /** Large screens: navigation drawer collapsed to a rail. */
+  navCollapsed: z.boolean().catch(false),
 });
 
 export type Preferences = z.infer<typeof PreferencesSchema>;

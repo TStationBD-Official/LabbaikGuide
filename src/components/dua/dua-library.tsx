@@ -73,7 +73,7 @@ export function DuaLibrary({ initial = "all" }: { initial?: Filter }) {
       ) : list.length === 0 ? (
         <EmptyState message={filter === "favorites" ? t("dua.noFavorites") : t("common.noResults")} icon={<Heart className="size-8 text-muted-foreground" aria-hidden />} />
       ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-3">
           {list.map((d) => (
             <DuaCard key={d.id} dua={d} anchor />
           ))}

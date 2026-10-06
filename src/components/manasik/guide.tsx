@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { AlertTriangle, BookMarked, Check, ChevronDown, CircleDot, Footprints, ListChecks, MapPin, RotateCcw, Timer, X } from "lucide-react";
 import { useI18n } from "@/components/providers/i18n-provider";
 import { Button } from "@/components/ui/button";
@@ -43,6 +43,72 @@ function Block({ title, children }: { title: string; children: React.ReactNode }
   );
 }
 
+const OPEN_STEP_EVENT = "hc-open-step";
+
+/** Wide screens: sticky list of steps beside the guide, with progress. */
+function StepIndex({
+  steps,
+  doneMap,
+  onReset,
+}: {
+  steps: (GuideStep | HajjStage)[];
+  doneMap: Record<string, boolean>;
+  onReset: () => void;
+}) {
+  const { t, contentLocale, formatNumber } = useI18n();
+  const done = steps.filter((s) => doneMap[s.id]).length;
+  return (
+    <aside className="hidden xl:block">
+      <Card className="sticky top-[4.75rem] max-h-[calc(100dvh-6rem)] overflow-y-auto p-3">
+        <div className="px-2 pb-3 pt-1">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <p className="text-sm font-medium">{t("manasik.progressN", { done, total: steps.length })}</p>
+            <button
+              type="button"
+              onClick={() => {
+                if (window.confirm(t("common.confirm"))) onReset();
+              }}
+              disabled={done === 0}
+              aria-label={t("manasik.resetProgress")}
+              title={t("manasik.resetProgress")}
+              className="grid size-8 place-items-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40"
+            >
+              <RotateCcw className="size-4" aria-hidden />
+            </button>
+          </div>
+          <Progress value={done} max={steps.length} label={t("manasik.progress")} />
+        </div>
+        <ol className="space-y-0.5">
+          {steps.map((s, i) => {
+            const isDone = Boolean(doneMap[s.id]);
+            return (
+              <li key={s.id}>
+                <a
+                  href={`#step-${s.id}`}
+                  onClick={() => window.dispatchEvent(new CustomEvent(OPEN_STEP_EVENT, { detail: s.id }))}
+                  className="flex min-h-10 items-center gap-2.5 rounded-xl px-2 py-1.5 text-sm hover:bg-muted"
+                >
+                  <span
+                    className={cn(
+                      "grid size-6 shrink-0 place-items-center rounded-full text-[0.7rem] font-semibold",
+                      isDone ? "bg-success text-white" : "bg-muted text-muted-foreground",
+                    )}
+                  >
+                    {isDone ? <Check className="size-3.5" aria-hidden /> : formatNumber(i + 1)}
+                  </span>
+                  <span dir="auto" className={cn("line-clamp-2 leading-snug", isDone && "text-muted-foreground")}>
+                    {lt(s.title, contentLocale)}
+                  </span>
+                </a>
+              </li>
+            );
+          })}
+        </ol>
+      </Card>
+    </aside>
+  );
+}
+
 export function GuideStepCard({
   step,
   index,
@@ -59,11 +125,19 @@ export function GuideStepCard({
   const { t, contentLocale, formatNumber } = useI18n();
   const [open, setOpen] = useState(Boolean(defaultOpen));
   const bodyId = useId();
+  // The step index (wide screens) asks a step to open when it is picked.
+  useEffect(() => {
+    const onOpen = (e: Event) => {
+      if ((e as CustomEvent<string>).detail === step.id) setOpen(true);
+    };
+    window.addEventListener(OPEN_STEP_EVENT, onOpen);
+    return () => window.removeEventListener(OPEN_STEP_EVENT, onOpen);
+  }, [step.id]);
   const stage = "when" in step ? step : null;
   const dot = <span className="block size-1.5 translate-y-1.5 rounded-full bg-current" />;
 
   return (
-    <li id={`step-${step.id}`} className="scroll-mt-32">
+    <li id={`step-${step.id}`} className="scroll-mt-40 md:scroll-mt-24">
       <Card className={cn("overflow-hidden transition-colors", done && "border-success/50")}>
         <div className="flex items-stretch">
           <button
@@ -194,7 +268,7 @@ export function GuideStepCard({
 function GuideProgress({ done, total, onReset }: { done: number; total: number; onReset: () => void }) {
   const { t } = useI18n();
   return (
-    <GlassCard className="sticky top-[7.6rem] z-20 p-4 lg:top-4">
+    <GlassCard className="sticky top-[calc(max(0.6rem,env(safe-area-inset-top))+3.6rem)] z-20 p-4 md:top-[4.75rem] xl:hidden">
       <div className="mb-2 flex items-center justify-between gap-3">
         <p className="text-sm font-medium">
           {t("manasik.progress")}: {t("manasik.progressN", { done, total })}
@@ -230,11 +304,14 @@ export function UmrahGuide() {
     <div className="space-y-4">
       <UnavailableNotice message={t("common.reviewNotice")} />
       <GuideProgress done={done} total={UMRAH_STEPS.length} onReset={() => reset("umrah")} />
-      <ol className="space-y-3">
-        {UMRAH_STEPS.map((s, i) => (
-          <GuideStepCard key={s.id} step={s} index={i} done={Boolean(doneMap[s.id])} onToggle={() => toggle("umrah", s.id)} defaultOpen={s.id === firstOpen} />
-        ))}
-      </ol>
+      <div className="xl:grid xl:grid-cols-[17rem_minmax(0,1fr)] xl:items-start xl:gap-6">
+        <StepIndex steps={UMRAH_STEPS} doneMap={doneMap} onReset={() => reset("umrah")} />
+        <ol className="space-y-3">
+          {UMRAH_STEPS.map((s, i) => (
+            <GuideStepCard key={s.id} step={s} index={i} done={Boolean(doneMap[s.id])} onToggle={() => toggle("umrah", s.id)} defaultOpen={s.id === firstOpen} />
+          ))}
+        </ol>
+      </div>
     </div>
   );
 }
@@ -273,11 +350,14 @@ export function HajjGuide() {
       </section>
       <GuideProgress done={done} total={stages.length} onReset={() => reset("hajj")} />
       <h2 className="pt-2 text-lg font-semibold">{t("manasik.stages")}</h2>
-      <ol className="space-y-3">
-        {stages.map((s, i) => (
-          <GuideStepCard key={s.id} step={s} index={i} done={Boolean(doneMap[s.id])} onToggle={() => toggle("hajj", s.id)} />
-        ))}
-      </ol>
+      <div className="xl:grid xl:grid-cols-[17rem_minmax(0,1fr)] xl:items-start xl:gap-6">
+        <StepIndex steps={stages} doneMap={doneMap} onReset={() => reset("hajj")} />
+        <ol className="space-y-3">
+          {stages.map((s, i) => (
+            <GuideStepCard key={s.id} step={s} index={i} done={Boolean(doneMap[s.id])} onToggle={() => toggle("hajj", s.id)} />
+          ))}
+        </ol>
+      </div>
     </div>
   );
 }

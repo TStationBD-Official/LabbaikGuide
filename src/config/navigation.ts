@@ -18,7 +18,14 @@ import {
 } from "lucide-react";
 import type { TKey } from "@/i18n";
 
-export type NavItem = { href: string; labelKey: TKey; icon: LucideIcon; match?: (p: string) => boolean };
+export type NavItem = {
+  href: string;
+  labelKey: TKey;
+  /** Short label for the navigation rail (falls back to labelKey). */
+  shortKey?: TKey;
+  icon: LucideIcon;
+  match?: (p: string) => boolean;
+};
 
 const starts = (prefix: string) => (p: string) => p === prefix || p.startsWith(`${prefix}/`);
 
@@ -36,12 +43,12 @@ export const PRIMARY_NAV: NavItem[] = [
 ];
 
 export const SECONDARY_NAV: NavItem[] = [
-  { href: "/hotel", labelKey: "nav.hotel", icon: Hotel, match: starts("/hotel") },
+  { href: "/hotel", labelKey: "nav.hotel", shortKey: "nav.short.hotel", icon: Hotel, match: starts("/hotel") },
   { href: "/duas", labelKey: "nav.duas", icon: HandHeart, match: starts("/duas") },
-  { href: "/prayer", labelKey: "nav.prayer", icon: Clock, match: starts("/prayer") },
+  { href: "/prayer", labelKey: "nav.prayer", shortKey: "nav.short.prayer", icon: Clock, match: starts("/prayer") },
   { href: "/qibla", labelKey: "nav.qibla", icon: Compass, match: starts("/qibla") },
-  { href: "/tawaf", labelKey: "nav.tawaf", icon: CircleDot, match: starts("/tawaf") },
-  { href: "/sai", labelKey: "nav.sai", icon: Footprints, match: starts("/sai") },
+  { href: "/tawaf", labelKey: "nav.tawaf", shortKey: "nav.short.tawaf", icon: CircleDot, match: starts("/tawaf") },
+  { href: "/sai", labelKey: "nav.sai", shortKey: "nav.short.sai", icon: Footprints, match: starts("/sai") },
   { href: "/search", labelKey: "nav.search", icon: Search, match: starts("/search") },
   { href: "/settings", labelKey: "nav.settings", icon: Settings, match: starts("/settings") },
 ];

@@ -87,7 +87,8 @@ export function ZikrPlans({ initialPlan }: { initialPlan: string | null }) {
     if (id) url.searchParams.set("plan", id);
     else url.searchParams.delete("plan");
     window.history.replaceState(window.history.state, "", url.pathname + url.search);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    // In the side-by-side layout the list stays put; elsewhere bring the runner into view.
+    if (!window.matchMedia("(min-width: 80rem)").matches) window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
   if (!hydrated) return <SkeletonList rows={5} />;
@@ -96,7 +97,15 @@ export function ZikrPlans({ initialPlan }: { initialPlan: string | null }) {
   return (
     <>
       {plan ? (
-        <PlanRunner plan={plan} onClose={() => openPlan(null)} onEdit={() => setEditing(plan)} />
+        // Wide screens: list–detail, like a tablet/desktop master–detail layout.
+        <div className="xl:grid xl:grid-cols-[minmax(0,23rem)_minmax(0,1fr)] xl:items-start xl:gap-6">
+          <div className="hidden xl:block">
+            <PlanList onOpen={openPlan} onEdit={setEditing} activeId={plan.id} narrow />
+          </div>
+          <div>
+            <PlanRunner plan={plan} onClose={() => openPlan(null)} onEdit={() => setEditing(plan)} />
+          </div>
+        </div>
       ) : (
         <PlanList onOpen={openPlan} onEdit={setEditing} />
       )}
@@ -118,7 +127,19 @@ export function ZikrPlans({ initialPlan }: { initialPlan: string | null }) {
 // ───────────────────────────────────────────────────────────────────────────
 // List
 // ───────────────────────────────────────────────────────────────────────────
-function PlanList({ onOpen, onEdit }: { onOpen: (id: string) => void; onEdit: (p: ZikrPlan | "new") => void }) {
+function PlanList({
+  onOpen,
+  onEdit,
+  activeId,
+  narrow,
+}: {
+  onOpen: (id: string) => void;
+  onEdit: (p: ZikrPlan | "new") => void;
+  /** Plan open beside the list (wide screens). */
+  activeId?: string;
+  /** Single column even on wide screens. */
+  narrow?: boolean;
+}) {
   const { t, intlLocale } = useI18n();
   const location = usePrefs((s) => s.location);
   const plans = usePlanStore((s) => s.plans);
@@ -144,16 +165,17 @@ function PlanList({ onOpen, onEdit }: { onOpen: (id: string) => void; onEdit: (p
     const pr = progress[progressKey(p.id, day)];
     const status = pr?.done ? "done" : pr && (pr.step > 0 || pr.count > 0) ? "progress" : null;
     const isNow = p.id === doNowId;
+    const selected = p.id === activeId;
     return (
       <li key={p.id}>
         <div
           className={cn(
-            "flex items-center gap-3 rounded-2xl border bg-card p-3 transition-colors",
-            isNow ? "border-gold ring-2 ring-gold/25" : "border-border",
+            "flex h-full items-center gap-3 rounded-2xl border bg-card p-3 transition-colors",
+            selected ? "border-primary bg-primary-soft/60 ring-2 ring-primary/20" : isNow ? "border-gold ring-2 ring-gold/25" : "border-border",
             pr?.done && "opacity-80",
           )}
         >
-          <button type="button" onClick={() => onOpen(p.id)} className="flex min-w-0 flex-1 items-center gap-3 text-start">
+          <button type="button" onClick={() => onOpen(p.id)} aria-current={selected ? "true" : undefined} className="flex min-w-0 flex-1 items-center gap-3 text-start">
             <span className={cn("grid size-11 shrink-0 place-items-center rounded-xl", pr?.done ? "bg-primary text-primary-foreground" : "bg-primary-soft text-primary")}>
               {pr?.done ? <Check className="size-5" aria-hidden /> : icon}
             </span>
@@ -197,11 +219,11 @@ function PlanList({ onOpen, onEdit }: { onOpen: (id: string) => void; onEdit: (p
 
   return (
     <div className="space-y-6">
-      <ReminderStatus />
+      {narrow ? null : <ReminderStatus />}
       <section>
         <SectionHeader title={t("zikrPlan.todayTitle")} />
         <p className="-mt-1 mb-3 text-sm text-muted-foreground">{t("zikrPlan.todayHint")}</p>
-        <ul className="space-y-2">
+        <ul className={cn("grid grid-cols-1 gap-2", !narrow && "lg:grid-cols-2")}>
           {builtIn.map((p) => {
             const s = (p.trigger as Extract<PlanTrigger, { type: "salah" }>).salah[0];
             const Icon = SALAH_ICON[s];
@@ -222,7 +244,7 @@ function PlanList({ onOpen, onEdit }: { onOpen: (id: string) => void; onEdit: (p
           }
         />
         {custom.length ? (
-          <ul className="space-y-2">{custom.map((p) => row(p, <Bell className="size-5" aria-hidden />, subFor(p)))}</ul>
+          <ul className={cn("grid grid-cols-1 gap-2", !narrow && "lg:grid-cols-2")}>{custom.map((p) => row(p, <Bell className="size-5" aria-hidden />, subFor(p)))}</ul>
         ) : (
           <p className="rounded-2xl border border-dashed border-border p-4 text-sm text-muted-foreground">{t("zikrPlan.customEmpty")}</p>
         )}

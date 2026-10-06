@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { cn } from "@/lib/utils";
 import { ChevronRight, Trash2 } from "lucide-react";
 import { useI18n } from "@/components/providers/i18n-provider";
 import { usePrefs } from "@/components/providers/preferences-provider";
@@ -21,7 +22,7 @@ import { OfflineSection } from "./offline-section";
 
 function Section({ title, children, id }: { title: string; children: React.ReactNode; id: string }) {
   return (
-    <section aria-labelledby={id}>
+    <section id={`sec-${id}`} aria-labelledby={id} className="scroll-mt-40 md:scroll-mt-24">
       <h2 id={id} className="mb-2 px-1 text-sm font-semibold uppercase tracking-wide text-gold">
         {title}
       </h2>
@@ -86,8 +87,23 @@ export function SettingsPage() {
   const setPrefs = usePrefs((s) => s.set);
   const [clearing, setClearing] = useState(false);
 
+  const sections = useMemo(() => [
+    { id: "s-appearance", title: t("settings.appearance") },
+    { id: "s-language", title: t("settings.language") },
+    { id: "s-fonts", title: t("settings.fonts") },
+    { id: "s-quran", title: t("settings.quran") },
+    { id: "s-clock", title: t("clock.title") },
+    { id: "s-location", title: t("settings.location") },
+    ...(APP_CONFIG.features.notifications ? [{ id: "s-notif", title: t("settings.notifications") }] : []),
+    { id: "s-a11y", title: t("settings.accessibility") },
+    { id: "s-offline", title: t("settings.offlineData") },
+    { id: "s-about", title: t("settings.about") },
+  ], [t]);
+
   return (
-    <div className="mx-auto max-w-3xl space-y-8">
+    <div className="xl:grid xl:grid-cols-[13rem_minmax(0,48rem)] xl:items-start xl:justify-center xl:gap-10">
+      <SectionIndex sections={sections} />
+      <div className="mx-auto max-w-3xl space-y-8 xl:mx-0 xl:max-w-none">
       <Section id="s-appearance" title={t("settings.appearance")}>
         <ThemeSelector />
         <AccentSelector />
@@ -170,6 +186,48 @@ export function SettingsPage() {
           ))}
         </nav>
       </Section>
+      </div>
     </div>
+  );
+}
+
+/** Wide screens: sticky list of settings sections that follows the scroll position. */
+function SectionIndex({ sections }: { sections: { id: string; title: string }[] }) {
+  const { t } = useI18n();
+  const [current, setCurrent] = useState(sections[0]?.id);
+  useEffect(() => {
+    if (typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        const top = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+        if (top) setCurrent(top.target.id.replace(/^sec-/, ""));
+      },
+      { rootMargin: "-80px 0px -60% 0px" },
+    );
+    sections.forEach((s) => {
+      const el = document.getElementById(`sec-${s.id}`);
+      if (el) io.observe(el);
+    });
+    return () => io.disconnect();
+  }, [sections]);
+  return (
+    <nav aria-label={t("settings.title")} className="sticky top-[4.75rem] hidden xl:block">
+      <ul className="space-y-0.5 border-s border-border">
+        {sections.map((s) => (
+          <li key={s.id}>
+            <a
+              href={`#sec-${s.id}`}
+              aria-current={current === s.id ? "true" : undefined}
+              className={cn(
+                "-ms-px block border-s-2 py-1.5 ps-4 text-sm transition-colors",
+                current === s.id ? "border-primary font-medium text-primary" : "border-transparent text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {s.title}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 }
