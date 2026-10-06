@@ -4,8 +4,8 @@
  * Server-only values live in `src/config/server.ts`.
  */
 export const APP_CONFIG = {
-  name: "Haramain Companion",
-  shortName: "Haramain",
+  name: "Labbaik Guide",
+  shortName: "Labbaik",
   description:
     "A trustworthy Umrah & Hajj companion: Quran with Bangla translation and Tafsir, zikr counter, Umrah and Hajj guides, duas and Haram prayer times.",
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",

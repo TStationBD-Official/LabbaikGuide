@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "Haramain Companion",
+    "name": "Labbaik Guide",
     "tagline": "Your companion for Umrah & Hajj",
     "skipToContent": "Skip to content"
   },
@@ -410,7 +410,7 @@
     }
   },
   "pwa": {
-    "install": "Install Haramain Companion",
+    "install": "Install Labbaik Guide",
     "installDesc": "Add to your home screen for quick, offline access.",
     "installBtn": "Install",
     "dismiss": "Not now"

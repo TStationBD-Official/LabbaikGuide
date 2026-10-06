@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "Haramain Companion — Umrah & Hajj";
+export const alt = "Labbaik Guide — Umrah & Hajj";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -20,7 +20,7 @@ export default function OgImage() {
         }}
       >
         <div style={{ display: "flex", width: 140, height: 140, border: "6px solid #d6b25e", transform: "rotate(45deg)", marginBottom: 56 }} />
-        <div style={{ fontSize: 76, fontWeight: 700 }}>Haramain Companion</div>
+        <div style={{ fontSize: 76, fontWeight: 700 }}>Labbaik Guide</div>
         <div style={{ fontSize: 34, color: "#d6b25e", marginTop: 16 }}>Quran · Zikr · Umrah & Hajj · Prayer Times</div>
       </div>
     ),

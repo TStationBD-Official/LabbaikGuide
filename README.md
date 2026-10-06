@@ -1,4 +1,4 @@
-# Haramain Companion · হারামাইন কম্প্যানিয়ন
+# Labbaik Guide · লাব্বাইক গাইড
 
 A production-grade, mobile-first Umrah & Hajj companion: Quran reader (IndoPak/Uthmani, Bangla translation & tafsir), zikr counter, Tawaf & Sa'i counters, Umrah and Hajj guides, a sourced dua library, Haram prayer times, Qibla and Hijri dates — in Bangla, English, Arabic and Urdu.
 
