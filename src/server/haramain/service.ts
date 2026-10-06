@@ -32,6 +32,7 @@ function unavailable(location: LocationId, date: string): HaramainSchedule {
     status: "unavailable",
     prayers: [],
     upcoming: [],
+    recent: [],
     source: null,
     fetchedAt: now.toISOString(),
     expiresAt: new Date(now.getTime() + 5 * 60_000).toISOString(),
@@ -70,6 +71,12 @@ const HI_SLUG: Record<LocationId, string> = { makkah: "mecca", madinah: "madinah
 const ORDER = ["fajr", "sunrise", "dhuhr", "asr", "maghrib", "isha"] as const;
 /** How many future days of already-published assignments to pass through. */
 const UPCOMING_DAYS = 7;
+/** How far back a "last published" name may come from. */
+const RECENT_LOOKBACK_DAYS = 14;
+const minusDays = (d: string, n: number) => {
+  const [y, m, dd] = d.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, dd - n)).toISOString().slice(0, 10);
+};
 
 /** Photos are only accepted from the source's own object storage, and served through our origin. */
 export const PHOTO_HOST = "objectstorage.me-jeddah-1.oraclecloud.com";
@@ -92,13 +99,24 @@ export function normalizeHaramainImams(raw: unknown, location: LocationId, date:
 
   // Group by date; first entry per (date, prayer) wins; drop rows with no names at all.
   const byDate = new Map<string, Map<string, { imam: PersonName | null; muezzin: PersonName | null }>>();
+  // Latest earlier assignment per prayer and role (dated; never presented as today's).
+  type Dated = { date: string; person: PersonName };
+  const recentMap = new Map<string, { imam: Dated | null; muezzin: Dated | null }>();
+  const oldest = minusDays(date, RECENT_LOOKBACK_DAYS);
   for (const e of parsed.data) {
-    if (e.date < date) continue; // past days are never shown
     const name = PRAYER.safeParse(e.prayer);
     if (!name.success) continue;
     const imam = person(e.imam);
     const muezzin = person(e.muezzin);
     if (!imam && !muezzin) continue;
+    if (e.date < date) {
+      if (e.date < oldest) continue;
+      const r = recentMap.get(name.data) ?? { imam: null, muezzin: null };
+      if (imam && (!r.imam || e.date > r.imam.date)) r.imam = { date: e.date, person: imam };
+      if (muezzin && (!r.muezzin || e.date > r.muezzin.date)) r.muezzin = { date: e.date, person: muezzin };
+      recentMap.set(name.data, r);
+      continue;
+    }
     const day = byDate.get(e.date) ?? new Map();
     if (!day.has(name.data)) day.set(name.data, { imam, muezzin });
     byDate.set(e.date, day);
@@ -114,7 +132,8 @@ export function normalizeHaramainImams(raw: unknown, location: LocationId, date:
     .sort()
     .slice(0, UPCOMING_DAYS)
     .map((d) => ({ date: d, prayers: sortDay(byDate.get(d)!) }));
-  if (!prayers.length && !upcoming.length) return unavailable(location, date);
+  const recent = ORDER.filter((n) => recentMap.has(n)).map((n) => ({ name: n, ...recentMap.get(n)! }));
+  if (!prayers.length && !upcoming.length && !recent.length) return unavailable(location, date);
 
   const now = new Date();
   return {
@@ -125,6 +144,7 @@ export function normalizeHaramainImams(raw: unknown, location: LocationId, date:
     status: prayers.length ? "available" : "unavailable",
     prayers,
     upcoming,
+    recent,
     source: { name: "Haramain Schedules (haramainimams.com)", url: baseUrl, scheduleDate: date },
     fetchedAt: now.toISOString(),
     expiresAt: new Date(now.getTime() + SERVER_CONFIG.haramain.revalidateSeconds * 1000).toISOString(),
@@ -181,6 +201,7 @@ const customAdapter: Adapter = async (location, date) => {
       muezzin: p.muezzin ?? null,
     })),
     upcoming: [],
+    recent: [],
     source: { name: sourceName || url.hostname, url: parsed.data.sourceUrl ?? null, scheduleDate: parsed.data.scheduleDate ?? date },
     fetchedAt: now.toISOString(),
     expiresAt: new Date(now.getTime() + revalidateSeconds * 1000).toISOString(),

@@ -46,6 +46,16 @@ describe("haramainimams.com adapter", () => {
     expect(normalizeHaramainImams(FEED, "madinah", "2026-10-07", "x").status).toBe("available");
   });
 
+  it("exposes the latest earlier name per prayer and role, dated, and never as today's", () => {
+    const s = normalizeHaramainImams(FEED, "madinah", "2026-10-07", "x");
+    expect(s.prayers.map((p) => p.name)).toEqual(["fajr", "isha"]);
+    const dhuhr = s.recent.find((r) => r.name === "dhuhr");
+    expect(dhuhr?.imam).toEqual({ date: "2026-10-06", person: expect.objectContaining({ en: "Dr. Abdulbari Awad Al-Thubaity" }) });
+    expect(dhuhr?.muezzin).toBeNull();
+    // Older than the lookback window is ignored.
+    expect(normalizeHaramainImams(FEED, "madinah", "2026-11-30", "x").status).toBe("unavailable");
+  });
+
   it("reports unavailable for unexpected shapes instead of guessing", () => {
     expect(normalizeHaramainImams({ error: "nope" }, "makkah", "2026-10-06", "x").status).toBe("unavailable");
     expect(normalizeHaramainImams([{ date: "2026-10-06", prayer: "fajr", imam: { nameEn: "" , nameAr: "" } }], "makkah", "2026-10-06", "x").status).toBe("unavailable");

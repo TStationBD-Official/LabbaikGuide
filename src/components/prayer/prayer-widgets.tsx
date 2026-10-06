@@ -178,7 +178,7 @@ export function DatesCard({ data }: { data: Data }) {
 export function PersonAvatar({ person, size = "md" }: { person: PersonName; size?: "sm" | "md" }) {
   const [failed, setFailed] = useState(false);
   const initials = person.en
-    .replace(/^(Prof\.|Dr\.|Sheikh)\s+/gi, "")
+    .replace(/^((Prof|Dr)\.\s*|Sheikh\s+)+/i, "")
     .split(/\s+/)
     .filter(Boolean)
     .map((w) => w[0])
@@ -213,9 +213,23 @@ export function StaffSchedule({ data, kind }: { data: Data; kind: "imam" | "muez
   const unavailableMsg = kind === "imam" ? t("prayer.imamUnavailable") : t("prayer.muezzinUnavailable");
   const Icon = kind === "imam" ? User : Mic;
 
+  const s = schedule.data;
+  const recentFor = (name: PrayerName) => s?.recent.find((r) => r.name === name)?.[kind] ?? null;
+  const shortDate = (d: string) => {
+    const [y, m, dd] = d.split("-").map(Number);
+    return new Intl.DateTimeFormat(`${intlLocale}-u-ca-gregory`, { timeZone: "UTC", weekday: "short", day: "numeric", month: "short" }).format(
+      new Date(Date.UTC(y, m - 1, dd, 12)),
+    );
+  };
+
   let body: React.ReactNode;
-  if (schedule.isPending) body = <Skeleton className="h-24 w-full" />;
-  else if (schedule.isError || !schedule.data || schedule.data.status !== "available" || !days) {
+  const rows = days ? days.today.prayers.filter((p) => SALAH.includes(p.name)) : [];
+  const todayAvailable = s?.status === "available";
+  const todayPerson = (p: (typeof rows)[number]) => (todayAvailable ? (kind === "imam" ? p.imam : p.muezzin) : null);
+  const anyData = rows.some((p) => todayPerson(p) || recentFor(p.name));
+
+  if (schedule.isPending || (!days && !schedule.isError)) body = <Skeleton className="h-24 w-full" />;
+  else if (schedule.isError || !s || !days || !anyData) {
     body = (
       <div className="space-y-2">
         <UnavailableNotice message={unavailableMsg} />
@@ -223,43 +237,47 @@ export function StaffSchedule({ data, kind }: { data: Data; kind: "imam" | "muez
       </div>
     );
   } else {
-    const s = schedule.data;
-    const rows = days.today.prayers.filter((p) => SALAH.includes(p.name));
-    const missing = rows.filter((p) => !(kind === "imam" ? p.imam : p.muezzin)).length;
-    body =
-      missing < rows.length ? (
-        <>
-          <ul className="divide-y divide-border/70">
-            {rows.map((p) => {
-              const person = kind === "imam" ? p.imam : p.muezzin;
-              return (
-                <li key={p.name} className="flex min-h-14 items-center justify-between gap-3 py-2">
-                  <span className="text-sm text-muted-foreground">{t(prayerLabelKey(p.name, days.today.isFriday))}</span>
-                  {person ? (
-                    <span className="flex min-w-0 items-center gap-2.5">
-                      <span dir="auto" className="text-end text-sm font-medium">
+    const usedRecent = rows.some((p) => !todayPerson(p) && recentFor(p.name));
+    const missing = rows.some((p) => !todayPerson(p) && !recentFor(p.name));
+    body = (
+      <>
+        <ul className="divide-y divide-border/70">
+          {rows.map((p) => {
+            const today = todayPerson(p);
+            const recent = today ? null : recentFor(p.name);
+            const person = today ?? recent?.person ?? null;
+            return (
+              <li key={p.name} className="flex min-h-14 items-center justify-between gap-3 py-2">
+                <span className="shrink-0 text-sm text-muted-foreground">{t(prayerLabelKey(p.name, days.today.isFriday))}</span>
+                {person ? (
+                  <span className="flex min-w-0 items-center gap-2.5">
+                    <span className="min-w-0 text-end">
+                      <span dir="auto" className={cn("block text-sm font-medium", recent && "text-foreground/80")}>
                         {display(person)}
                       </span>
-                      <PersonAvatar person={person} />
+                      {recent ? (
+                        <span className="mt-0.5 inline-block rounded-full bg-warning/15 px-2 py-0.5 text-[11px] font-medium text-warning">
+                          {t("prayer.lastPublished", { date: shortDate(recent.date) })}
+                        </span>
+                      ) : null}
                     </span>
-                  ) : (
-                    <span className="text-end text-xs text-muted-foreground">{t("prayer.notPublished")}</span>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-          <div className="mt-3 space-y-1 text-xs text-muted-foreground">
-            {missing ? <p>{t("prayer.partialNote")}</p> : null}
-            {s.source ? <p>{t("prayer.officialSource", { name: s.source.name })}</p> : null}
-            {s.source?.scheduleDate ? <p>{t("prayer.scheduleDate", { date: s.source.scheduleDate })}</p> : null}
-            <p>{t("common.updated", { time: formatTime(new Date(s.fetchedAt), intlLocale, undefined) })}</p>
-            {staleSchedule ? <p className="font-medium text-warning">{t("common.stale")}</p> : null}
-          </div>
-        </>
-      ) : (
-        <UnavailableNotice message={unavailableMsg} />
-      );
+                    <PersonAvatar person={person} />
+                  </span>
+                ) : (
+                  <span className="text-end text-xs text-muted-foreground">{t("prayer.notPublished")}</span>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+        <div className="mt-3 space-y-1 text-xs text-muted-foreground">
+          {usedRecent ? <p>{t("prayer.recentNote")}</p> : missing ? <p>{t("prayer.partialNote")}</p> : null}
+          {s.source ? <p>{t("prayer.officialSource", { name: s.source.name })}</p> : null}
+          <p>{t("common.updated", { time: formatTime(new Date(s.fetchedAt), intlLocale, undefined) })}</p>
+          {staleSchedule ? <p className="font-medium text-warning">{t("common.stale")}</p> : null}
+        </div>
+      </>
+    );
   }
 
   return (

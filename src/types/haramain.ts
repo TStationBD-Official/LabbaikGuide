@@ -34,6 +34,15 @@ export const UpcomingDaySchema = z.object({
 });
 export type UpcomingDay = z.infer<typeof UpcomingDaySchema>;
 
+/** Most recent assignment the source published for a prayer before today — always shown with its date. */
+const DatedPersonSchema = z.object({ date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), person: PersonNameSchema });
+export const RecentEntrySchema = z.object({
+  name: z.enum(["fajr", "sunrise", "dhuhr", "asr", "maghrib", "isha"]),
+  imam: DatedPersonSchema.nullable(),
+  muezzin: DatedPersonSchema.nullable(),
+});
+export type RecentEntry = z.infer<typeof RecentEntrySchema>;
+
 export const HaramainScheduleSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   timezone: z.literal("Asia/Riyadh"),
@@ -41,6 +50,7 @@ export const HaramainScheduleSchema = z.object({
   status: z.enum(["available", "unavailable"]),
   prayers: z.array(PrayerEntrySchema),
   upcoming: z.array(UpcomingDaySchema).default([]),
+  recent: z.array(RecentEntrySchema).default([]),
   source: z
     .object({
       name: z.string(),

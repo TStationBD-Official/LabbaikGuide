@@ -294,7 +294,9 @@
     "upcomingNote": "Only assignments the source has already published are shown; they may change.",
     "imamLabel": "Imam",
     "muezzinLabel": "Muezzin",
-    "tomorrow": "Tomorrow"
+    "tomorrow": "Tomorrow",
+    "lastPublished": "Last published: {date}",
+    "recentNote": "Where today's name isn't published yet, the source's most recent name is shown with its date — today's may differ."
   },
   "qibla": {
     "title": "Qibla Direction",
