@@ -35,7 +35,7 @@ export function PrayerDashboard() {
         <SectionHeader title={t("adhan.sectionTitle")} />
         <p className="-mt-1 mb-3 text-sm text-muted-foreground">{t("adhan.sectionHint")}</p>
         <Card className="p-4">
-          <AdhanGuide prayer={null} />
+          <AdhanGuide prayer={null} storageKey="practice" />
         </Card>
       </section>
     </div>

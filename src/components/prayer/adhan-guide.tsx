@@ -34,8 +34,37 @@ function DuaBlock({ d }: { d: AdhanDua }) {
   );
 }
 
-/** Step-by-step reply to the adhan + the dua after it. */
-export function AdhanGuide({ prayer, initialTab = "answer" }: { prayer: PrayerName | null; initialTab?: Tab }) {
+type Saved = { step: number; tab: Tab };
+const PROGRESS_PREFIX = "hc-adhan-progress:";
+
+function loadProgress(key: string): Saved | null {
+  try {
+    const raw = localStorage.getItem(PROGRESS_PREFIX + key);
+    if (!raw) return null;
+    const v = JSON.parse(raw) as Saved;
+    return Number.isInteger(v.step) && (v.tab === "answer" || v.tab === "dua") ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveProgress(key: string, v: Saved) {
+  try {
+    localStorage.setItem(PROGRESS_PREFIX + key, JSON.stringify(v));
+    // Drop entries from earlier days (keys look like "YYYY-MM-DD:prayer").
+    const today = key.slice(0, 10);
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const k = localStorage.key(i);
+      if (k?.startsWith(PROGRESS_PREFIX) && /^\d{4}-\d{2}-\d{2}/.test(k.slice(PROGRESS_PREFIX.length)) && k.slice(PROGRESS_PREFIX.length, PROGRESS_PREFIX.length + 10) < today)
+        localStorage.removeItem(k);
+    }
+  } catch {
+    /* storage unavailable (private mode) — progress just isn't kept */
+  }
+}
+
+/** Step-by-step reply to the adhan + the dua after it. `storageKey` keeps the place across reloads. */
+export function AdhanGuide({ prayer, initialTab = "answer", storageKey }: { prayer: PrayerName | null; initialTab?: Tab; storageKey?: string }) {
   const { t, contentLocale, formatNumber } = useI18n();
   const reduce = useReducedMotion();
   const haptics = useZikrStore((s) => s.haptics);
@@ -53,9 +82,30 @@ export function AdhanGuide({ prayer, initialTab = "answer" }: { prayer: PrayerNa
     el?.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
   }, [step]);
 
+  // Restore the saved place once; afterwards follow phase changes (e.g. switch to dua after the adhan).
+  const restored = useRef(false);
+  const lastInitial = useRef(initialTab);
   useEffect(() => {
-    queueMicrotask(() => setTab(initialTab));
-  }, [initialTab]);
+    if (!restored.current) {
+      restored.current = true;
+      const saved = storageKey ? loadProgress(storageKey) : null;
+      if (saved) {
+        queueMicrotask(() => {
+          setStep(Math.min(saved.step, lines.length));
+          setTab(saved.tab);
+        });
+      }
+      return;
+    }
+    if (lastInitial.current !== initialTab) {
+      lastInitial.current = initialTab;
+      queueMicrotask(() => setTab(initialTab));
+    }
+  }, [initialTab, storageKey, lines.length]);
+
+  useEffect(() => {
+    if (storageKey && restored.current) saveProgress(storageKey, { step, tab });
+  }, [storageKey, step, tab]);
 
   const go = (d: 1 | -1) => {
     moved.current = true;
@@ -244,7 +294,12 @@ export function AdhanWindowCard({ data }: { data: ReturnType<typeof usePrayerDat
         </IconButton>
       </div>
       <div className="p-4">
-        <AdhanGuide key={`${win.prayer}-${dayKey}`} prayer={win.prayer} initialTab={win.phase === "after" ? "dua" : "answer"} />
+        <AdhanGuide
+          key={`${win.prayer}-${dayKey}`}
+          prayer={win.prayer}
+          storageKey={`${dayKey}:${win.prayer}`}
+          initialTab={win.phase === "after" ? "dua" : "answer"}
+        />
       </div>
     </Card>
   );
