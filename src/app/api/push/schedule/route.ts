@@ -3,7 +3,8 @@ import { clientKey, rateLimit } from "@/server/rate-limit";
 import { cancelReminders, pushEnabled, PushError, scheduleReminders } from "@/server/push/service";
 import { ScheduleRequestSchema } from "@/types/push";
 
-const MAX_AHEAD_MS = 8 * 24 * 60 * 60 * 1000;
+/** QStash free plan: max delay 7 days. */
+const MAX_AHEAD_MS = 7 * 24 * 60 * 60 * 1000 - 60 * 60 * 1000;
 
 /**
  * POST { subscription, items: [{ at, title, body, url, tag }], cancel: [messageId] }
