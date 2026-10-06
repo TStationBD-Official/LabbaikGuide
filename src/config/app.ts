@@ -12,7 +12,7 @@ export const APP_CONFIG = {
   defaults: {
     locale: "bn",
     theme: "system",
-    banglaFont: "noto",
+    banglaFont: "anek",
     arabicFont: "indopak",
     fontScale: 100,
     location: "makkah",

@@ -94,7 +94,18 @@
     "dark": "تاریک",
     "sepia": "سیپیا",
     "mushaf": "مصحف",
-    "contrast": "ہائی کنٹراسٹ"
+    "contrast": "ہائی کنٹراسٹ",
+    "accent": "رنگ تھیم",
+    "accentContrast": "ہائی کنٹراسٹ موڈ میں رنگ تھیم لاگو نہیں ہوتے۔",
+    "emerald": "زمردی",
+    "teal": "ٹیل",
+    "blue": "نیلا",
+    "indigo": "نیلگوں",
+    "purple": "جامنی",
+    "rose": "گلابی",
+    "burgundy": "عنابی",
+    "amber": "کہربائی",
+    "slate": "سلیٹی"
   },
   "language": {
     "label": "زبان"
@@ -397,7 +408,7 @@
     "guidesTitle": "عمرہ، حج رہنما اور دعائیں",
     "guidesBody": "ہر آئٹم پر مذکور قرآن اور کتبِ حدیث سے مرتب۔ اختلافی مسائل نشان زد ہیں۔ اشاعت سے پہلے کسی مستند عالم سے نظرثانی ضروری ہے۔",
     "fontsTitle": "فونٹ",
-    "fontsBody": "تمام فونٹ SIL Open Font License کے تحت ہیں۔"
+    "fontsBody": "انٹرفیس: Lato، Anek Bangla، Noto Naskh Arabic، Noto Nastaliq Urdu وغیرہ (SIL Open Font License)۔ قرآن: KFGQPC Uthmanic Script Hafs © شاہ فہد قرآن پرنٹنگ کمپلیکس (بغیر ترمیم، ان کے مفت لائسنس کے تحت)؛ Amiri Quran، Scheherazade New (SIL OFL)؛ انڈوپاک القلم فونٹ (Al QuranWBW)۔"
   },
   "privacy": {
     "title": "رازداری",

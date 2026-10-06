@@ -7,7 +7,7 @@
  *  - Page navigations: network-first, falling back to the last cached copy,
  *    then to /offline.html.
  */
-const VERSION = "v1";
+const VERSION = "v2";
 const STATIC = `hc-static-${VERSION}`;
 const PAGES = `hc-pages-${VERSION}`;
 const API = `hc-api-${VERSION}`;
@@ -79,7 +79,7 @@ self.addEventListener("fetch", (event) => {
 
   if (url.pathname.startsWith("/api/haramain") || url.pathname.startsWith("/api/time")) return; // network-only
   if (url.pathname.startsWith("/api/quran/")) return event.respondWith(staleWhileRevalidate(req));
-  if (url.pathname.startsWith("/_next/static/") || url.pathname.startsWith("/icons/") || /\.(woff2?|ttf)$/.test(url.pathname)) {
+  if (url.pathname.startsWith("/_next/static/") || url.pathname.startsWith("/icons/") || /\.(woff2?|ttf|otf)$/.test(url.pathname)) {
     return event.respondWith(cacheFirst(req));
   }
   if (req.mode === "navigate") return event.respondWith(networkFirstPage(req));

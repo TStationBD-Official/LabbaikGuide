@@ -21,6 +21,7 @@ function persist(p: Preferences) {
   root.lang = attrs.lang;
   root.dir = attrs.dir;
   root.dataset.theme = attrs["data-theme"];
+  root.dataset.accent = attrs["data-accent"];
   root.dataset.bnFont = attrs["data-bn-font"];
   root.dataset.arFont = attrs["data-ar-font"];
   root.dataset.reducedMotion = attrs["data-reduced-motion"];

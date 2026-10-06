@@ -2,6 +2,9 @@
 
 /* ───────────────────────── Self-hosted fonts (offline-friendly) ─────────────────────────
    @font-face rules only; each file downloads when first used. */
+@import "@fontsource-variable/anek-bangla/index.css";
+@import "@fontsource/lato/400.css";
+@import "@fontsource/lato/700.css";
 @import "@fontsource/noto-sans-bengali/400.css";
 @import "@fontsource/noto-sans-bengali/600.css";
 @import "@fontsource/noto-sans-bengali/700.css";
@@ -10,14 +13,23 @@
 @import "@fontsource/baloo-da-2/400.css";
 @import "@fontsource/baloo-da-2/600.css";
 @import "@fontsource/tiro-bangla/400.css";
-@import "@fontsource/amiri-quran/400.css";
-@import "@fontsource/scheherazade-new/400.css";
-@import "@fontsource/scheherazade-new/700.css";
 @import "@fontsource/noto-nastaliq-urdu/400.css";
 @import "@fontsource/noto-naskh-arabic/400.css";
 @import "@fontsource/noto-naskh-arabic/600.css";
 @import "@fontsource/cormorant-garamond/500.css";
 @import "@fontsource/cormorant-garamond/600.css";
+
+
+/* ───────────────────────── Quran fonts ─────────────────────────
+   Each loaded as ONE complete file (no unicode-range splitting). Quran stop marks
+   such as ۙ sit on a space; if the space came from a different font subset the mark
+   could not be shaped and rendered as □. Files load only when a font is selected. */
+@font-face { font-family: "Quran IndoPak"; src: url("/fonts/quran/indopak-alqalam.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Quran Hafs"; src: url("/fonts/quran/kfgqpc-uthmanic-hafs.otf") format("opentype"); font-display: swap; }
+@font-face { font-family: "Quran Amiri"; src: url("/fonts/quran/amiri-quran.woff2") format("woff2"); font-display: swap; }
+@font-face { font-family: "Quran Scheherazade"; src: url("/fonts/quran/scheherazade-new.woff2") format("woff2"); font-display: swap; }
+@font-face { font-family: "Quran Naskh"; src: url("/fonts/quran/noto-naskh-arabic.woff2") format("woff2"); font-display: swap; }
+@font-face { font-family: "Quran Nastaliq"; src: url("/fonts/quran/noto-nastaliq-urdu.woff2") format("woff2"); font-display: swap; }
 
 /* ───────────────────────── Design tokens ─────────────────────────
    Components never use raw colours — only these semantic tokens. */
@@ -209,22 +221,26 @@
 
 /* ───────────────────────── Fonts per user selection ───────────────────────── */
 :root {
-  --font-latin: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-latin: "Lato", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-display: "Cormorant Garamond", Georgia, serif;
-  --font-bn: "Noto Sans Bengali";
-  --font-quran: "Noto Naskh Arabic";
+  --font-bn: "Anek Bangla Variable";
+  --font-quran: "Quran IndoPak";
   --font-arabic-ui: "Noto Naskh Arabic";
   --font-urdu-ui: "Noto Nastaliq Urdu";
   --quran-size: 1.9rem;
   --quran-leading: 2.3;
 }
+[data-bn-font="noto"] { --font-bn: "Noto Sans Bengali"; }
 [data-bn-font="hind"] { --font-bn: "Hind Siliguri"; }
 [data-bn-font="baloo"] { --font-bn: "Baloo Da 2"; }
 [data-bn-font="tiro"] { --font-bn: "Tiro Bangla"; }
-[data-ar-font="indopak"] { --font-quran: "Noto Naskh Arabic"; }
-[data-ar-font="nastaleeq"] { --font-quran: "Noto Nastaliq Urdu"; --quran-leading: 2.9; }
-[data-ar-font="uthmani"] { --font-quran: "Amiri Quran"; --quran-leading: 2.5; }
-[data-ar-font="hafs"] { --font-quran: "Scheherazade New"; }
+[data-ar-font="indopak"] { --font-quran: "Quran IndoPak"; --quran-leading: 2.4; }
+[data-ar-font="indopakNaskh"] { --font-quran: "Quran Naskh"; }
+/* Nastaliq lacks a few Quran marks: fall back to the IndoPak face for those clusters. */
+[data-ar-font="nastaleeq"] { --font-quran: "Quran Nastaliq", "Quran IndoPak"; --quran-leading: 2.9; }
+[data-ar-font="hafs"] { --font-quran: "Quran Hafs"; --quran-leading: 2.4; }
+[data-ar-font="uthmani"] { --font-quran: "Quran Amiri"; --quran-leading: 2.5; }
+[data-ar-font="scheherazade"] { --font-quran: "Quran Scheherazade"; }
 
 @theme inline {
   --color-background: var(--background);
@@ -249,9 +265,9 @@
   --color-warning: var(--warning);
   --color-danger: var(--danger);
   --color-ring: var(--ring);
-  --font-sans: var(--font-bn), var(--font-latin);
+  --font-sans: var(--font-latin), var(--font-bn);
   --font-display: var(--font-display);
-  --font-quran: var(--font-quran), "Noto Naskh Arabic", "Amiri Quran", serif;
+  --font-quran: var(--font-quran), "Quran IndoPak", "Quran Hafs", serif;
   --shadow-soft: var(--shadow);
   --breakpoint-xs: 380px;
 }
@@ -263,13 +279,13 @@
   body {
     background-color: var(--background);
     color: var(--foreground);
-    font-family: var(--font-bn), var(--font-latin);
+    font-family: var(--font-latin), var(--font-bn);
     min-height: 100dvh;
     transition: background-color 250ms ease, color 250ms ease;
   }
   html[lang="ar"] body { font-family: var(--font-arabic-ui), var(--font-latin); }
   html[lang="ur"] body { font-family: var(--font-urdu-ui), var(--font-arabic-ui), var(--font-latin); line-height: 1.9; }
-  html[lang="en"] body { font-family: var(--font-latin), var(--font-bn); }
+  html[lang="bn"] body { font-family: var(--font-latin), var(--font-bn); }
 
   :focus-visible { outline: 3px solid var(--ring); outline-offset: 2px; border-radius: 6px; }
   ::selection { background: var(--gold-soft); color: var(--foreground); }
@@ -322,14 +338,15 @@
   opacity: 0.6;
 }
 @utility font-quran {
-  font-family: var(--font-quran), "Noto Naskh Arabic", "Amiri Quran", serif;
+  font-family: var(--font-quran), "Quran IndoPak", "Quran Hafs", serif;
   font-size: var(--quran-size);
   line-height: var(--quran-leading);
   font-feature-settings: "liga", "calt";
   word-spacing: 0.08em;
 }
+/* Duas, zikr and other Arabic text follow the reader's chosen Arabic font. */
 @utility font-arabic {
-  font-family: "Noto Naskh Arabic", "Amiri Quran", serif;
+  font-family: var(--font-quran), "Quran IndoPak", "Noto Naskh Arabic", serif;
 }
 @utility safe-bottom {
   padding-bottom: env(safe-area-inset-bottom);
@@ -379,4 +396,73 @@
    Tailwind's default leading so lines never overlap. */
 html[lang="ur"] :where(p, span, label, a, button, li, legend, h1, h2, h3, h4, dt, dd) {
   line-height: 2.05;
+}
+
+/* ───────────────────────── Colour themes (accent) ─────────────────────────
+   Layered on top of any mode except high contrast. light-dark() picks the value
+   from the active mode's color-scheme, so one block covers light, dark and system.
+   Older browsers ignore it and keep the default emerald. */
+:root:not([data-theme="contrast"])[data-accent="teal"] {
+  --primary: light-dark(#0f766e, #2dd4bf);
+  --primary-foreground: light-dark(#ffffff, #0b1220);
+  --primary-soft: light-dark(#d5efec, #0f2f2c);
+  --accent: light-dark(#e3f4f1, #123a35);
+  --accent-foreground: light-dark(#0f766e, #99f0e1);
+  --success: light-dark(#1d7a4f, #49c08b);
+}
+:root:not([data-theme="contrast"])[data-accent="blue"] {
+  --primary: light-dark(#1d4ed8, #60a5fa);
+  --primary-foreground: light-dark(#ffffff, #0b1220);
+  --primary-soft: light-dark(#dbe5fb, #13243f);
+  --accent: light-dark(#e6edfc, #172c4d);
+  --accent-foreground: light-dark(#1d4ed8, #bcd7fd);
+  --success: light-dark(#1d7a4f, #49c08b);
+}
+:root:not([data-theme="contrast"])[data-accent="indigo"] {
+  --primary: light-dark(#4338ca, #818cf8);
+  --primary-foreground: light-dark(#ffffff, #0b1220);
+  --primary-soft: light-dark(#e0def8, #1d1d40);
+  --accent: light-dark(#e9e7fa, #23234d);
+  --accent-foreground: light-dark(#4338ca, #c7cbfc);
+  --success: light-dark(#1d7a4f, #49c08b);
+}
+:root:not([data-theme="contrast"])[data-accent="purple"] {
+  --primary: light-dark(#7e22ce, #c084fc);
+  --primary-foreground: light-dark(#ffffff, #0b1220);
+  --primary-soft: light-dark(#ecdcf8, #2a1a3d);
+  --accent: light-dark(#f2e7fa, #32204a);
+  --accent-foreground: light-dark(#7e22ce, #e4cdfd);
+  --success: light-dark(#1d7a4f, #49c08b);
+}
+:root:not([data-theme="contrast"])[data-accent="rose"] {
+  --primary: light-dark(#be123c, #fb7185);
+  --primary-foreground: light-dark(#ffffff, #0b1220);
+  --primary-soft: light-dark(#f8dbe2, #3a1820);
+  --accent: light-dark(#fbe7ec, #461c27);
+  --accent-foreground: light-dark(#be123c, #fdc3cc);
+  --success: light-dark(#1d7a4f, #49c08b);
+}
+:root:not([data-theme="contrast"])[data-accent="burgundy"] {
+  --primary: light-dark(#8b1e3f, #e2849e);
+  --primary-foreground: light-dark(#ffffff, #0b1220);
+  --primary-soft: light-dark(#f1dce3, #341a22);
+  --accent: light-dark(#f6e8ec, #3f1f29);
+  --accent-foreground: light-dark(#8b1e3f, #f2c6d2);
+  --success: light-dark(#1d7a4f, #49c08b);
+}
+:root:not([data-theme="contrast"])[data-accent="amber"] {
+  --primary: light-dark(#a3530a, #fbbf24);
+  --primary-foreground: light-dark(#ffffff, #0b1220);
+  --primary-soft: light-dark(#f6e3cc, #3a2a0c);
+  --accent: light-dark(#faeddc, #45320f);
+  --accent-foreground: light-dark(#a3530a, #fde3a0);
+  --success: light-dark(#1d7a4f, #49c08b);
+}
+:root:not([data-theme="contrast"])[data-accent="slate"] {
+  --primary: light-dark(#334155, #cbd5e1);
+  --primary-foreground: light-dark(#ffffff, #0b1220);
+  --primary-soft: light-dark(#e1e6ee, #1c232d);
+  --accent: light-dark(#eaeef3, #222b37);
+  --accent-foreground: light-dark(#334155, #e2e8f0);
+  --success: light-dark(#1d7a4f, #49c08b);
 }

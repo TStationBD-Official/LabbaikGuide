@@ -10,7 +10,7 @@ import { useOnline } from "@/hooks/use-online";
 import { Sheet } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { Logo } from "./logo";
-import { LanguageSelector, LocationSwitcher } from "./selectors";
+import { AccentSelector, LanguageSelector, LocationSwitcher } from "./selectors";
 import { InstallPrompt } from "./install-prompt";
 import { Notifier } from "./notifier";
 
@@ -164,6 +164,9 @@ function MoreSheet({ open, onClose, path }: { open: boolean; onClose: () => void
       <div className="mt-5">
         <p className="mb-2 text-sm font-medium">{t("language.label")}</p>
         <LanguageSelector compact />
+      </div>
+      <div className="mt-5">
+        <AccentSelector />
       </div>
     </Sheet>
   );

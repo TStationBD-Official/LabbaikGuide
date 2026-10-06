@@ -11,7 +11,7 @@ import { SegmentedControl } from "@/components/ui/segmented";
 import { Toggle } from "@/components/ui/toggle";
 import { UnavailableNotice } from "@/components/ui/states";
 import { useToast } from "@/components/ui/toast";
-import { FontSelectors, LanguageSelector, LocationSwitcher, ThemeSelector } from "@/components/layout/selectors";
+import { AccentSelector, FontSelectors, LanguageSelector, LocationSwitcher, ThemeSelector } from "@/components/layout/selectors";
 import { LayerToggles } from "@/components/quran/layer-toggles";
 import { clearAllLocalData } from "@/services/storage/idb-storage";
 import { useNotificationStore, type NotificationMode } from "@/stores/notification-store";
@@ -82,6 +82,7 @@ export function SettingsPage() {
     <div className="mx-auto max-w-3xl space-y-8">
       <Section id="s-appearance" title={t("settings.appearance")}>
         <ThemeSelector />
+        <AccentSelector />
       </Section>
 
       <Section id="s-language" title={t("settings.language")}>

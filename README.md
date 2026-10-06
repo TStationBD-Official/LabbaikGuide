@@ -87,4 +87,5 @@ Guides and duas are compiled from the cited sources and **must be reviewed by a 
 - Imam/Muezzin data depends on a third-party feed (see above); seek permission or an official feed.
 - Prayer/zikr notifications fire while the app is open (no push server).
 - Tajweed colour-coded script not yet enabled (needs `text_uthmani_tajweed` rendering + sanitizer allow-list).
-- IndoPak renders with Noto Naskh / Noto Nastaliq; for a print-mushaf look, add a dedicated IndoPak font file to `public/fonts`.
+- Quran fonts live in `public/fonts/quran/` and are loaded as whole files (no unicode-range subsets) so stop marks like ۙ that sit on a space never render as □.
+- **Licence check before public launch:** the IndoPak Al-Qalam font (`indopak-alqalam.ttf`, from the QuranWBW project) has no explicit licence in the file. Confirm permission or switch the default to `indopakNaskh` (Noto Naskh, OFL). The KFGQPC Hafs font may be distributed free but must not be modified (keep the original .otf).

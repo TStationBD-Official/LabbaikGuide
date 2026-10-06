@@ -3,9 +3,13 @@
 import { Monitor, Moon, Sun, BookOpen, ScrollText, Contrast } from "lucide-react";
 import { LOCATIONS, LOCATION_IDS } from "@/config/locations";
 import { LOCALE_NAMES } from "@/i18n";
+import { Check } from "lucide-react";
 import {
+  ACCENTS,
+  ACCENT_SWATCH,
   ARABIC_FONTS,
   BANGLA_FONTS,
+  BANGLA_FONT_LABEL,
   FONT_SCALES,
   LOCALES,
   THEMES,
@@ -77,6 +81,51 @@ export function ThemeSelector() {
   );
 }
 
+/** Colour theme (accent) swatches. Disabled in high-contrast mode, which has fixed colours. */
+export function AccentSelector() {
+  const { t } = useI18n();
+  const accent = usePrefs((s) => s.accent);
+  const theme = usePrefs((s) => s.theme);
+  const set = usePrefs((s) => s.set);
+  const disabled = theme === "contrast";
+  return (
+    <fieldset disabled={disabled} aria-describedby={disabled ? "accent-note" : undefined}>
+      <legend className="mb-2 text-sm font-medium">{t("theme.accent")}</legend>
+      <div className={cn("grid grid-cols-3 gap-2 sm:grid-cols-5", disabled && "opacity-50")}>
+        {ACCENTS.map((a) => {
+          const selected = accent === a;
+          return (
+            <button
+              key={a}
+              type="button"
+              aria-pressed={selected}
+              onClick={() => set({ accent: a })}
+              className={cn(
+                "flex min-h-12 items-center gap-2 rounded-xl border px-2.5 py-2 text-xs font-medium transition-colors",
+                selected ? "border-foreground/60 bg-muted" : "border-border bg-card hover:bg-muted",
+              )}
+            >
+              <span
+                aria-hidden
+                className="grid size-7 shrink-0 place-items-center rounded-full ring-2 ring-card shadow-soft"
+                style={{ background: `linear-gradient(135deg, ${ACCENT_SWATCH[a]} 0 62%, var(--gold) 62% 100%)` }}
+              >
+                {selected ? <Check className="size-4 text-white" strokeWidth={3} /> : null}
+              </span>
+              <span className="truncate">{t(`theme.${a}`)}</span>
+            </button>
+          );
+        })}
+      </div>
+      {disabled ? (
+        <p id="accent-note" className="mt-2 text-xs text-muted-foreground">
+          {t("theme.accentContrast")}
+        </p>
+      ) : null}
+    </fieldset>
+  );
+}
+
 export function LanguageSelector({ compact }: { compact?: boolean }) {
   const { t, locale, setLocale } = useI18n();
   return (
@@ -104,7 +153,7 @@ export function FontSelectors() {
         onChange={(v) => set({ banglaFont: v })}
         options={(Object.keys(BANGLA_FONTS) as BanglaFont[]).map((k) => ({
           value: k,
-          label: BANGLA_FONTS[k].replace(/'/g, ""),
+          label: BANGLA_FONT_LABEL[k],
         }))}
       />
       <Select<ArabicFont>

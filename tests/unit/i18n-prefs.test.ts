@@ -54,3 +54,12 @@ describe("preferences cookie", () => {
     expect(htmlAttributes(DEFAULT_PREFERENCES).dir).toBe("ltr");
   });
 });
+
+describe("colour themes", () => {
+  it("defaults to emerald and rejects unknown accents", () => {
+    expect(DEFAULT_PREFERENCES.accent).toBe("emerald");
+    expect(parsePreferences(encodeURIComponent(JSON.stringify({ accent: "neon" }))).accent).toBe("emerald");
+    expect(parsePreferences(encodeURIComponent(JSON.stringify({ accent: "blue" }))).accent).toBe("blue");
+    expect(htmlAttributes({ ...DEFAULT_PREFERENCES, accent: "rose" })["data-accent"]).toBe("rose");
+  });
+});
