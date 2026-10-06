@@ -12,7 +12,7 @@ export function PrayerDashboard() {
   const data = usePrayerData(location);
   return (
     <div className="space-y-6">
-      <NextPrayerCard data={data} />
+      <NextPrayerCard data={data} strip={false} />
       <DatesCard data={data} />
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 [&>*]:min-w-0">
         <section>

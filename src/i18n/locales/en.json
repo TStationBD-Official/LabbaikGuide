@@ -306,7 +306,8 @@
     "lastPublished": "Last published: {date}",
     "recentNote": "Where today's name isn't published yet, the name from the nearest published day is shown with its date — today's may differ.",
     "nextPublished": "Next published: {date}",
-    "upcomingFillNote": "Where a name isn't published for that day, the nearest published day's name is shown with its date."
+    "upcomingFillNote": "Where a name isn't published for that day, the nearest published day's name is shown with its date.",
+    "remaining": "remaining"
   },
   "qibla": {
     "title": "Qibla Direction",

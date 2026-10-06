@@ -37,69 +37,180 @@ export function Countdown({ ms }: { ms: number }) {
   );
 }
 
-/** Large "next prayer" card with live countdown and status. */
-export function NextPrayerCard({ data }: { data: Data }) {
-  const { t, intlLocale, locale } = useI18n();
+/** "4:57" without AM/PM — for the compact five-prayer strip. */
+function shortTime(d: Date, intlLocale: string) {
+  return new Intl.DateTimeFormat(intlLocale, { timeZone: "Asia/Riyadh", hour: "numeric", minute: "2-digit", hourCycle: "h12" })
+    .formatToParts(d)
+    .filter((p) => p.type !== "dayPeriod")
+    .map((p) => p.value)
+    .join("")
+    .trim();
+}
+
+/** Subtle eight-point-star lattice (Islamic geometric motif) used as a texture. */
+function GeometricPattern({ className }: { className?: string }) {
+  return (
+    <svg aria-hidden className={className} width="100%" height="100%">
+      <defs>
+        <pattern id="hc-star" width="56" height="56" patternUnits="userSpaceOnUse">
+          <g fill="none" stroke="currentColor" strokeWidth="1">
+            <path d="M28 6 34 22 50 28 34 34 28 50 22 34 6 28 22 22Z" />
+            <path d="M12.4 12.4 28 18.8 43.6 12.4 37.2 28 43.6 43.6 28 37.2 12.4 43.6 18.8 28Z" />
+            <circle cx="28" cy="28" r="4" />
+          </g>
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#hc-star)" />
+    </svg>
+  );
+}
+
+/** Ring that fills from the previous prayer to the next, with the live countdown inside. */
+function CountdownRing({ progress, ms, label }: { progress: number; ms: number; label: string }) {
+  const r = 52;
+  const c = 2 * Math.PI * r;
+  const p = Math.min(1, Math.max(0, progress));
+  return (
+    <div className="relative grid size-[clamp(6.75rem,34vw,10rem)] shrink-0 place-items-center">
+      <svg viewBox="0 0 120 120" className="absolute inset-0 size-full -rotate-90" aria-hidden>
+        <circle cx="60" cy="60" r={r} fill="none" stroke="currentColor" strokeOpacity="0.14" strokeWidth="6" />
+        <circle
+          cx="60"
+          cy="60"
+          r={r}
+          fill="none"
+          stroke="var(--gold)"
+          strokeWidth="6"
+          strokeLinecap="round"
+          strokeDasharray={c}
+          strokeDashoffset={c * (1 - p)}
+          className="transition-[stroke-dashoffset] duration-1000 ease-linear"
+        />
+      </svg>
+      <div className="relative flex flex-col items-center leading-none">
+        <span className="text-[clamp(1rem,5.4vw,1.6rem)] text-gold">
+          <Countdown ms={ms} />
+        </span>
+        <span className="mt-1.5 text-[11px] font-medium tracking-wide opacity-75">{label}</span>
+      </div>
+    </div>
+  );
+}
+
+/** Large "next prayer" card with live countdown, progress ring and today's prayers. */
+export function NextPrayerCard({ data, strip = true, stripClassName }: { data: Data; strip?: boolean; stripClassName?: string }) {
+  const { t, intlLocale } = useI18n();
   const location = usePrefs((s) => s.location);
   const { info, days, now } = data;
 
-  if (!info || !days || !now) return <Skeleton className="h-48 w-full rounded-2xl" />;
+  if (!info || !days || !now) return <Skeleton className="h-64 w-full rounded-3xl" />;
 
   const isFriday = info.nextIsTomorrow ? days.tomorrow.isFriday : days.today.isFriday;
   const nextName = t(prayerLabelKey(info.next.name, isFriday));
   const { h, m } = splitDuration(info.msUntilNext);
   const srText = `${t("prayer.nextPrayer")}: ${nextName}, ${t("prayer.startsIn")} ${h}h ${m}m`;
 
+  // Progress through the current interval (previous prayer → next prayer).
+  const salahToday = days.today.prayers.filter((p) => SALAH.includes(p.name));
+  const nowMs = now.getTime();
+  const prevAdhan = info.nextIsTomorrow
+    ? salahToday[salahToday.length - 1].adhan.getTime()
+    : ([...salahToday].reverse().find((p) => p.adhan.getTime() <= nowMs)?.adhan.getTime() ??
+      salahToday[salahToday.length - 1].adhan.getTime() - 86_400_000); // before Fajr: since last night's Isha
+  const span = info.next.adhan.getTime() - prevAdhan;
+  const progress = span > 0 ? (nowMs - prevAdhan) / span : 0;
+
+  const stripDay = info.nextIsTomorrow ? days.tomorrow : days.today;
+  const stripPrayers = stripDay.prayers.filter((p) => SALAH.includes(p.name));
+
   return (
-    <GlassCard className="relative overflow-hidden p-5 sm:p-6">
-      <div aria-hidden className="pointer-events-none absolute -end-10 -top-10 size-44 rounded-full border border-gold/20" />
-      <div aria-hidden className="pointer-events-none absolute -end-4 -top-4 size-28 rounded-full border border-gold/30" />
-      <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-        <MapPin className="size-4 text-gold" aria-hidden />
-        {t(LOCATIONS[location].mosqueKey)}
-        <span aria-hidden>·</span>
-        <span>
-          {t("prayer.localTime")} {formatTime(now, intlLocale, undefined, true)}
-        </span>
+    <section
+      aria-label={t("prayer.nextPrayer")}
+      className="relative isolate overflow-hidden rounded-3xl text-white shadow-soft ring-1 ring-black/10"
+      // Always a deep shade of the accent colour (light and dark themes alike) so white text and gold stay crisp.
+      style={{
+        background:
+          "linear-gradient(145deg, color-mix(in oklab, var(--primary) 42%, #03110c) 0%, color-mix(in oklab, var(--primary) 62%, #03110c) 55%, color-mix(in oklab, var(--primary) 52%, #1d1504) 100%)",
+      }}
+    >
+      <GeometricPattern className="pointer-events-none absolute inset-0 -z-10 text-white opacity-[0.07]" />
+      <div aria-hidden className="pointer-events-none absolute -end-16 -top-20 -z-10 size-64 rounded-full bg-gold/20 blur-3xl" />
+
+      <div className="p-5 sm:p-6">
+        {/* Top bar: place · live local time */}
+        <div className="flex items-center justify-between gap-3 text-xs sm:text-sm">
+          <span className="inline-flex min-w-0 items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 font-medium backdrop-blur-sm">
+            <MapPin className="size-3.5 shrink-0 text-gold" aria-hidden />
+            <span className="truncate">{t(LOCATIONS[location].mosqueKey)}</span>
+          </span>
+          <span className="inline-flex shrink-0 items-center gap-1.5 opacity-85">
+            <Clock3 className="size-3.5" aria-hidden />
+            <span className="tabular-nums" dir="ltr">
+              {formatTime(now, intlLocale, undefined, true)}
+            </span>
+          </span>
+        </div>
+
+        {info.current ? (
+          <motion.p
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-3 inline-flex items-center gap-2 rounded-full bg-gold px-3 py-1 text-xs font-semibold text-[#1c1405] sm:text-sm"
+            role="status"
+          >
+            <span className="relative flex size-2" aria-hidden>
+              <span className="absolute inline-flex size-full animate-ping rounded-full bg-current opacity-60" />
+              <span className="relative inline-flex size-2 rounded-full bg-current" />
+            </span>
+            {info.iqamahApproaching ? t("prayer.iqamahSoon") : t("prayer.prayerNow")}: {t(prayerLabelKey(info.current.name, days.today.isFriday))}
+          </motion.p>
+        ) : null}
+
+        {/* Main: next prayer + countdown ring */}
+        <div className="mt-4 flex items-center justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-medium tracking-wide uppercase opacity-75 sm:text-sm">{t("prayer.nextPrayer")}</p>
+            <p className="mt-1 text-[clamp(1.75rem,9vw,3rem)] leading-tight font-bold break-words">{nextName}</p>
+            {info.nextIsTomorrow ? <p className="text-sm opacity-75">{t("common.tomorrow")}</p> : null}
+            <p className="mt-2 inline-flex items-baseline gap-2">
+              <span className="text-xs opacity-75">{t("prayer.adhan")}</span>
+              <span className="text-[clamp(1.05rem,5vw,1.5rem)] font-semibold tabular-nums">{formatTime(info.next.adhan, intlLocale)}</span>
+            </p>
+          </div>
+          <CountdownRing progress={progress} ms={info.msUntilNext} label={t("prayer.remaining")} />
+        </div>
       </div>
 
-      {info.current ? (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="mt-3 inline-flex items-center gap-2 rounded-full bg-primary px-3 py-1 text-sm font-medium text-primary-foreground"
-          role="status"
-        >
-          <span className="size-2 animate-pulse rounded-full bg-gold" aria-hidden />
-          {info.iqamahApproaching ? t("prayer.iqamahSoon") : t("prayer.prayerNow")}: {t(prayerLabelKey(info.current.name, days.today.isFriday))}
-        </motion.div>
+      {/* Today's five prayers */}
+      {strip ? (
+        <ol className={cn("grid grid-cols-5 border-t border-white/10 bg-black/15 px-2 py-3 backdrop-blur-sm", stripClassName)}>
+          {stripPrayers.map((p) => {
+            const isNext = p.name === info.next.name;
+            const passed = !info.nextIsTomorrow && info.statuses[p.name] === "passed" && info.current?.name !== p.name;
+            const isNow = info.current?.name === p.name;
+            return (
+              <li
+                key={p.name}
+                aria-current={isNext ? "time" : undefined}
+                className={cn(
+                  "mx-0.5 flex flex-col items-center rounded-xl px-1 py-1.5 text-center transition-colors",
+                  isNext && "bg-gold text-[#1c1405] shadow-soft",
+                  isNow && !isNext && "bg-white/15",
+                  passed && "opacity-55",
+                )}
+              >
+                <span className="w-full truncate text-[clamp(0.62rem,2.9vw,0.75rem)] font-medium">{t(prayerLabelKey(p.name, stripDay.isFriday))}</span>
+                <span className="mt-0.5 text-[clamp(0.8rem,3.8vw,1rem)] font-semibold tabular-nums">{shortTime(p.adhan, intlLocale)}</span>
+              </li>
+            );
+          })}
+        </ol>
       ) : null}
 
-      <p className="mt-4 text-sm font-medium text-muted-foreground">{t("prayer.nextPrayer")}</p>
-      <div className="mt-1 flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
-        <div>
-          <p className="text-3xl font-bold text-foreground sm:text-4xl">
-            {nextName}
-            {info.nextIsTomorrow ? <span className="ms-2 text-base font-normal text-muted-foreground">({t("common.tomorrow")})</span> : null}
-          </p>
-          <p className="text-lg text-primary">{formatTime(info.next.adhan, intlLocale)}</p>
-          {info.next.imam ? (
-            <p dir="auto" className="mt-1 text-sm text-muted-foreground">
-              {t("prayer.ledBy", { name: locale === "ar" || locale === "ur" ? info.next.imam.ar : info.next.imam.en })}
-            </p>
-          ) : null}
-        </div>
-        <div className="text-end">
-          <p className="text-xs text-muted-foreground">{t("prayer.startsIn")}</p>
-          <p className="text-4xl font-semibold text-gold sm:text-5xl">
-            <Countdown ms={info.msUntilNext} />
-          </p>
-        </div>
-      </div>
       <p className="sr-only" aria-live="polite">
         {srText}
       </p>
-    </GlassCard>
+    </section>
   );
 }
 
