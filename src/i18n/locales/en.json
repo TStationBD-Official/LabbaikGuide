@@ -225,7 +225,13 @@
     "errName": "Please enter a name (max 80 characters).",
     "errTarget": "Target must be between 1 and 100,000.",
     "errLength": "Text is too long.",
-    "privateNote": "Your zikr history is stored only on this device."
+    "privateNote": "Your zikr history is stored only on this device.",
+    "nextUp": "Next: {name}",
+    "movingTo": "Target reached — next: {name}",
+    "stayHere": "Stay here",
+    "autoAdvance": "Move to the next zikr when done",
+    "autoAdvanceHint": "When a target is reached the phone vibrates and the next unfinished zikr starts.",
+    "allDone": "All zikr completed — Alhamdulillah"
   },
   "tawaf": {
     "title": "Tawaf Counter",

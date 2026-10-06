@@ -102,6 +102,8 @@ export function ZikrPage() {
   const hydrated = useStoreHydrated(useZikrStore);
   const all = useAllZikr();
   const activeId = useZikrStore((s) => s.activeId);
+  const counts = useZikrStore((s) => s.counts);
+  const targets = useZikrStore((s) => s.targets);
   const addCustom = useZikrStore((s) => s.addCustom);
   const updateCustom = useZikrStore((s) => s.updateCustom);
   const [formOpen, setFormOpen] = useState(false);
@@ -110,6 +112,12 @@ export function ZikrPage() {
 
   if (!hydrated) return <SkeletonList rows={3} />;
   const active = all.find((z) => z.id === activeId) ?? all[0];
+  // Next unfinished zikr after the active one, wrapping around the list.
+  const idx = active ? all.indexOf(active) : -1;
+  const next =
+    idx < 0
+      ? null
+      : ([...all.slice(idx + 1), ...all.slice(0, idx)].find((z) => (counts[z.id] ?? 0) < (targets[z.id] ?? z.target)) ?? null);
 
   const openNew = () => {
     setEditing(null);
@@ -126,7 +134,7 @@ export function ZikrPage() {
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)]">
       <div className="space-y-8">
-        <Card className="glass px-4 py-6 sm:px-8">{active ? <ZikrCounter key={active.id} zikr={active} /> : null}</Card>
+        <Card className="glass px-4 py-6 sm:px-8">{active ? <ZikrCounter key={active.id} zikr={active} next={next} /> : null}</Card>
         <ZikrStats />
       </div>
       <section>

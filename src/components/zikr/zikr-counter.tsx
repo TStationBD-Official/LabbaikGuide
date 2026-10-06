@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { Plus, RotateCcw, Undo2 } from "lucide-react";
+import { ChevronRight, Plus, RotateCcw, Undo2 } from "lucide-react";
 import { useI18n } from "@/components/providers/i18n-provider";
 import { Button } from "@/components/ui/button";
 import { CircularProgress } from "@/components/ui/progress";
 import { AnimatedNumber } from "@/components/ui/animated-number";
+import { Toggle } from "@/components/ui/toggle";
 import { useToast } from "@/components/ui/toast";
 import { lt, type Zikr } from "@/types/content";
 import { useZikrStore } from "@/stores/zikr-store";
@@ -14,10 +15,15 @@ import { vibrate } from "@/lib/utils";
 
 /** Taps closer together than this are treated as one (prevents double counting). */
 const TAP_GUARD_MS = 90;
+/** Pause on a completed zikr before moving on (taps are ignored meanwhile, so none spill over). */
+const ADVANCE_DELAY_MS = 1400;
+/** Distinct "done" buzz: long–short–long. */
+const DONE_PATTERN = [180, 80, 180];
+const ALL_DONE_PATTERN = [200, 90, 200, 90, 400];
 
 type Ripple = { id: number; x: number; y: number };
 
-export function ZikrCounter({ zikr }: { zikr: Zikr }) {
+export function ZikrCounter({ zikr, next }: { zikr: Zikr; next: Zikr | null }) {
   const { t, contentLocale, formatNumber } = useI18n();
   const toast = useToast();
   const reduce = useReducedMotion();
@@ -26,6 +32,16 @@ export function ZikrCounter({ zikr }: { zikr: Zikr }) {
   const increment = useZikrStore((s) => s.increment);
   const reset = useZikrStore((s) => s.reset);
   const undoLast = useZikrStore((s) => s.undoLast);
+  const setActive = useZikrStore((s) => s.setActive);
+  const autoAdvance = useZikrStore((s) => s.autoAdvance);
+  const setAutoAdvance = useZikrStore((s) => s.setAutoAdvance);
+  const [advancing, setAdvancing] = useState(false);
+  const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cancelAdvance = useCallback(() => {
+    if (advanceTimer.current) clearTimeout(advanceTimer.current);
+    advanceTimer.current = null;
+    setAdvancing(false);
+  }, []);
   const lastTap = useRef(0);
   const [ripples, setRipples] = useState<Ripple[]>([]);
   const [pulse, setPulse] = useState(0);
@@ -35,6 +51,7 @@ export function ZikrCounter({ zikr }: { zikr: Zikr }) {
   const tap = useCallback(
     (x?: number, y?: number) => {
       const now = performance.now();
+      if (advanceTimer.current) return; // moving on to the next zikr — don't count into a finished one
       if (now - lastTap.current < TAP_GUARD_MS) return;
       lastTap.current = now;
       increment(zikr.id);
@@ -49,14 +66,28 @@ export function ZikrCounter({ zikr }: { zikr: Zikr }) {
     [increment, zikr.id, reduce],
   );
 
-  // Celebrate exactly once when the target is first reached.
+  // Exactly once when the target is first reached: strong vibration, then move on to the next unfinished zikr.
   useEffect(() => {
     if (reached && !reachedRef.current) {
-      vibrate([20, 60, 20]);
-      toast(t("zikr.completed"));
+      const nx = next;
+      if (autoAdvance && nx) {
+        vibrate(DONE_PATTERN);
+        queueMicrotask(() => setAdvancing(true));
+        advanceTimer.current = setTimeout(() => {
+          advanceTimer.current = null;
+          setActive(nx.id);
+        }, ADVANCE_DELAY_MS);
+      } else {
+        vibrate(nx ? DONE_PATTERN : ALL_DONE_PATTERN);
+        toast(nx ? t("zikr.completed") : t("zikr.allDone"));
+      }
     }
     reachedRef.current = reached;
-  }, [reached, toast, t]);
+  }, [reached, toast, t, autoAdvance, setActive, contentLocale, next]);
+
+  useEffect(() => () => {
+    if (advanceTimer.current) clearTimeout(advanceTimer.current);
+  }, []);
 
   // Keyboard: Space/Enter count, Backspace undo — only when not typing in a field.
   useEffect(() => {
@@ -69,12 +100,13 @@ export function ZikrCounter({ zikr }: { zikr: Zikr }) {
         tap();
       } else if (e.key === "Backspace") {
         e.preventDefault();
+        cancelAdvance();
         undoLast(zikr.id);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [tap, undoLast, zikr.id]);
+  }, [tap, undoLast, zikr.id, cancelAdvance]);
 
   return (
     <section aria-labelledby="zikr-active-name" className="flex flex-col items-center">
@@ -131,7 +163,7 @@ export function ZikrCounter({ zikr }: { zikr: Zikr }) {
                   exit={{ opacity: 0 }}
                   className="mt-2 rounded-full bg-gold-soft px-3 py-1 text-xs font-medium text-gold"
                 >
-                  ✦ {t("zikr.completed")}
+                  ✦ {advancing && next ? t("zikr.nextUp", { name: lt(next.name, contentLocale) }) : t("zikr.completed")}
                 </motion.span>
               ) : null}
             </AnimatePresence>
@@ -149,7 +181,26 @@ export function ZikrCounter({ zikr }: { zikr: Zikr }) {
           />
         ))}
       </button>
-      <p className="mt-3 text-center text-xs text-muted-foreground">{t("zikr.tapToCount")}</p>
+      {advancing ? (
+        <div className="mt-3 w-full max-w-sm" aria-live="polite">
+          <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+            <motion.div
+              className="h-full rounded-full bg-gold"
+              initial={{ width: "0%" }}
+              animate={{ width: "100%" }}
+              transition={{ duration: ADVANCE_DELAY_MS / 1000, ease: "linear" }}
+            />
+          </div>
+          <div className="mt-2 flex items-center justify-between gap-2 text-sm">
+            <span className="min-w-0 truncate text-muted-foreground">{next ? t("zikr.movingTo", { name: lt(next.name, contentLocale) }) : null}</span>
+            <Button variant="ghost" size="sm" className="shrink-0 whitespace-nowrap" onClick={cancelAdvance}>
+              {t("zikr.stayHere")}
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <p className="mt-3 text-center text-xs text-muted-foreground">{t("zikr.tapToCount")}</p>
+      )}
       <p className="hidden text-center text-xs text-muted-foreground lg:block">{t("zikr.keyboardHint")}</p>
 
       <div className="mt-5 flex w-full max-w-sm items-center justify-center gap-3">
@@ -157,7 +208,10 @@ export function ZikrCounter({ zikr }: { zikr: Zikr }) {
           variant="outline"
           size="lg"
           className="flex-1"
-          onClick={() => undoLast(zikr.id)}
+          onClick={() => {
+            cancelAdvance();
+            undoLast(zikr.id);
+          }}
           aria-label={t("common.undo")}
         >
           <Undo2 className="size-5" aria-hidden />
@@ -171,13 +225,30 @@ export function ZikrCounter({ zikr }: { zikr: Zikr }) {
           size="lg"
           className="flex-1"
           onClick={() => {
-            if (count > 0 && window.confirm(t("zikr.resetConfirm"))) reset(zikr.id);
+            if (count > 0 && window.confirm(t("zikr.resetConfirm"))) {
+              cancelAdvance();
+              reset(zikr.id);
+            }
           }}
           aria-label={t("common.reset")}
         >
           <RotateCcw className="size-5" aria-hidden />
           <span className="max-xs:sr-only">{t("common.reset")}</span>
         </Button>
+      </div>
+
+      <div className="mt-5 w-full max-w-sm border-t border-border/70 pt-3">
+        <Toggle compact checked={autoAdvance} onChange={setAutoAdvance} label={t("zikr.autoAdvance")} description={t("zikr.autoAdvanceHint")} />
+        {autoAdvance && next ? (
+          <button
+            type="button"
+            onClick={() => setActive(next.id)}
+            className="mt-1 flex w-full items-center justify-between gap-2 rounded-xl px-1 py-1.5 text-start text-xs text-muted-foreground hover:text-foreground"
+          >
+            <span className="min-w-0 truncate">{t("zikr.nextUp", { name: lt(next.name, contentLocale) })}</span>
+            <ChevronRight className="size-4 shrink-0 rtl:rotate-180" aria-hidden />
+          </button>
+        ) : null}
       </div>
     </section>
   );

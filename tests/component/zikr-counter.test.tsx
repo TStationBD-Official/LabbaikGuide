@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach } from "vitest";
+import { describe, expect, it, beforeEach, vi } from "vitest";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import en from "@/i18n/locales/en.json";
 import { DEFAULT_PREFERENCES } from "@/lib/preferences";
@@ -9,12 +9,12 @@ import { ZikrCounter } from "@/components/zikr/zikr-counter";
 import { DEFAULT_ZIKR } from "@/data/zikr/defaults";
 import { useZikrStore } from "@/stores/zikr-store";
 
-function renderCounter() {
+function renderCounter(next: (typeof DEFAULT_ZIKR)[number] | null = null) {
   return render(
     <PreferencesProvider initial={{ ...DEFAULT_PREFERENCES, locale: "en" }}>
       <I18nProvider initialLocale="en" initialMessages={en}>
         <ToastProvider>
-          <ZikrCounter zikr={DEFAULT_ZIKR[0]} />
+          <ZikrCounter zikr={DEFAULT_ZIKR[0]} next={next} />
         </ToastProvider>
       </I18nProvider>
     </PreferencesProvider>,
@@ -26,7 +26,7 @@ let clock = 1000;
 
 describe("<ZikrCounter>", () => {
   beforeEach(() => {
-    useZikrStore.setState({ counts: {}, history: {}, undo: [] });
+    useZikrStore.setState({ counts: {}, history: {}, undo: [], autoAdvance: true, activeId: DEFAULT_ZIKR[0].id });
     clock = 1000;
     // Control the double-tap guard deterministically.
     performance.now = () => clock;
@@ -59,5 +59,35 @@ describe("<ZikrCounter>", () => {
     renderCounter();
     expect(screen.getByText("سُبْحَانَ اللَّهِ")).toHaveAttribute("dir", "rtl");
     expect(screen.getByText("/ 33")).toBeInTheDocument();
+  });
+
+  it("vibrates and moves to the next zikr when the target is reached, ignoring extra taps", () => {
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    const vib = vi.fn();
+    Object.defineProperty(navigator, "vibrate", { value: vib, configurable: true });
+    useZikrStore.setState({ counts: { [DEFAULT_ZIKR[0].id]: 32 } });
+    renderCounter(DEFAULT_ZIKR[1]);
+    const tap = screen.getByRole("button", { name: /Count one —/ });
+    act(() => void fireEvent.pointerDown(tap, { button: 0 }));
+    expect(count()).toBe(33);
+    expect(vib).toHaveBeenLastCalledWith([180, 80, 180]);
+    clock += 300;
+    act(() => void fireEvent.pointerDown(tap, { button: 0 })); // during the hand-over: ignored
+    expect(count()).toBe(33);
+    act(() => void vi.advanceTimersByTime(1500));
+    expect(useZikrStore.getState().activeId).toBe(DEFAULT_ZIKR[1].id);
+    vi.useRealTimers();
+  });
+
+  it("stays on the zikr when 'Stay here' is pressed", async () => {
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    useZikrStore.setState({ counts: { [DEFAULT_ZIKR[0].id]: 32 } });
+    renderCounter(DEFAULT_ZIKR[1]);
+    act(() => void fireEvent.pointerDown(screen.getByRole("button", { name: /Count one —/ }), { button: 0 }));
+    await act(async () => {}); // flush the microtask that shows the hand-over bar
+    fireEvent.click(screen.getByRole("button", { name: "Stay here" }));
+    act(() => void vi.advanceTimersByTime(2000));
+    expect(useZikrStore.getState().activeId).toBe(DEFAULT_ZIKR[0].id);
+    vi.useRealTimers();
   });
 });

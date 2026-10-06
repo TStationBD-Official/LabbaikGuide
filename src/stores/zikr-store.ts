@@ -27,6 +27,9 @@ type ZikrState = {
   history: DailyHistory;
   /** In-memory only: undo does not survive reloads by design. */
   undo: UndoEntry[];
+  /** When a target is reached, vibrate and move on to the next unfinished zikr. */
+  autoAdvance: boolean;
+  setAutoAdvance: (v: boolean) => void;
   setActive: (id: string) => void;
   increment: (id: string) => void;
   reset: (id: string) => void;
@@ -58,6 +61,8 @@ export const useZikrStore = create<ZikrState>()(
       custom: [],
       order: DEFAULT_ZIKR.map((z) => z.id),
       history: {},
+      autoAdvance: true,
+      setAutoAdvance: (v) => set({ autoAdvance: v }),
       undo: [],
       setActive: (activeId) => set({ activeId }),
       increment: (id) =>
@@ -119,6 +124,7 @@ export const useZikrStore = create<ZikrState>()(
         custom: s.custom,
         order: s.order,
         history: s.history,
+        autoAdvance: s.autoAdvance,
       }),
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<ZikrState>;
