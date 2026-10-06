@@ -18,6 +18,21 @@ export const SERVER_CONFIG = {
     timeoutMs: Number(process.env.QURAN_TIMEOUT_MS ?? 10000),
     revalidateSeconds: 60 * 60 * 24,
   },
+  push: {
+    /** VAPID keys for Web Push (generate once: `npx web-push generate-vapid-keys`). */
+    vapidPublicKey: process.env.VAPID_PUBLIC_KEY ?? "",
+    vapidPrivateKey: process.env.VAPID_PRIVATE_KEY ?? "",
+    vapidSubject: process.env.VAPID_SUBJECT ?? "mailto:admin@labbaikguide.app",
+    /** Upstash QStash delivers each reminder at its time (delayed message → /api/push/deliver). */
+    qstashUrl: process.env.QSTASH_URL ?? "https://qstash.upstash.io",
+    qstashToken: process.env.QSTASH_TOKEN ?? "",
+    qstashCurrentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY ?? "",
+    qstashNextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY ?? "",
+    /** Public base URL QStash calls back; Vercel sets VERCEL_PROJECT_PRODUCTION_URL automatically. */
+    siteUrl:
+      process.env.PUSH_SITE_URL ??
+      (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : (process.env.NEXT_PUBLIC_SITE_URL ?? "")),
+  },
   routing: {
     /** OSRM-compatible base URL serving a foot profile. Default: FOSSGIS public router (fair use ≤1 req/s). */
     osrmUrl: process.env.ROUTING_OSRM_URL ?? "https://routing.openstreetmap.de/routed-foot",

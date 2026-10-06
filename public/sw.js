@@ -269,12 +269,39 @@ self.addEventListener("fetch", (event) => {
   if (req.mode === "navigate") return event.respondWith(networkFirstPage(req));
 });
 
+// Background reminders (Web Push). Payload: { title, body, url, tag }.
+self.addEventListener("push", (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch {
+    data = { title: "Labbaik", body: event.data ? event.data.text() : "" };
+  }
+  const url = typeof data.url === "string" && data.url.startsWith("/") && !data.url.startsWith("//") ? data.url : "/zikr";
+  event.waitUntil(
+    self.registration.showNotification(String(data.title || "Labbaik").slice(0, 80), {
+      body: String(data.body || "").slice(0, 240),
+      tag: String(data.tag || "reminder").slice(0, 64),
+      icon: "/icons/icon-192.png",
+      badge: "/icons/icon-192.png",
+      vibrate: [200, 100, 200],
+      data: { url },
+    }),
+  );
+});
+
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
+  const target = (event.notification.data && event.notification.data.url) || "/prayer";
   event.waitUntil(
-    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
-      const open = list.find((c) => "focus" in c);
-      return open ? open.focus() : self.clients.openWindow("/prayer");
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(async (list) => {
+      const win = list.find((c) => "focus" in c);
+      if (win) {
+        await win.focus();
+        if ("navigate" in win) return win.navigate(target).catch(() => undefined);
+        return undefined;
+      }
+      return self.clients.openWindow(target);
     }),
   );
 });

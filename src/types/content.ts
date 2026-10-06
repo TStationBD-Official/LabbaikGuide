@@ -18,6 +18,8 @@ export type Zikr = {
   meaning: LText | string;
   target: number;
   references?: Reference[];
+  /** In-app link to the full text (e.g. a Quran verse) when it is not reproduced here. */
+  link?: string;
 };
 
 export type DuaCategory =

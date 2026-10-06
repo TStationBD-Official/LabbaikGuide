@@ -35,6 +35,8 @@ type ZikrState = {
   setHaptics: (v: boolean) => void;
   setActive: (id: string) => void;
   increment: (id: string) => void;
+  /** Count a tap in the daily statistics only (used by plans, which keep their own step counts). */
+  recordTap: (delta?: 1 | -1) => void;
   reset: (id: string) => void;
   undoLast: (id?: string) => boolean;
   setTarget: (id: string, target: number) => void;
@@ -72,6 +74,11 @@ export const useZikrStore = create<ZikrState>()(
       setActive: (activeId) => set({ activeId }),
       increment: (id) =>
         set((s) => applyIncrement(s.counts, s.history, s.undo, id, localDayKey(new Date()))),
+      recordTap: (delta = 1) =>
+        set((s) => {
+          const day = localDayKey(new Date());
+          return { history: { ...s.history, [day]: Math.max(0, (s.history[day] ?? 0) + delta) } };
+        }),
       reset: (id) => set((s) => applyReset(s.counts, s.undo, id)),
       undoLast: (id) => {
         const s = get();

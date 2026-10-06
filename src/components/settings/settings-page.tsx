@@ -42,6 +42,7 @@ function Notifications() {
   const { t } = useI18n();
   const mode = useNotificationStore((s) => s.mode);
   const setMode = useNotificationStore((s) => s.setMode);
+  const pushState = useNotificationStore((s) => s.pushState);
   const permission = useSyncExternalStore(permissionStore.subscribe, permissionStore.get, () => "default" as const);
 
   const choose = async (m: NotificationMode) => {
@@ -66,6 +67,11 @@ function Notifications() {
         ]}
       />
       <p className="text-xs text-muted-foreground">{t("settings.notifDesc")}</p>
+      {permission === "granted" && (mode === "all" || mode === "zikr") ? (
+        <p className={pushState === "active" ? "text-xs font-medium text-primary" : "text-xs text-muted-foreground"}>
+          {pushState === "active" ? t("zikrPlan.pushActive") : pushState === "unsupported" ? t("zikrPlan.pushUnsupported") : t("zikrPlan.pushInApp")}
+        </p>
+      ) : null}
       {permission === "denied" ? <UnavailableNotice message={t("settings.notifDenied")} /> : null}
       {permission === "unsupported" ? <UnavailableNotice message={t("settings.notifUnsupported")} /> : null}
     </>
