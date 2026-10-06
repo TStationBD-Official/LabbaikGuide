@@ -5,7 +5,7 @@
  */
 export const APP_CONFIG = {
   name: "Labbaik Guide",
-  shortName: "Labbaik",
+  shortName: "Labbaik Guide",
   description:
     "A trustworthy Umrah & Hajj companion: Quran with Bangla translation and Tafsir, zikr counter, Umrah and Hajj guides, duas and Haram prayer times.",
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
