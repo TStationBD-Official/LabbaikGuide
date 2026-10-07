@@ -28,6 +28,8 @@ type ReaderLayers = {
   showTafsir: boolean;
   wordByWord: boolean;
   audio: boolean;
+  /** Bengali pronunciation (উচ্চারণ) under the Arabic. */
+  bnUccharon: boolean;
 };
 
 /** Auto-scroll speeds (px per second) for levels 1–10. */
@@ -60,6 +62,7 @@ export const useQuranStore = create<QuranState>()(
       showTranslation: true,
       showTafsir: false,
       wordByWord: false,
+      bnUccharon: false,
       audio: false,
       size: "md",
       spacing: "normal",

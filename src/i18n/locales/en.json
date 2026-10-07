@@ -211,7 +211,10 @@
     "faster": "Faster",
     "speedN": "Speed {n}",
     "autoScrollResume": "Resume",
-    "autoScrollStop": "Stop auto-scroll"
+    "autoScrollStop": "Stop auto-scroll",
+    "bnUccharon": "Bangla pronunciation",
+    "bnUccharonNote": "Bangla pronunciation is only a reading aid — Bengali letters cannot show every Arabic sound exactly. Learn correct recitation (tajweed) from a qualified teacher. Source: the \"বাংলা উচ্চারণ\" edition in drmiaji/QuranTranslations (the transliterator is not named).",
+    "bnUccharonMissing": "Bangla pronunciation is not available for this verse."
   },
   "zikr": {
     "title": "Zikr",
@@ -482,7 +485,7 @@
     "title": "Sources & Attribution",
     "intro": "Religious content in this app is never invented. Each dataset below has a defined source.",
     "quranTitle": "Quran text, translation, tafsir and audio",
-    "quranBody": "Served through our secure server from the Quran Foundation / Quran.com API. Arabic text uses the API's KFGQPC Hafs, Uthmani, IndoPak and QCF page-glyph fields directly — never converted between scripts. Other readings (riwayat) use the official KFGQPC Unicode text of each reading. Translation and tafsir authors are shown next to the content.",
+    "quranBody": "Served through our secure server from the Quran Foundation / Quran.com API. Arabic text uses the API's KFGQPC Hafs, Uthmani, IndoPak and QCF page-glyph fields directly — never converted between scripts. Other readings (riwayat) use the official KFGQPC Unicode text of each reading. Translation and tafsir authors are shown next to the content. Bangla pronunciation (উচ্চারণ) comes from the \"বাংলা উচ্চারণ\" edition in drmiaji/QuranTranslations; its transliterator is not named, so it is offered only as a reading aid.",
     "prayerTitle": "Prayer times",
     "prayerBody": "Calculated on-device with the open-source Adhan library using the Umm al-Qura method and the coordinates of Masjid al-Haram and Masjid an-Nabawi. These are calculated times, not the Haram's official announcements.",
     "haramainTitle": "Imam and Muezzin schedules",

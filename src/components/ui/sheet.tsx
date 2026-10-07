@@ -3,6 +3,7 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { lockScroll } from "@/lib/scroll-lock";
 import { useI18n } from "@/components/providers/i18n-provider";
 
 /**
@@ -32,6 +33,9 @@ export function Sheet({
     if (open && !d.open) d.showModal();
     if (!open && d.open) d.close();
   }, [open]);
+
+  // The page behind must not scroll while the sheet is open.
+  useEffect(() => (open ? lockScroll() : undefined), [open]);
 
   return (
     <dialog
@@ -67,7 +71,7 @@ export function Sheet({
             <X className="size-5" aria-hidden />
           </button>
         </div>
-        <div className="overflow-y-auto px-5 py-4 safe-bottom">{children}</div>
+        <div className="overflow-y-auto overscroll-contain px-5 py-4 safe-bottom">{children}</div>
       </div>
     </dialog>
   );

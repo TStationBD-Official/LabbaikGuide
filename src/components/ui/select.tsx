@@ -17,6 +17,7 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Check, ChevronDown, Search, X } from "lucide-react";
 import { useI18n } from "@/components/providers/i18n-provider";
 import { cn } from "@/lib/utils";
+import { lockScroll } from "@/lib/scroll-lock";
 
 export type SelectOption<T> = {
   value: T;
@@ -163,6 +164,9 @@ export function Select<T extends string | number>({
       /* already shown or unsupported */
     }
   }, [open, sheet]);
+
+  // Phone bottom sheet: freeze the page behind it.
+  useEffect(() => (open && sheet ? lockScroll() : undefined), [open, sheet]);
 
   // Focus, initial scroll, outside clicks, repositioning.
   useEffect(() => {

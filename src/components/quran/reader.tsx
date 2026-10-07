@@ -13,6 +13,7 @@ import { ARABIC_FONTS, type ArabicFont } from "@/lib/preferences";
 import { qcfVariantFor, useQcfFonts } from "@/hooks/use-qcf-fonts";
 import { useIsDark } from "@/hooks/use-is-dark";
 import { useChapters, useResources, useVerses } from "@/services/quran/queries";
+import { useBnUccharon } from "@/services/quran/bn-uccharon";
 import { useQuranStore } from "@/stores/quran-store";
 import { MODE_LIMITS, type QuranVerse, type ReadingMode } from "@/types/quran";
 import { APP_CONFIG } from "@/config/app";
@@ -115,6 +116,10 @@ export function QuranReader({ mode, id, initialAyah }: { mode: ReadingMode; id: 
   });
 
   const allVerses = useMemo(() => verses.data?.pages.flatMap((p) => p.verses) ?? [], [verses.data]);
+  const uccharon = useBnUccharon(
+    useMemo(() => allVerses.map((v) => v.chapterId), [allVerses]),
+    hydrated && q.bnUccharon,
+  );
   const dark = useIsDark();
   const qcfVariant = qcfVersion ? qcfVariantFor(qcfVersion) : null;
   const qcfPages = useMemo(() => allVerses.flatMap((v) => v.qcf?.glyphs.map((g) => g.p) ?? []), [allVerses]);
@@ -240,6 +245,12 @@ export function QuranReader({ mode, id, initialAyah }: { mode: ReadingMode; id: 
         </p>
       ) : null}
 
+      {q.bnUccharon ? (
+        <p className="mb-3 rounded-xl border border-border/70 bg-card/60 px-3 py-2 text-xs leading-relaxed text-muted-foreground">
+          {t("quran.bnUccharonNote")}
+        </p>
+      ) : null}
+
       {verses.hasPreviousPage ? (
         <div className="mb-4 flex justify-center">
           <Button variant="outline" size="sm" onClick={() => verses.fetchPreviousPage()} disabled={verses.isFetchingPreviousPage}>
@@ -268,6 +279,7 @@ export function QuranReader({ mode, id, initialAyah }: { mode: ReadingMode; id: 
               scriptField={scriptField}
               qcf={qcf}
               showArabic={q.showArabic}
+              uccharon={uccharon ? (uccharon.has(v.key) ? uccharon.get(v.key)! : undefined) : undefined}
               showTranslation={q.showTranslation}
               showTafsir={q.showTafsir}
               wordByWord={q.wordByWord}

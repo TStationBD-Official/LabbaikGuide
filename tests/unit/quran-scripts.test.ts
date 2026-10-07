@@ -94,3 +94,20 @@ describe("auto-scroll speed", async () => {
     expect(useQuranStore.getState().scrollSpeed).toBe(1);
   });
 });
+
+describe("Bengali pronunciation data", () => {
+  it("covers all 6236 Hafs verses; only damaged source verses are null", () => {
+    let total = 0;
+    const missing: string[] = [];
+    for (let s = 1; s <= 114; s++) {
+      const list: (string | null)[] = JSON.parse(readFileSync(join(process.cwd(), `public/data/bn-uccharon/${s}.json`), "utf8"));
+      list.forEach((t, i) => {
+        total++;
+        if (t === null) missing.push(`${s}:${i + 1}`);
+        else expect(t).toMatch(/^[ঀ-৿ ।,.\-‘’'!?;:‌‍]+$/);
+      });
+    }
+    expect(total).toBe(6236);
+    expect(missing).toEqual(["20:47"]);
+  });
+});

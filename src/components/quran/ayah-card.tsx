@@ -52,6 +52,8 @@ type Props = {
   /** Set when a King Fahd Complex page font is selected. */
   qcf: { variant: QcfVariant; ready: (page: number) => boolean; dark: boolean } | null;
   showArabic: boolean;
+  /** Bengali pronunciation: string, null = unavailable for this verse, undefined = off/loading. */
+  uccharon?: string | null;
   showTranslation: boolean;
   showTafsir: boolean;
   wordByWord: boolean;
@@ -156,6 +158,16 @@ export const AyahCard = memo(function AyahCard(p: Props) {
           <p lang="ar" dir="rtl" className={cn("font-quran text-right text-foreground", glyphs && "qcf-line")}>
             {glyphs && p.qcf ? <QcfLine glyphs={glyphs} variant={p.qcf.variant} dark={p.qcf.dark} /> : arabic}
           </p>
+        )
+      ) : null}
+
+      {p.uccharon !== undefined ? (
+        p.uccharon ? (
+          <p lang="bn" className={cn("text-[1.05rem] leading-8 text-primary", p.showArabic && "mt-3")}>
+            {p.uccharon}
+          </p>
+        ) : (
+          <p className={cn("text-xs text-muted-foreground", p.showArabic && "mt-3")}>{t("quran.bnUccharonMissing")}</p>
         )
       ) : null}
 

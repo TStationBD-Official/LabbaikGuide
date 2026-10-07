@@ -279,6 +279,7 @@ self.addEventListener("fetch", (event) => {
     url.pathname.startsWith("/vendor/") ||
     url.pathname.startsWith("/fonts/") ||
     url.pathname.startsWith("/data/riwayat/") ||
+    url.pathname.startsWith("/data/bn-uccharon/") ||
     /\.(woff2?|ttf|otf)$/.test(url.pathname)
   ) {
     return event.respondWith(cacheFirst(req));
