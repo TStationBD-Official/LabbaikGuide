@@ -12,7 +12,7 @@ import { LOCATIONS } from "@/config/locations";
 import { formatGregorian, formatHijri, formatTime } from "@/features/prayer/calendar";
 import { SALAH, splitDuration, type PrayerName, type PrayerSlot } from "@/features/prayer/times";
 import { nightTimes, type NightTimes } from "@/features/prayer/night";
-import { naflTimes, type NaflTimes } from "@/features/prayer/nafl";
+import { forbiddenAt, naflTimes, type ForbiddenWindow, type NaflTimes } from "@/features/prayer/nafl";
 import type { LocationId } from "@/config/locations";
 import { usePrayerData } from "@/hooks/use-prayer";
 import { cn } from "@/lib/utils";
@@ -110,8 +110,10 @@ export function NextPrayerCard({ data, strip = true, stripClassName }: { data: D
   const homeTz = useClockStore((s) => s.homeTz);
   const { info, days, now } = data;
   const night = useNight(location, now ?? null);
+  const nafl = useMemo(() => (days ? naflTimes(days.today) : null), [days]);
 
   if (!info || !days || !now) return <Skeleton className="h-64 w-full rounded-3xl" />;
+  const forbidden = nafl ? forbiddenAt(nafl, now) : null;
 
   const isFriday = info.nextIsTomorrow ? days.tomorrow.isFriday : days.today.isFriday;
   const nextName = t(prayerLabelKey(info.next.name, isFriday));
@@ -171,6 +173,25 @@ export function NextPrayerCard({ data, strip = true, stripClassName }: { data: D
               <span className="relative inline-flex size-2 rounded-full bg-current" />
             </span>
             {info.iqamahApproaching ? t("prayer.iqamahSoon") : t("prayer.prayerNow")}: {t(prayerLabelKey(info.current.name, days.today.isFriday))}
+          </motion.p>
+        ) : null}
+
+        {/* Forbidden time for voluntary prayer, with when it ends. */}
+        {forbidden ? (
+          <motion.p
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-3 flex max-w-full flex-wrap items-center gap-x-2 gap-y-0.5 rounded-2xl bg-[#3a0d0d]/55 px-3 py-1.5 text-xs ring-1 ring-red-300/40 backdrop-blur-sm sm:inline-flex sm:text-sm"
+            role="status"
+          >
+            <span className="inline-flex items-center gap-1.5 font-semibold text-red-200">
+              <Ban className="size-4 shrink-0" aria-hidden />
+              {t("prayer.forbiddenNow")}
+            </span>
+            <span className="opacity-90">
+              {t(`prayer.forbiddenShort_${forbidden.key}`)}
+              {forbidden.afterPrayer ? ` (${t("prayer.forbiddenAfterPrayerTag")})` : ""} · {t("prayer.forbiddenUntil", { time: formatTime(forbidden.to, intlLocale) })}
+            </span>
           </motion.p>
         ) : null}
 
@@ -283,6 +304,37 @@ function TahajjudRow({ night }: { night: NightTimes }) {
 const within = (now: Date | null | undefined, w: { from: Date; to: Date }) =>
   Boolean(now && now.getTime() >= w.from.getTime() && now.getTime() < w.to.getTime());
 
+/** Schedule row for a sun-fixed forbidden window (sunrise, zenith, sunset). */
+function ForbiddenRow({ w, now }: { w: ForbiddenWindow; now: Date | null | undefined }) {
+  const { t, intlLocale } = useI18n();
+  const active = within(now, w);
+  const passed = Boolean(now && now.getTime() >= w.to.getTime());
+  return (
+    <li
+      aria-current={active ? "time" : undefined}
+      className={cn(
+        "flex items-center gap-3 border-b border-border/70 px-4 py-2 last:border-0",
+        active ? "bg-danger/10" : "bg-danger/[0.035]",
+        passed && "opacity-60",
+      )}
+    >
+      <span className="grid size-9 shrink-0 place-items-center">
+        <Ban className="size-4 text-danger" aria-hidden />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-medium text-danger">{t("prayer.forbiddenShort")}</span>
+        <span className="block text-xs text-muted-foreground">{t(`prayer.forbiddenShort_${w.key}`)}</span>
+      </span>
+      <span className="flex flex-col items-end gap-0.5">
+        <span className="whitespace-nowrap text-sm font-semibold tabular-nums">
+          {formatTime(w.from, intlLocale)} – {formatTime(w.to, intlLocale)}
+        </span>
+        {active ? <Badge tone="danger">{t("prayer.nowShort")}</Badge> : null}
+      </span>
+    </li>
+  );
+}
+
 function DuhaRow({ duha, now }: { duha: NaflTimes["duha"]; now: Date | null | undefined }) {
   const { t, intlLocale } = useI18n();
   const active = within(now, duha);
@@ -349,14 +401,33 @@ export function NaflCard({ data }: { data: Data }) {
           <Ban className="size-4" aria-hidden />
           {t("prayer.forbiddenTitle")}
         </p>
-        <ul className="space-y-1.5">
-          {nafl.forbidden.map((f) => (
-            <li key={f.key} className={cn("flex items-start justify-between gap-3 rounded-lg px-2 py-1 text-sm", within(data.now, f) && "bg-danger/10")}>
-              <span>{t(`prayer.forbidden_${f.key}`)}</span>
-              <span className="whitespace-nowrap tabular-nums text-muted-foreground">{range(f)}</span>
-            </li>
-          ))}
-        </ul>
+        {[
+          { title: t("prayer.forbiddenGroupSun"), items: nafl.forbidden.filter((f) => !f.afterPrayer) },
+          { title: t("prayer.forbiddenGroupPrayer"), items: nafl.forbidden.filter((f) => f.afterPrayer) },
+        ].map((g) => (
+          <div key={g.title} className="mt-2 first-of-type:mt-0">
+            <p className="mb-1 px-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">{g.title}</p>
+            <ul className="space-y-1">
+              {g.items.map((f) => {
+                const active = within(data.now, f);
+                return (
+                  <li
+                    key={f.key}
+                    aria-current={active ? "time" : undefined}
+                    className={cn("flex items-start justify-between gap-3 rounded-lg px-2 py-1.5 text-sm", active && "bg-danger/10 ring-1 ring-danger/30")}
+                  >
+                    <span className="min-w-0">
+                      {t(`prayer.forbidden_${f.key}`)}
+                      {active ? <Badge tone="danger" className="ms-2 whitespace-nowrap align-middle">{t("prayer.nowShort")}</Badge> : null}
+                    </span>
+                    <span className="whitespace-nowrap tabular-nums text-muted-foreground">{range(f)}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ))}
+        <p className="mt-3 rounded-lg bg-card px-3 py-2 text-xs leading-relaxed text-muted-foreground">{t("prayer.forbiddenMissed")}</p>
         <p className="mt-2 text-xs text-muted-foreground">
           <span className="font-medium text-gold">{t("common.source")}:</span> {t("prayer.forbiddenRef")} · {t("prayer.approxNote")}
         </p>
@@ -375,6 +446,7 @@ export function PrayerSchedule({ data, compact }: { data: Data; compact?: boolea
   // After midnight the night under way ends at today's Fajr, so Tahajjud goes first; otherwise after Isha.
   const todayFajr = today.prayers.find((p) => p.name === "fajr")!.adhan.getTime();
   const nightFirst = night ? night.fajr.getTime() === todayFajr : false;
+  const sunWin = (key: ForbiddenWindow["key"]) => nafl?.forbidden.find((f) => f.key === key) ?? null;
 
   return (
     <Card className="overflow-hidden p-0">
@@ -383,8 +455,10 @@ export function PrayerSchedule({ data, compact }: { data: Data; compact?: boolea
         {today.prayers.map((p: PrayerSlot) => {
           const status = info.statuses[p.name];
           const isSunrise = p.name === "sunrise";
+          const before = p.name === "dhuhr" ? sunWin("zenith") : p.name === "maghrib" ? sunWin("sunset") : null;
           return (
             <Fragment key={p.name}>
+            {before ? <ForbiddenRow w={before} now={data.now} /> : null}
             <li
               aria-current={status === "next" || status === "now" ? "time" : undefined}
               className={cn(
@@ -408,6 +482,7 @@ export function PrayerSchedule({ data, compact }: { data: Data; compact?: boolea
                 {!isSunrise ? <StatusBadge status={status} /> : null}
               </span>
             </li>
+            {isSunrise && sunWin("sunrise") ? <ForbiddenRow w={sunWin("sunrise")!} now={data.now} /> : null}
             {isSunrise && nafl ? <DuhaRow duha={nafl.duha} now={data.now} /> : null}
             </Fragment>
           );

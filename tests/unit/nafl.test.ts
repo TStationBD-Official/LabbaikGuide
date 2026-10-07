@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { naflTimes, NAFL_MARGIN_MIN } from "@/features/prayer/nafl";
+import { forbiddenAt, naflTimes, NAFL_MARGIN_MIN } from "@/features/prayer/nafl";
 import { calculatePrayerDay } from "@/features/prayer/times";
 
 const day = calculatePrayerDay("makkah", { year: 2026, month: 10, day: 7 });
@@ -10,16 +10,25 @@ describe("Duha and forbidden times", () => {
   it("Duha runs from after sunrise until before the zenith", () => {
     expect(n.duha.from.getTime()).toBe(t("sunrise") + NAFL_MARGIN_MIN.afterSunrise * 60_000);
     expect(n.duha.to.getTime()).toBe(t("dhuhr") - NAFL_MARGIN_MIN.beforeZenith * 60_000);
-    expect(n.duha.to.getTime()).toBeGreaterThan(n.duha.from.getTime());
   });
-  it("forbidden windows are ordered and never overlap Duha", () => {
-    const [f, z, a] = n.forbidden;
-    expect(f).toMatchObject({ key: "afterFajr" });
+  it("has the five windows in order, back to back where they meet", () => {
+    expect(n.forbidden.map((f) => f.key)).toEqual(["afterFajr", "sunrise", "zenith", "afterAsr", "sunset"]);
+    const [f, r, z, a, s] = n.forbidden;
     expect(f.from.getTime()).toBe(t("fajr"));
-    expect(f.to.getTime()).toBe(n.duha.from.getTime());
+    expect(f.to.getTime()).toBe(t("sunrise"));
+    expect(r.from.getTime()).toBe(t("sunrise"));
+    expect(r.to.getTime()).toBe(n.duha.from.getTime());
     expect(z.from.getTime()).toBe(n.duha.to.getTime());
     expect(z.to.getTime()).toBe(t("dhuhr"));
     expect(a.from.getTime()).toBe(t("asr"));
-    expect(a.to.getTime()).toBe(t("maghrib"));
+    expect(a.to.getTime()).toBe(s.from.getTime());
+    expect(s.to.getTime()).toBe(t("maghrib"));
+    expect([f.afterPrayer, r.afterPrayer, z.afterPrayer, a.afterPrayer, s.afterPrayer]).toEqual([true, false, false, true, false]);
+  });
+  it("finds the window for a moment", () => {
+    expect(forbiddenAt(n, new Date(t("dhuhr") - 60_000))?.key).toBe("zenith");
+    expect(forbiddenAt(n, new Date(t("maghrib") - 60_000))?.key).toBe("sunset");
+    expect(forbiddenAt(n, new Date(t("dhuhr") + 60_000))).toBeNull();
+    expect(forbiddenAt(n, n.duha.from)).toBeNull();
   });
 });
