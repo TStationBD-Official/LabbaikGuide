@@ -6,6 +6,10 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 type Ripple = { id: number; x: number; y: number };
 
 const PARTICLES = 14;
+/** Finger travel (px) beyond which a press is treated as a scroll, not a tap. */
+const MOVE_SLOP = 10;
+/** A press held longer than this is not counted (resting thumb, slow drag). */
+const MAX_PRESS_MS = 700;
 
 /**
  * Large tappable counter circle with tactile animation:
@@ -13,8 +17,10 @@ const PARTICLES = 14;
  *  - gold ripple + soft glow from the exact touch point (clipped to the circle)
  *  - a brief ring flash on every count
  *  - a sparkle burst around the circle when `burst` changes (target reached)
- * Counting happens on pointer-down for instant response; keyboard and
- * assistive-tech activation are supported. Honors prefers-reduced-motion.
+ * Counting happens when the finger lifts, and only for a genuine tap: a touch
+ * that moves, is held long, or turns into a page scroll is ignored, so
+ * scrolling past the circle never adds a count. Keyboard and assistive-tech
+ * activation are supported. Honors prefers-reduced-motion.
  */
 export function TapCircle({
   onTap,
@@ -53,6 +59,15 @@ export function TapCircle({
     return () => ro.disconnect();
   }, []);
 
+  // A press only counts when it ends as a tap: same finger, barely moved,
+  // short, and the page did not scroll in between.
+  const press = useRef<{ id: number; x: number; y: number; t: number; sy: number; off: () => void } | null>(null);
+  const endPress = () => {
+    press.current?.off();
+    press.current = null;
+  };
+  useEffect(() => () => press.current?.off(), []);
+
   const ripple = (x: number, y: number) => {
     if (reduce) return;
     const id = performance.now() + Math.random();
@@ -90,11 +105,39 @@ export function TapCircle({
         whileTap={reduce ? undefined : { scale: 0.94 }}
         transition={{ type: "spring", stiffness: 520, damping: 18, mass: 0.6 }}
         onPointerDown={(e) => {
-          if (e.button !== 0) return;
+          if (e.button !== 0 || e.isPrimary === false) return; // ignore a second finger
+          endPress();
+          const onScroll = () => endPress();
+          // Any scroll while the finger is down means the user is scrolling, not counting.
+          window.addEventListener("scroll", onScroll, { capture: true, passive: true });
+          press.current = {
+            id: e.pointerId,
+            x: e.clientX ?? 0,
+            y: e.clientY ?? 0,
+            t: performance.now(),
+            sy: window.scrollY,
+            off: () => window.removeEventListener("scroll", onScroll, { capture: true }),
+          };
+        }}
+        onPointerMove={(e) => {
+          const p = press.current;
+          if (!p || e.pointerId !== p.id) return;
+          if (Math.hypot((e.clientX ?? 0) - p.x, (e.clientY ?? 0) - p.y) > MOVE_SLOP) endPress();
+        }}
+        onPointerUp={(e) => {
+          const p = press.current;
+          endPress();
+          if (!p || e.pointerId !== p.id) return;
+          const moved = Math.hypot((e.clientX ?? 0) - p.x, (e.clientY ?? 0) - p.y) > MOVE_SLOP;
+          const slow = performance.now() - p.t > MAX_PRESS_MS;
+          if (moved || slow || window.scrollY !== p.sy) return;
           const rect = e.currentTarget.getBoundingClientRect();
-          ripple(e.clientX - rect.left, e.clientY - rect.top);
+          ripple((e.clientX ?? rect.left + rect.width / 2) - rect.left, (e.clientY ?? rect.top + rect.height / 2) - rect.top);
           onTap();
         }}
+        // The browser took the gesture over (a scroll or zoom started): never a count.
+        onPointerCancel={endPress}
+        onContextMenu={(e) => e.preventDefault()}
         onClick={(e) => {
           // Assistive tech activates with a synthetic click (detail === 0) and no pointer event.
           if (e.detail === 0) onTap();
