@@ -272,7 +272,9 @@
     "haptics": "Vibration",
     "resetAll": "Reset all counters",
     "resetAllConfirm": "Reset every zikr counter to zero? Your daily statistics are kept.",
-    "resetAllDone": "All counters reset"
+    "resetAllDone": "All counters reset",
+    "search": "Search zikr",
+    "searchPlaceholder": "Search {n} zikr — name, Arabic or meaning"
   },
   "tawaf": {
     "title": "Tawaf Counter",

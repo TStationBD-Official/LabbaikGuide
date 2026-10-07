@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowDown, ArrowUp, Copy, Pencil, Plus, RotateCcw, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Copy, Pencil, Plus, RotateCcw, Search, Trash2 } from "lucide-react";
 import { useI18n } from "@/components/providers/i18n-provider";
 import { Badge, Card, SectionHeader } from "@/components/ui/card";
 import { Button, IconButton } from "@/components/ui/button";
@@ -16,6 +16,22 @@ import { ZikrCounter } from "./zikr-counter";
 import { ZikrForm } from "./zikr-form";
 import { ZikrStats } from "./zikr-stats";
 import { useConfirm } from "@/components/ui/confirm";
+
+/** Lower-case, without Arabic harakat or Latin accents, so "subhan" finds "Subḥāna" and plain Arabic finds vowelled text. */
+const fold = (v: string) =>
+  v
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f\u064B-\u065F\u0670\u06D6-\u06ED\u0640ʿʾ'’-]/g, "")
+    .replace(/[أإآٱ]/g, "ا")
+    .toLowerCase();
+
+const haystack = (z: Zikr) =>
+  fold(
+    [z.name, z.pronunciation, z.meaning]
+      .flatMap((v) => (typeof v === "string" ? [v] : [v.bn, v.en]))
+      .concat(z.arabic, ...(z.references ?? []).map((r) => r.label))
+      .join(" "),
+  );
 
 function ZikrItem({
   zikr,
@@ -107,7 +123,7 @@ function ZikrItem({
 }
 
 export function ZikrPage() {
-  const { t } = useI18n();
+  const { t, formatNumber } = useI18n();
   const confirmDialog = useConfirm();
   const hydrated = useStoreHydrated(useZikrStore);
   const all = useAllZikr();
@@ -121,6 +137,7 @@ export function ZikrPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Zikr | null>(null);
   const [formKey, setFormKey] = useState(0);
+  const [query, setQuery] = useState("");
 
   if (!hydrated) return <SkeletonList rows={3} />;
   const active = all.find((z) => z.id === activeId) ?? all[0];
@@ -182,11 +199,33 @@ export function ZikrPage() {
             </div>
           }
         />
-        <ul className="space-y-2">
-          {all.map((z, i) => (
-            <ZikrItem key={z.id} zikr={z} index={i} total={all.length} active={z.id === active?.id} onEdit={openEdit} />
-          ))}
-        </ul>
+        <div className="relative mb-3">
+          <Search className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+          <label htmlFor="zikr-filter" className="sr-only">
+            {t("zikr.search")}
+          </label>
+          <input
+            id="zikr-filter"
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t("zikr.searchPlaceholder", { n: formatNumber(all.length) })}
+            className="h-11 w-full rounded-xl border border-border bg-background ps-9 pe-3 text-sm"
+          />
+        </div>
+        {(() => {
+          const q = fold(query.trim());
+          const shown = all.map((z, i) => ({ z, i })).filter(({ z }) => !q || haystack(z).includes(q));
+          return shown.length === 0 ? (
+            <p className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">{t("common.noResults")}</p>
+          ) : (
+            <ul className="space-y-2">
+              {shown.map(({ z, i }) => (
+                <ZikrItem key={z.id} zikr={z} index={i} total={all.length} active={z.id === active?.id} onEdit={openEdit} />
+              ))}
+            </ul>
+          );
+        })()}
       </section>
       <ZikrForm
         key={formKey}
