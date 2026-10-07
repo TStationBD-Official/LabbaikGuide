@@ -20,6 +20,8 @@ export type Zikr = {
   references?: Reference[];
   /** In-app link to the full text (e.g. a Quran verse) when it is not reproduced here. */
   link?: string;
+  /** A Quran verse shown in full from the Quran text itself (e.g. "2:255"). */
+  quranVerse?: string;
 };
 
 export type DuaCategory =

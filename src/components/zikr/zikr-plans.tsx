@@ -48,6 +48,7 @@ import { useNotificationStore } from "@/stores/notification-store";
 import { progressKey, usePlanStore, type PlanTrigger, type SalahName, type ZikrPlan } from "@/stores/zikr-plan-store";
 import { useZikrStore } from "@/stores/zikr-store";
 import { lt, type Zikr } from "@/types/content";
+import { QuranVerseInline } from "./quran-verse-inline";
 import { TapCircle } from "./tap-circle";
 import { useConfirm } from "@/components/ui/confirm";
 
@@ -447,7 +448,9 @@ function PlanRunner({ plan, onClose, onEdit }: { plan: ZikrPlan; onClose: () => 
               ) : null}
               {lt(z.pronunciation, contentLocale) ? <p className="mt-1 max-w-xl text-sm text-muted-foreground">{lt(z.pronunciation, contentLocale)}</p> : null}
               {lt(z.meaning, contentLocale) ? <p dir="auto" className="mt-0.5 max-w-xl text-sm text-foreground/80">“{lt(z.meaning, contentLocale)}”</p> : null}
-              {z.link ? (
+              {z.quranVerse ? (
+                <QuranVerseInline verseKey={z.quranVerse} link={z.link} />
+              ) : z.link ? (
                 <Link href={z.link} className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-sm font-medium text-primary hover:bg-muted">
                   <BookOpen className="size-4" aria-hidden />
                   {t("zikrPlan.readInQuran")}

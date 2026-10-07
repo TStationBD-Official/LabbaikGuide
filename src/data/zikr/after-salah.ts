@@ -4,7 +4,8 @@ import { DEFAULT_ZIKR } from "./defaults";
 
 /**
  * Adhkar after the obligatory prayers — only well-established narrations.
- * Ayat al-Kursi is not reproduced here; it links to the verse in the Quran reader.
+ * Ayat al-Kursi is not typed here: it is shown from the Quran text itself
+ * (the reader's script and translation, or the official KFGQPC Hafs text offline).
  */
 export const AFTER_SALAH_ZIKR: Zikr[] = [
   {
@@ -45,10 +46,11 @@ export const AFTER_SALAH_ZIKR: Zikr[] = [
     name: { bn: "আয়াতুল কুরসি", en: "Ayat al-Kursi" },
     arabic: "",
     pronunciation: { bn: "সূরা আল-বাকারা ২:২৫৫", en: "Surah al-Baqarah 2:255" },
-    meaning: { bn: "কুরআন থেকে আয়াতটি পড়ুন — নিচের লিংকে খুলুন।", en: "Recite the verse from the Quran — open it with the link below." },
+    meaning: { bn: "", en: "" },
     target: 1,
     references: [{ label: "an-Nasa'i, as-Sunan al-Kubra", detail: "recited after every obligatory prayer" }],
     link: "/quran/surah/2?ayah=255",
+    quranVerse: "2:255",
   },
 ];
 
