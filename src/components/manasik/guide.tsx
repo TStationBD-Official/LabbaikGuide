@@ -17,6 +17,7 @@ import { useStoreHydrated } from "@/hooks/use-hydrated";
 import { useRitualsStore, type HajjType } from "@/stores/rituals-store";
 import { lt, type GuideStep, type HajjStage, type LText } from "@/types/content";
 import { cn } from "@/lib/utils";
+import { useConfirm } from "@/components/ui/confirm";
 
 function List({ items, icon, tone }: { items: LText[]; icon: React.ReactNode; tone?: "danger" | "success" }) {
   const { contentLocale } = useI18n();
@@ -43,6 +44,14 @@ function Block({ title, children }: { title: string; children: React.ReactNode }
   );
 }
 
+const resetGuideDialog = (t: (k: "confirm.guideTitle" | "confirm.guideMsg" | "confirm.guideOk") => string) => ({
+  emoji: "✅",
+  tone: "primary" as const,
+  title: t("confirm.guideTitle"),
+  message: t("confirm.guideMsg"),
+  confirmLabel: t("confirm.guideOk"),
+});
+
 const OPEN_STEP_EVENT = "hc-open-step";
 
 /** Wide screens: sticky list of steps beside the guide, with progress. */
@@ -56,6 +65,7 @@ function StepIndex({
   onReset: () => void;
 }) {
   const { t, contentLocale, formatNumber } = useI18n();
+  const confirmDialog = useConfirm();
   const done = steps.filter((s) => doneMap[s.id]).length;
   return (
     <aside className="hidden xl:block">
@@ -65,8 +75,8 @@ function StepIndex({
             <p className="text-sm font-medium">{t("manasik.progressN", { done, total: steps.length })}</p>
             <button
               type="button"
-              onClick={() => {
-                if (window.confirm(t("common.confirm"))) onReset();
+              onClick={async () => {
+                if (await confirmDialog(resetGuideDialog(t))) onReset();
               }}
               disabled={done === 0}
               aria-label={t("manasik.resetProgress")}
@@ -267,6 +277,7 @@ export function GuideStepCard({
 
 function GuideProgress({ done, total, onReset }: { done: number; total: number; onReset: () => void }) {
   const { t } = useI18n();
+  const confirmDialog = useConfirm();
   return (
     <GlassCard className="sticky top-[calc(max(0.6rem,env(safe-area-inset-top))+3.6rem)] z-20 p-4 md:top-[4.75rem] xl:hidden">
       <div className="mb-2 flex items-center justify-between gap-3">
@@ -276,8 +287,8 @@ function GuideProgress({ done, total, onReset }: { done: number; total: number; 
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => {
-            if (window.confirm(t("common.confirm"))) onReset();
+          onClick={async () => {
+            if (await confirmDialog(resetGuideDialog(t))) onReset();
           }}
           disabled={done === 0}
         >

@@ -81,3 +81,25 @@ describe("<Select>", () => {
     expect(onChange).toHaveBeenCalledWith("o7");
   });
 });
+
+describe("<ConfirmProvider>", async () => {
+  const { ConfirmProvider, useConfirm } = await import("@/components/ui/confirm");
+  HTMLDialogElement.prototype.showModal ??= function (this: HTMLDialogElement) { this.setAttribute("open", ""); };
+  HTMLDialogElement.prototype.close ??= function (this: HTMLDialogElement) { this.removeAttribute("open"); };
+  function Asker({ onResult }: { onResult: (v: boolean) => void }) {
+    const confirm = useConfirm();
+    return <button onClick={async () => onResult(await confirm({ emoji: "🗑️", title: "Delete it?", message: "Gone for good.", confirmLabel: "Delete" }))}>ask</button>;
+  }
+  it("resolves true on confirm and false on cancel", async () => {
+    const results: boolean[] = [];
+    wrap(<ConfirmProvider><Asker onResult={(v) => results.push(v)} /></ConfirmProvider>);
+    act(() => void fireEvent.click(screen.getByText("ask")));
+    expect(await screen.findByText("Delete it?")).toBeInTheDocument();
+    expect(screen.getByText("Gone for good.")).toBeInTheDocument();
+    await act(async () => void fireEvent.click(screen.getByRole("button", { name: "Delete", hidden: true })));
+    act(() => void fireEvent.click(screen.getByText("ask")));
+    await screen.findByText("Delete it?");
+    await act(async () => void fireEvent.click(screen.getByRole("button", { name: "Cancel", hidden: true })));
+    expect(results).toEqual([true, false]);
+  });
+});

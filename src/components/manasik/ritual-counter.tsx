@@ -14,6 +14,7 @@ import { currentNumber, isComplete, RITUAL_TOTAL, saiDirection } from "@/feature
 import { useStoreHydrated } from "@/hooks/use-hydrated";
 import { useRitualsStore, type RitualKind } from "@/stores/rituals-store";
 import { cn, vibrate } from "@/lib/utils";
+import { useConfirm } from "@/components/ui/confirm";
 
 const DUAS: Record<RitualKind, string[]> = {
   tawaf: ["tawaf-takbir", "rabbana-atina", "maqam-ibrahim"],
@@ -104,6 +105,7 @@ function NoteField({ kind, n }: { kind: RitualKind; n: number }) {
 
 export function RitualCounterView({ kind }: { kind: RitualKind }) {
   const { t, formatNumber } = useI18n();
+  const confirmDialog = useConfirm();
   const hydrated = useStoreHydrated(useRitualsStore);
   const counter = useRitualsStore((s) => s[kind]);
   const actions = useRitualsStore.getState;
@@ -160,8 +162,15 @@ export function RitualCounterView({ kind }: { kind: RitualKind }) {
             </Button>
             <Button
               variant="outline"
-              onClick={() => {
-                if (window.confirm(t("common.confirm"))) actions().reset(kind);
+              onClick={async () => {
+                const ok = await confirmDialog({
+                  emoji: "🔄",
+                  tone: "primary",
+                  title: t("confirm.ritualTitle"),
+                  message: t("confirm.ritualMsg", { what: kind === "tawaf" ? t("tawaf.title") : t("sai.title") }),
+                  confirmLabel: t("confirm.ritualOk"),
+                });
+                if (ok) actions().reset(kind);
               }}
               disabled={counter.completed === 0}
             >

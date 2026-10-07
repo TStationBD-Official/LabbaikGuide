@@ -12,6 +12,7 @@ import { useResources } from "@/services/quran/queries";
 import { cancelDownload, deleteOfflineQuran, downloadQuran, TOTAL_SURAHS, useOfflineQuran } from "@/services/quran/offline";
 import { useQuranStore } from "@/stores/quran-store";
 import { useOnline } from "@/hooks/use-online";
+import { useConfirm } from "@/components/ui/confirm";
 
 /** Whether the service worker has saved the core app pages. */
 function useAppOfflineStatus() {
@@ -50,6 +51,7 @@ function useCurrentSources() {
 
 export function OfflineSection() {
   const { t, formatNumber } = useI18n();
+  const confirmDialog = useConfirm();
   const app = useAppOfflineStatus();
   const dl = useOfflineQuran();
   const { locale, translation, tafsir, loading } = useCurrentSources();
@@ -140,8 +142,14 @@ export function OfflineSection() {
                 <Button
                   variant="outline"
                   className="border-danger/40 text-danger"
-                  onClick={() => {
-                    if (window.confirm(t("common.confirm"))) void deleteOfflineQuran();
+                  onClick={async () => {
+                    const ok = await confirmDialog({
+                      emoji: "📥",
+                      title: t("confirm.offlineTitle"),
+                      message: t("confirm.offlineMsg"),
+                      confirmLabel: t("confirm.offlineOk"),
+                    });
+                    if (ok) void deleteOfflineQuran();
                   }}
                 >
                   <Trash2 className="size-4" aria-hidden />

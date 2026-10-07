@@ -49,6 +49,7 @@ import { progressKey, usePlanStore, type PlanTrigger, type SalahName, type ZikrP
 import { useZikrStore } from "@/stores/zikr-store";
 import { lt, type Zikr } from "@/types/content";
 import { TapCircle } from "./tap-circle";
+import { useConfirm } from "@/components/ui/confirm";
 
 const SALAH_ICON: Record<SalahName, typeof Sun> = { fajr: Sunrise, dhuhr: Sun, asr: Sun, maghrib: Sunset, isha: Moon };
 const TAP_GUARD_MS = 90;
@@ -526,6 +527,7 @@ function PlanRunner({ plan, onClose, onEdit }: { plan: ZikrPlan; onClose: () => 
 // ───────────────────────────────────────────────────────────────────────────
 function PlanEditor({ plan, onClose, onDeleted }: { plan: ZikrPlan | null; onClose: () => void; onDeleted: () => void }) {
   const { t, contentLocale } = useI18n();
+  const confirmDialog = useConfirm();
   const catalog = useCatalog();
   const text = usePlanText();
   const { savePlan, deletePlan, resetBuiltIn } = usePlanStore.getState();
@@ -705,8 +707,14 @@ function PlanEditor({ plan, onClose, onDeleted }: { plan: ZikrPlan | null; onClo
             <Button
               variant="ghost"
               className="ms-auto text-danger"
-              onClick={() => {
-                if (confirm(t("zikrPlan.deleteConfirm"))) {
+              onClick={async () => {
+                const ok = await confirmDialog({
+                  emoji: "📿",
+                  title: t("confirm.planTitle"),
+                  message: t("confirm.planMsg", { name: text.planName(plan) }),
+                  confirmLabel: t("confirm.planOk"),
+                });
+                if (ok) {
                   deletePlan(plan.id);
                   onDeleted();
                 }

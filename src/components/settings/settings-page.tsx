@@ -19,6 +19,7 @@ import { HomeClockSettings } from "@/components/home/dual-clock";
 import { useNotificationStore, type NotificationMode } from "@/stores/notification-store";
 import { APP_CONFIG } from "@/config/app";
 import { OfflineSection } from "./offline-section";
+import { useConfirm } from "@/components/ui/confirm";
 
 function Section({ title, children, id }: { title: string; children: React.ReactNode; id: string }) {
   return (
@@ -82,6 +83,7 @@ function Notifications() {
 
 export function SettingsPage() {
   const { t } = useI18n();
+  const confirmDialog = useConfirm();
   const toast = useToast();
   const reducedMotion = usePrefs((s) => s.reducedMotion);
   const setPrefs = usePrefs((s) => s.set);
@@ -160,7 +162,13 @@ export function SettingsPage() {
           className="border-danger/40 text-danger"
           disabled={clearing}
           onClick={async () => {
-            if (!window.confirm(t("common.confirm"))) return;
+            const ok = await confirmDialog({
+              emoji: "⚠️",
+              title: t("confirm.clearAllTitle"),
+              message: t("confirm.clearAllMsg"),
+              confirmLabel: t("confirm.clearAllOk"),
+            });
+            if (!ok) return;
             setClearing(true);
             await clearAllLocalData();
             toast(t("settings.clearDataDone"));

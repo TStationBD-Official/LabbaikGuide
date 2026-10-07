@@ -52,6 +52,7 @@ import { useWalkingRoute } from "@/hooks/use-walking-route";
 import { cn, copyText, shareOrCopy, vibrate } from "@/lib/utils";
 import { usePlacesStore, type Place, type PlaceKind } from "@/stores/places-store";
 import type { MapViewHandle } from "./map-view";
+import { useConfirm } from "@/components/ui/confirm";
 
 const MapView = dynamic(() => import("./map-view").then((m) => m.MapView), {
   ssr: false,
@@ -116,6 +117,7 @@ const emptyDraft = (kind: PlaceKind = "hotel"): Draft => ({ id: null, kind, name
 
 export function HotelView() {
   const { t } = useI18n();
+  const confirmDialog = useConfirm();
   const hydrated = useStoreHydrated(usePlacesStore);
   const places = usePlacesStore((s) => s.places);
   const activeId = usePlacesStore((s) => s.activeId);
@@ -360,8 +362,14 @@ export function HotelView() {
               startEdit(active);
               setTimeout(runCapture, 0);
             }}
-            onDelete={() => {
-              if (confirm(t("hotel.deleteConfirm"))) remove(active.id);
+            onDelete={async () => {
+              const ok = await confirmDialog({
+                emoji: "🏨",
+                title: t("confirm.hotelTitle"),
+                message: t("confirm.hotelMsg", { name: active.name }),
+                confirmLabel: t("confirm.hotelOk"),
+              });
+              if (ok) remove(active.id);
             }}
             onToast={toast}
           />

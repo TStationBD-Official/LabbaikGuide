@@ -5,6 +5,7 @@ import { MotionConfig } from "motion/react";
 import type { Messages } from "@/i18n";
 import { parsePreferences, PREFS_COOKIE, type Preferences } from "@/lib/preferences";
 import { ToastProvider } from "@/components/ui/toast";
+import { ConfirmProvider } from "@/components/ui/confirm";
 import { PreferencesProvider, usePrefs } from "./preferences-provider";
 import { I18nProvider, useI18n } from "./i18n-provider";
 import { QueryProvider } from "./query-provider";
@@ -52,9 +53,11 @@ export function AppProviders({
         <QueryProvider>
           <MotionPrefs>
             <ToastProvider>
+              <ConfirmProvider>
               {children}
               <PrefsReconciler />
               <ServiceWorkerRegistrar />
+              </ConfirmProvider>
             </ToastProvider>
           </MotionPrefs>
         </QueryProvider>

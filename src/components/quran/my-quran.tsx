@@ -9,6 +9,7 @@ import { useStoreHydrated } from "@/hooks/use-hydrated";
 import { useChapters } from "@/services/quran/queries";
 import { HISTORY_SIZE, useQuranStore } from "@/stores/quran-store";
 import type { Chapter } from "@/types/quran";
+import { useConfirm } from "@/components/ui/confirm";
 
 function useNames() {
   const { locale, t, formatNumber } = useI18n();
@@ -148,6 +149,7 @@ const MODE_KEY = { surah: "quran.surah", juz: "quran.juz", page: "quran.page", h
 /** The last 10 reading sessions. */
 export function ReadingHistory() {
   const { t, formatNumber } = useI18n();
+  const confirmDialog = useConfirm();
   const hydrated = useStoreHydrated(useQuranStore);
   const history = useQuranStore((s) => s.history);
   const lastRead = useQuranStore((s) => s.lastRead);
@@ -165,8 +167,14 @@ export function ReadingHistory() {
         <p className="text-sm text-muted-foreground">{t("quran.historyHint")}</p>
         <button
           type="button"
-          onClick={() => {
-            if (window.confirm(t("common.confirm"))) clear();
+          onClick={async () => {
+            const ok = await confirmDialog({
+              emoji: "🕘",
+              title: t("confirm.historyTitle"),
+              message: t("confirm.historyMsg"),
+              confirmLabel: t("confirm.historyOk"),
+            });
+            if (ok) clear();
           }}
           className="inline-flex min-h-9 items-center gap-1.5 rounded-full px-3 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
         >

@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { ZikrCounter } from "./zikr-counter";
 import { ZikrForm } from "./zikr-form";
 import { ZikrStats } from "./zikr-stats";
+import { useConfirm } from "@/components/ui/confirm";
 
 function ZikrItem({
   zikr,
@@ -30,6 +31,7 @@ function ZikrItem({
   onEdit: (z: Zikr) => void;
 }) {
   const { t, contentLocale, formatNumber } = useI18n();
+  const confirmDialog = useConfirm();
   const count = useZikrStore((s) => s.counts[zikr.id] ?? 0);
   const target = useZikrStore((s) => s.targets[zikr.id] ?? zikr.target);
   const store = useZikrStore.getState;
@@ -85,8 +87,14 @@ function ZikrItem({
             <IconButton
               size="sm"
               label={`${t("common.delete")}: ${name}`}
-              onClick={() => {
-                if (window.confirm(t("zikr.deleteConfirm"))) store().deleteCustom(zikr.id);
+              onClick={async () => {
+                const ok = await confirmDialog({
+                  emoji: "📿",
+                  title: t("confirm.zikrTitle"),
+                  message: t("confirm.zikrMsg", { name }),
+                  confirmLabel: t("confirm.zikrOk"),
+                });
+                if (ok) store().deleteCustom(zikr.id);
               }}
             >
               <Trash2 className="size-4 text-danger" aria-hidden />
@@ -100,6 +108,7 @@ function ZikrItem({
 
 export function ZikrPage() {
   const { t } = useI18n();
+  const confirmDialog = useConfirm();
   const hydrated = useStoreHydrated(useZikrStore);
   const all = useAllZikr();
   const activeId = useZikrStore((s) => s.activeId);
@@ -151,8 +160,15 @@ export function ZikrPage() {
                 label={t("zikr.resetAll")}
                 title={t("zikr.resetAll")}
                 disabled={!Object.values(counts).some((n) => n > 0)}
-                onClick={() => {
-                  if (!window.confirm(t("zikr.resetAllConfirm"))) return;
+                onClick={async () => {
+                  const ok = await confirmDialog({
+                    emoji: "🔄",
+                    tone: "primary",
+                    title: t("confirm.resetAllTitle"),
+                    message: t("confirm.resetAllMsg"),
+                    confirmLabel: t("confirm.resetAllOk"),
+                  });
+                  if (!ok) return;
                   resetAll();
                   toast(t("zikr.resetAllDone"));
                 }}

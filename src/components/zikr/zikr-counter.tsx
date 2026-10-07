@@ -13,6 +13,7 @@ import { useToast } from "@/components/ui/toast";
 import { lt, type Zikr } from "@/types/content";
 import { useZikrStore } from "@/stores/zikr-store";
 import { vibrate } from "@/lib/utils";
+import { useConfirm } from "@/components/ui/confirm";
 
 /** Taps closer together than this are treated as one (prevents double counting). */
 const TAP_GUARD_MS = 90;
@@ -27,6 +28,7 @@ const ALL_DONE_PATTERN = [400, 150, 400, 150, 700];
 
 export function ZikrCounter({ zikr, next }: { zikr: Zikr; next: Zikr | null }) {
   const { t, contentLocale, formatNumber } = useI18n();
+  const confirmDialog = useConfirm();
   const toast = useToast();
   const count = useZikrStore((s) => s.counts[zikr.id] ?? 0);
   const target = useZikrStore((s) => s.targets[zikr.id] ?? zikr.target);
@@ -193,8 +195,16 @@ export function ZikrCounter({ zikr, next }: { zikr: Zikr; next: Zikr | null }) {
           variant="outline"
           size="lg"
           className="flex-1"
-          onClick={() => {
-            if (count > 0 && window.confirm(t("zikr.resetConfirm"))) {
+          onClick={async () => {
+            if (count === 0) return;
+            const ok = await confirmDialog({
+              emoji: "🔄",
+              tone: "primary",
+              title: t("confirm.counterTitle"),
+              message: t("confirm.counterMsg", { name: lt(zikr.name, contentLocale) }),
+              confirmLabel: t("confirm.counterOk"),
+            });
+            if (ok) {
               cancelAdvance();
               reset(zikr.id);
             }
