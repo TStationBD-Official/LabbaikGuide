@@ -4,6 +4,8 @@ import { APP_CONFIG } from "@/config/app";
 import type { Locale } from "@/lib/preferences";
 import {
   MODE_UPSTREAM,
+  TAJWEED_RULES,
+  type TajweedRule,
   type Chapter,
   type QuranResource,
   type QuranSearchResponse,
@@ -55,6 +57,8 @@ export type VersesQuery = {
   perPage?: number;
   /** Include King Fahd Complex page-font glyphs (word-level codes + page numbers). */
   qcf?: "v1" | "v2";
+  /** Include tajweed-marked Uthmani text (parsed into safe segments). */
+  tajweed?: boolean;
 };
 
 export async function getVerses(q: VersesQuery): Promise<VersesResponse> {
@@ -68,7 +72,7 @@ export async function getVerses(q: VersesQuery): Promise<VersesResponse> {
     word_fields: wordFields.length ? wordFields.join(",") : undefined,
     translations: q.translationId,
     // Arabic text comes straight from the API in each script — never converted between scripts.
-    fields: "text_uthmani,text_indopak,text_qpc_hafs",
+    fields: `text_uthmani,text_indopak,text_qpc_hafs${q.tajweed ? ",text_uthmani_tajweed" : ""}`,
     audio: q.audio ? APP_CONFIG.quran.defaultRecitationId : undefined,
     per_page: q.perPage ?? APP_CONFIG.quran.versesPerPage,
     page: q.page,
@@ -89,6 +93,7 @@ export async function getVerses(q: VersesQuery): Promise<VersesResponse> {
       textIndopak: v.text_indopak ?? null,
       textQpcHafs: v.text_qpc_hafs ?? null,
       qcf: q.qcf ? qcfGlyphs(v.words ?? [], q.qcf) : null,
+      tajweed: q.tajweed && v.text_uthmani_tajweed ? parseTajweed(v.text_uthmani_tajweed) : null,
       translationHtml: translation ? sanitizeInline(translation.text) : null,
       words: q.words
         ? (v.words ?? [])
@@ -117,6 +122,27 @@ export async function getVerses(q: VersesQuery): Promise<VersesResponse> {
       totalRecords: data.pagination.total_records,
     },
   };
+}
+
+/**
+ * Turns the API's tajweed markup into [text, rule] segments. Only the known
+ * `<tajweed class=…>` and `<span class=end>` tags are accepted; anything else
+ * (or an unknown rule) rejects the whole verse, which then shows plain text.
+ * The ayah-number span is dropped (the card shows the number).
+ */
+export function parseTajweed(markup: string): [string, TajweedRule | null][] | null {
+  const out: [string, TajweedRule | null][] = [];
+  const re = /<tajweed class=([a-z_]+)>([^<]*)<\/tajweed>|<span class=end>[^<]*<\/span>|([^<]+)|(<)/g;
+  for (const m of markup.matchAll(re)) {
+    if (m[4]) return null; // unexpected tag
+    if (m[1] !== undefined) {
+      if (!(TAJWEED_RULES as readonly string[]).includes(m[1])) return null;
+      if (m[2]) out.push([m[2], m[1] as TajweedRule]);
+    } else if (m[3] !== undefined) out.push([m[3], null]);
+  }
+  while (out.length && out[out.length - 1][1] === null && !out[out.length - 1][0].trim()) out.pop();
+  if (out.length && out[out.length - 1][1] === null) out[out.length - 1][0] = out[out.length - 1][0].trimEnd();
+  return out.length ? out : null;
 }
 
 /**

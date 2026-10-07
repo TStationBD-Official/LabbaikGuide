@@ -41,6 +41,7 @@ export const UpVerse = z.object({
   text_uthmani: z.string().optional().nullable(),
   text_indopak: z.string().optional().nullable(),
   text_qpc_hafs: z.string().optional().nullable(),
+  text_uthmani_tajweed: z.string().optional().nullable(),
   translations: z.array(z.object({ resource_id: z.number(), text: z.string() })).optional(),
   words: z.array(UpWord).optional(),
   audio: z.object({ url: z.string().nullable().optional() }).optional().nullable(),

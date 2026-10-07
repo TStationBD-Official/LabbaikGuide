@@ -86,9 +86,20 @@ export function QuranReader({ mode, id, initialAyah }: { mode: ReadingMode; id: 
   const arabicFont = usePrefs((s) => s.arabicFont);
   const scriptDef = ARABIC_FONTS[arabicFont] as (typeof ARABIC_FONTS)[ArabicFont] & { qcf?: "v1" | "v2" | "v4" };
   const scriptField = scriptDef.script;
-  // The Tajweed layer shows the colour-coded Madinah Mushaf whatever script is chosen.
+  // Tajweed keeps the chosen script wherever a tajweed source exists for it:
+  //  - Madinah page fonts → the Tajweed V4 page fonts (same Mushaf, in colour)
+  //  - Uthmani Unicode fonts → tajweed-marked Uthmani text in that same font
+  //  - IndoPak → no tajweed source exists; colours only if the reader opts into the Madinah script
   const tajweedOn = useQuranStore((s) => s.tajweed);
-  const qcfVersion = tajweedOn ? "v4" : (scriptDef.qcf ?? null);
+  const tajweedMadinah = useQuranStore((s) => s.tajweedMadinah);
+  const tajweedMode: "off" | "glyph" | "text" | "unavailable" = !tajweedOn
+    ? "off"
+    : scriptDef.qcf || (scriptDef.group === "indopak" && tajweedMadinah)
+      ? "glyph"
+      : scriptDef.group === "indopak"
+        ? "unavailable"
+        : "text";
+  const qcfVersion = tajweedMode === "glyph" ? "v4" : (scriptDef.qcf ?? null);
   const hydrated = useStoreHydrated(useQuranStore);
   const q = useQuranStore();
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -114,6 +125,7 @@ export function QuranReader({ mode, id, initialAyah }: { mode: ReadingMode; id: 
     audio: q.audio,
     // Tajweed V4 fonts draw the V2 glyph codes.
     qcf: qcfVersion ? (qcfVersion === "v1" ? "v1" : "v2") : null,
+    tajweed: tajweedMode === "text",
     startPage,
     enabled: ready,
   });
@@ -248,7 +260,7 @@ export function QuranReader({ mode, id, initialAyah }: { mode: ReadingMode; id: 
         </p>
       ) : null}
 
-      {tajweedOn && q.showArabic ? <TajweedLegend scriptNote={arabicFont !== "qcfTajweed"} /> : null}
+      {tajweedOn && q.showArabic ? <TajweedLegend mode={tajweedMode} indopak={scriptDef.group === "indopak"} /> : null}
 
       {q.bnUccharon ? (
         <p className="mb-3 rounded-xl border border-border/70 bg-card/60 px-3 py-2 text-xs leading-relaxed text-muted-foreground">
@@ -283,6 +295,7 @@ export function QuranReader({ mode, id, initialAyah }: { mode: ReadingMode; id: 
               chapterName={chapterName(v.chapterId)}
               scriptField={scriptField}
               qcf={qcf}
+              tajweedText={tajweedMode === "text"}
               showArabic={q.showArabic}
               uccharon={uccharon ? (uccharon.has(v.key) ? uccharon.get(v.key)! : undefined) : undefined}
               showTranslation={q.showTranslation}

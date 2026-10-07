@@ -2,7 +2,7 @@
 
 import { memo } from "react";
 import { Bookmark, BookmarkCheck, Copy, Pause, Play, Share2 } from "lucide-react";
-import type { QuranVerse } from "@/types/quran";
+import type { QuranVerse, TajweedRule } from "@/types/quran";
 import type { QuranScriptField } from "@/lib/preferences";
 import { qcfFamily, qcfPalette, type QcfVariant } from "@/hooks/use-qcf-fonts";
 import type { Tone } from "@/hooks/use-is-dark";
@@ -32,6 +32,30 @@ export function verseText(v: QuranVerse, field: QuranScriptField): string {
   return primary ?? v.textUthmani ?? v.textIndopak ?? "";
 }
 
+/**
+ * Tajweed text classes → the colour groups of the Tajweed guide (the scheme of
+ * the KFGQPC Tajweed V4 Mushaf), so both modes read the same way.
+ */
+const TAJWEED_GROUP: Record<TajweedRule, "silent" | "mad2" | "mad246" | "mad45" | "mad6" | "ghunnah" | "qalqala"> = {
+  ham_wasl: "silent",
+  slnt: "silent",
+  laam_shamsiyah: "silent",
+  idgham_wo_ghunnah: "silent",
+  idgham_mutajanisayn: "silent",
+  idgham_mutaqaribayn: "silent",
+  madda_normal: "mad2",
+  madda_permissible: "mad246",
+  madda_obligatory: "mad45",
+  madda_necessary: "mad6",
+  ghunnah: "ghunnah",
+  ikhafa: "ghunnah",
+  ikhafa_shafawi: "ghunnah",
+  idgham_ghunnah: "ghunnah",
+  idgham_shafawi: "ghunnah",
+  iqlab: "ghunnah",
+  qalaqah: "qalqala",
+};
+
 /** One glyph per word in the font of its own Mushaf page. */
 function QcfLine({ glyphs, variant, tone }: { glyphs: { p: number; c: string }[]; variant: QcfVariant; tone: Tone }) {
   return (
@@ -53,6 +77,8 @@ type Props = {
   /** Set when a King Fahd Complex page font is selected. */
   qcf: { variant: QcfVariant; ready: (page: number) => boolean; tone: Tone } | null;
   showArabic: boolean;
+  /** Colour the Unicode text with its tajweed segments (when present). */
+  tajweedText?: boolean;
   /** Bengali pronunciation: string, null = unavailable for this verse, undefined = off/loading. */
   uccharon?: string | null;
   showTranslation: boolean;
@@ -157,7 +183,21 @@ export const AyahCard = memo(function AyahCard(p: Props) {
           </div>
         ) : (
           <p lang="ar" dir="rtl" className={cn("font-quran text-right text-foreground", glyphs && "qcf-line")}>
-            {glyphs && p.qcf ? <QcfLine glyphs={glyphs} variant={p.qcf.variant} tone={p.qcf.tone} /> : arabic}
+            {glyphs && p.qcf ? (
+              <QcfLine glyphs={glyphs} variant={p.qcf.variant} tone={p.qcf.tone} />
+            ) : p.tajweedText && verse.tajweed ? (
+              verse.tajweed.map(([text, rule], i) =>
+                rule ? (
+                  <span key={i} className={`tj-${TAJWEED_GROUP[rule]}`}>
+                    {text}
+                  </span>
+                ) : (
+                  text
+                ),
+              )
+            ) : (
+              arabic
+            )}
           </p>
         )
       ) : null}

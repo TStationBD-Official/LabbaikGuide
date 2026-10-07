@@ -802,7 +802,6 @@
     "title": "Tajweed colours",
     "show": "Show colour guide",
     "hide": "Hide colour guide",
-    "script": "Tajweed colours are shown in the Madinah Mushaf script (King Fahd Complex Tajweed V4); your chosen script returns when Tajweed is off.",
     "rule": {
       "edgham": "Silent letter (not pronounced)",
       "mad2": "Normal madd — 2 harakat",
@@ -813,6 +812,11 @@
       "qalqala": "Qalqalah (echo)",
       "tafkhim": "Tafkhim (heavy letter)"
     },
-    "source": "Colour scheme of the Dar Al-Maarifah Tajweed Mushaf, as used in the KFGQPC Tajweed V4 fonts."
+    "source": "Colour scheme of the Dar Al-Maarifah Tajweed Mushaf, as used in the KFGQPC Tajweed V4 fonts.",
+    "indopakNone": "There is no reliable tajweed-marked text for the IndoPak script, so colours can't be shown in your chosen IndoPak font. You can see the colours in the Madinah Mushaf script, or pick an Uthmani font (Amiri, Scheherazade, KFGQPC Hafs) in Settings to keep colours in that font.",
+    "useMadinah": "Show colours in the Madinah script",
+    "madinahNote": "IndoPak has no tajweed source, so colours are shown in the Madinah Mushaf script.",
+    "backToMine": "Use my IndoPak script without colours",
+    "sourceText": "Tajweed marks: Quran.com tajweed text, coloured with the same scheme as the King Fahd Complex Tajweed Mushaf."
   }
 }

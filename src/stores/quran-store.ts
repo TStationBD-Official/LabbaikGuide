@@ -32,6 +32,9 @@ type ReaderLayers = {
   bnUccharon: boolean;
   /** Colour-coded Tajweed (King Fahd Complex Tajweed Mushaf V4). */
   tajweed: boolean;
+  /** IndoPak readers chose to see Tajweed colours in the Madinah script (no IndoPak tajweed text exists). */
+  tajweedMadinah: boolean;
+  setTajweedMadinah: (v: boolean) => void;
 };
 
 /** Auto-scroll speeds (px per second) for levels 1–10. */
@@ -66,6 +69,8 @@ export const useQuranStore = create<QuranState>()(
       wordByWord: false,
       bnUccharon: false,
       tajweed: false,
+      tajweedMadinah: false,
+      setTajweedMadinah: (tajweedMadinah) => set({ tajweedMadinah }),
       audio: false,
       size: "md",
       spacing: "normal",

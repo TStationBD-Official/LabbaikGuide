@@ -364,6 +364,34 @@
   font-feature-settings: "liga", "calt";
   word-spacing: 0.08em;
 }
+/* Tajweed colours for Unicode text — the same scheme and palette values as the
+   KFGQPC Tajweed V4 fonts (light / dark / sepia), so the colour guide matches. */
+:root {
+  --tj-silent: #a5a5a5; --tj-mad2: #ce9e00; --tj-mad246: #ff7b00; --tj-mad45: #f40000;
+  --tj-mad6: #b50000; --tj-ghunnah: #09b000; --tj-qalqala: #2fadff;
+}
+[data-theme="sepia"], [data-theme="mushaf"] {
+  --tj-silent: #ababab; --tj-mad2: #c09725; --tj-mad246: #e67b00; --tj-mad45: #ff0000;
+  --tj-mad6: #b7001c; --tj-ghunnah: #09b000; --tj-qalqala: #00b4e0;
+}
+[data-theme="dark"], [data-theme="contrast"] {
+  --tj-silent: #999999; --tj-mad2: #ffc1e0; --tj-mad246: #ff8e3b; --tj-mad45: #ff5e8e;
+  --tj-mad6: #e30000; --tj-ghunnah: #26b55d; --tj-qalqala: #00deff;
+}
+@media (prefers-color-scheme: dark) {
+  [data-theme="system"] {
+    --tj-silent: #999999; --tj-mad2: #ffc1e0; --tj-mad246: #ff8e3b; --tj-mad45: #ff5e8e;
+    --tj-mad6: #e30000; --tj-ghunnah: #26b55d; --tj-qalqala: #00deff;
+  }
+}
+.tj-silent { color: var(--tj-silent); }
+.tj-mad2 { color: var(--tj-mad2); }
+.tj-mad246 { color: var(--tj-mad246); }
+.tj-mad45 { color: var(--tj-mad45); }
+.tj-mad6 { color: var(--tj-mad6); }
+.tj-ghunnah { color: var(--tj-ghunnah); }
+.tj-qalqala { color: var(--tj-qalqala); }
+
 /* King Fahd Complex page-font lines: glyphs are pre-shaped words, so no extra word spacing. */
 .qcf-line { word-spacing: 0; line-height: 2.2; }
 

@@ -25,6 +25,28 @@ export const WordSchema = z.object({
 });
 export type QuranWord = z.infer<typeof WordSchema>;
 
+/** Tajweed classes in the Quran.com `text_uthmani_tajweed` field. */
+export const TAJWEED_RULES = [
+  "ham_wasl",
+  "slnt",
+  "laam_shamsiyah",
+  "madda_normal",
+  "madda_permissible",
+  "madda_necessary",
+  "madda_obligatory",
+  "qalaqah",
+  "ikhafa_shafawi",
+  "ikhafa",
+  "iqlab",
+  "idgham_shafawi",
+  "idgham_ghunnah",
+  "idgham_wo_ghunnah",
+  "idgham_mutajanisayn",
+  "idgham_mutaqaribayn",
+  "ghunnah",
+] as const;
+export type TajweedRule = (typeof TAJWEED_RULES)[number];
+
 export const VerseSchema = z.object({
   key: z.string().regex(/^\d{1,3}:\d{1,3}$/),
   number: z.number().int().positive(),
@@ -42,6 +64,15 @@ export const VerseSchema = z.object({
    */
   qcf: z
     .object({ v: z.enum(["v1", "v2"]), glyphs: z.array(z.object({ p: z.number().int().min(1).max(604), c: z.string().min(1).max(8) })) })
+    .nullable()
+    .optional()
+    .default(null),
+  /**
+   * Tajweed-marked Uthmani text as plain segments [text, rule|null] (rule names
+   * from a fixed list — never HTML). Present only when requested.
+   */
+  tajweed: z
+    .array(z.tuple([z.string(), z.enum(TAJWEED_RULES).nullable()]))
     .nullable()
     .optional()
     .default(null),

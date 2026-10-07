@@ -16,6 +16,7 @@ export async function GET(req: Request) {
         words: q.words,
         audio: q.audio,
         qcf: q.qcf,
+        tajweed: q.tajweed,
       }),
     { sMaxAge: 60 * 60 * 24 * 7, swr: 60 * 60 * 24 * 30 },
   );

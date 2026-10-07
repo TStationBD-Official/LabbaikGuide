@@ -111,3 +111,18 @@ describe("Bengali pronunciation data", () => {
     expect(missing).toEqual(["20:47"]);
   });
 });
+
+describe("tajweed markup parsing", async () => {
+  const { parseTajweed } = await import("@/server/quran/service");
+  const sample =
+    "ذ<tajweed class=madda_normal>َٲ</tajweed>لِكَ <tajweed class=ham_wasl>ٱ</tajweed>لْكِتَ<tajweed class=madda_normal>ـٰ</tajweed>بُ لَا رَيْبَ‌ۛ فِيهِ‌ۛ هُ<tajweed class=idgham_wo_ghunnah>دًى ل</tajweed>ِّلْمُتَّق<tajweed class=madda_permissible>ِي</tajweed>نَ <span class=end>٢</span>";
+  it("keeps every character, in order, and drops the ayah number", () => {
+    const seg = parseTajweed(sample)!;
+    expect(seg.map(([t]) => t).join("")).toBe(sample.replace(/<span class=end>[^<]*<\/span>/, "").replace(/<[^>]+>/g, "").trimEnd());
+    expect(seg.filter(([, r]) => r).map(([, r]) => r)).toEqual(["madda_normal", "ham_wasl", "madda_normal", "idgham_wo_ghunnah", "madda_permissible"]);
+  });
+  it("rejects unknown rules or tags instead of rendering them", () => {
+    expect(parseTajweed("ب<tajweed class=evil>ِ</tajweed>")).toBeNull();
+    expect(parseTajweed('ب<img src=x onerror="alert(1)">')).toBeNull();
+  });
+});
