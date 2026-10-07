@@ -30,6 +30,8 @@ type ReaderLayers = {
   audio: boolean;
   /** Bengali pronunciation (উচ্চারণ) under the Arabic. */
   bnUccharon: boolean;
+  /** Colour-coded Tajweed (King Fahd Complex Tajweed Mushaf V4). */
+  tajweed: boolean;
 };
 
 /** Auto-scroll speeds (px per second) for levels 1–10. */
@@ -63,6 +65,7 @@ export const useQuranStore = create<QuranState>()(
       showTafsir: false,
       wordByWord: false,
       bnUccharon: false,
+      tajweed: false,
       audio: false,
       size: "md",
       spacing: "normal",

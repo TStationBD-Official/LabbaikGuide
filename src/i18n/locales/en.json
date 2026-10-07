@@ -796,5 +796,23 @@
     },
     "pageFontsNote": "King Fahd Complex page fonts load one page at a time; until a page is ready its verses show in the KFGQPC Unicode font.",
     "search": "Search fonts"
+  },
+  "tajweed": {
+    "layer": "Tajweed",
+    "title": "Tajweed colours",
+    "show": "Show colour guide",
+    "hide": "Hide colour guide",
+    "script": "Tajweed colours are shown in the Madinah Mushaf script (King Fahd Complex Tajweed V4); your chosen script returns when Tajweed is off.",
+    "rule": {
+      "edgham": "Silent letter (not pronounced)",
+      "mad2": "Normal madd — 2 harakat",
+      "mad246": "Separated madd — 2, 4 or 6 harakat",
+      "mad45": "Connected madd — 4 or 5 harakat",
+      "mad6": "Necessary madd — 6 harakat",
+      "ekhfa": "Ghunnah / Ikhfa",
+      "qalqala": "Qalqalah (echo)",
+      "tafkhim": "Tafkhim (heavy letter)"
+    },
+    "source": "Colour scheme of the Dar Al-Maarifah Tajweed Mushaf, as used in the KFGQPC Tajweed V4 fonts."
   }
 }

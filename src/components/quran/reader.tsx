@@ -11,7 +11,7 @@ import { useToast } from "@/components/ui/toast";
 import { useStoreHydrated } from "@/hooks/use-hydrated";
 import { ARABIC_FONTS, type ArabicFont } from "@/lib/preferences";
 import { qcfVariantFor, useQcfFonts } from "@/hooks/use-qcf-fonts";
-import { useIsDark } from "@/hooks/use-is-dark";
+import { useTone } from "@/hooks/use-is-dark";
 import { useChapters, useResources, useVerses } from "@/services/quran/queries";
 import { useBnUccharon } from "@/services/quran/bn-uccharon";
 import { useQuranStore } from "@/stores/quran-store";
@@ -20,6 +20,7 @@ import { APP_CONFIG } from "@/config/app";
 import { AyahCard } from "./ayah-card";
 import { LayerToggles } from "./layer-toggles";
 import { ReaderSettings } from "./reader-settings";
+import { TajweedLegend } from "./tajweed-legend";
 import { AutoScrollBar, useAutoScroll, type AutoScrollMode } from "./auto-scroll";
 
 /** Basmala heading in the encoding of each script family (KFGQPC Hafs / Uthmani / IndoPak). */
@@ -85,7 +86,9 @@ export function QuranReader({ mode, id, initialAyah }: { mode: ReadingMode; id: 
   const arabicFont = usePrefs((s) => s.arabicFont);
   const scriptDef = ARABIC_FONTS[arabicFont] as (typeof ARABIC_FONTS)[ArabicFont] & { qcf?: "v1" | "v2" | "v4" };
   const scriptField = scriptDef.script;
-  const qcfVersion = scriptDef.qcf ?? null;
+  // The Tajweed layer shows the colour-coded Madinah Mushaf whatever script is chosen.
+  const tajweedOn = useQuranStore((s) => s.tajweed);
+  const qcfVersion = tajweedOn ? "v4" : (scriptDef.qcf ?? null);
   const hydrated = useStoreHydrated(useQuranStore);
   const q = useQuranStore();
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -120,11 +123,11 @@ export function QuranReader({ mode, id, initialAyah }: { mode: ReadingMode; id: 
     useMemo(() => allVerses.map((v) => v.chapterId), [allVerses]),
     hydrated && q.bnUccharon,
   );
-  const dark = useIsDark();
+  const tone = useTone();
   const qcfVariant = qcfVersion ? qcfVariantFor(qcfVersion) : null;
   const qcfPages = useMemo(() => allVerses.flatMap((v) => v.qcf?.glyphs.map((g) => g.p) ?? []), [allVerses]);
   const qcfReady = useQcfFonts(qcfVariant, qcfPages);
-  const qcf = useMemo(() => (qcfVariant ? { variant: qcfVariant, ready: qcfReady, dark } : null), [qcfVariant, qcfReady, dark]);
+  const qcf = useMemo(() => (qcfVariant ? { variant: qcfVariant, ready: qcfReady, tone } : null), [qcfVariant, qcfReady, tone]);
   const audio = useAyahAudio(allVerses, () => toast(t("quran.audioError"), "error"));
   const pauseAutoScroll = useCallback(() => setAutoScroll((m) => (m === "running" ? "paused" : m)), []);
   useAutoScroll(autoScroll, pauseAutoScroll);
@@ -244,6 +247,8 @@ export function QuranReader({ mode, id, initialAyah }: { mode: ReadingMode; id: 
           })}
         </p>
       ) : null}
+
+      {tajweedOn && q.showArabic ? <TajweedLegend scriptNote={arabicFont !== "qcfTajweed"} /> : null}
 
       {q.bnUccharon ? (
         <p className="mb-3 rounded-xl border border-border/70 bg-card/60 px-3 py-2 text-xs leading-relaxed text-muted-foreground">

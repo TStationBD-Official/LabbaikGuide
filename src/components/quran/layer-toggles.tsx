@@ -7,10 +7,11 @@ import { APP_CONFIG } from "@/config/app";
 import { cn } from "@/lib/utils";
 import type { TKey } from "@/i18n";
 
-type LayerKey = "showArabic" | "bnUccharon" | "showTranslation" | "showTafsir" | "wordByWord" | "audio";
+type LayerKey = "showArabic" | "tajweed" | "bnUccharon" | "showTranslation" | "showTafsir" | "wordByWord" | "audio";
 
 const LAYERS: { key: LayerKey; label: TKey; feature?: keyof typeof APP_CONFIG.features }[] = [
   { key: "showArabic", label: "quran.arabic" },
+  { key: "tajweed", label: "tajweed.layer" },
   { key: "bnUccharon", label: "quran.bnUccharon" },
   { key: "showTranslation", label: "quran.translation" },
   { key: "showTafsir", label: "quran.tafsir" },

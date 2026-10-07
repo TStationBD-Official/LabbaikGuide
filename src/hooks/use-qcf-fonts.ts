@@ -24,15 +24,17 @@ function addDarkPalette(family: string) {
       paletteSheet = new CSSStyleSheet();
       document.adoptedStyleSheets = [...document.adoptedStyleSheets, paletteSheet];
     }
+    // Embedded palettes: 0 light, 1 dark, 2 sepia.
     paletteSheet.insertRule(`@font-palette-values --${family}-dark { font-family: "${family}"; base-palette: 1; }`);
+    paletteSheet.insertRule(`@font-palette-values --${family}-sepia { font-family: "${family}"; base-palette: 2; }`);
   } catch {
     /* older browsers: the light palette is used */
   }
 }
 
-/** `font-palette` for a Tajweed glyph on a dark background. */
-export const qcfPalette = (variant: QcfVariant, page: number, dark: boolean) =>
-  variant === "v4" && dark ? `--${qcfFamily(variant, page)}-dark` : undefined;
+/** `font-palette` for a Tajweed glyph on the current background. */
+export const qcfPalette = (variant: QcfVariant, page: number, tone: "light" | "dark" | "sepia") =>
+  variant === "v4" && tone !== "light" ? `--${qcfFamily(variant, page)}-${tone}` : undefined;
 const pending = new Map<string, Promise<boolean>>();
 
 function loadPage(variant: QcfVariant, page: number): Promise<boolean> {

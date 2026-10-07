@@ -5,6 +5,7 @@ import { Bookmark, BookmarkCheck, Copy, Pause, Play, Share2 } from "lucide-react
 import type { QuranVerse } from "@/types/quran";
 import type { QuranScriptField } from "@/lib/preferences";
 import { qcfFamily, qcfPalette, type QcfVariant } from "@/hooks/use-qcf-fonts";
+import type { Tone } from "@/hooks/use-is-dark";
 import { useI18n } from "@/components/providers/i18n-provider";
 import { useToast } from "@/components/ui/toast";
 import { IconButton } from "@/components/ui/button";
@@ -32,11 +33,11 @@ export function verseText(v: QuranVerse, field: QuranScriptField): string {
 }
 
 /** One glyph per word in the font of its own Mushaf page. */
-function QcfLine({ glyphs, variant, dark }: { glyphs: { p: number; c: string }[]; variant: QcfVariant; dark: boolean }) {
+function QcfLine({ glyphs, variant, tone }: { glyphs: { p: number; c: string }[]; variant: QcfVariant; tone: Tone }) {
   return (
     <>
       {glyphs.map((g, i) => (
-        <span key={i} style={{ fontFamily: qcfFamily(variant, g.p), fontPalette: qcfPalette(variant, g.p, dark) }}>
+        <span key={i} style={{ fontFamily: qcfFamily(variant, g.p), fontPalette: qcfPalette(variant, g.p, tone) }}>
           {g.c}
           {i < glyphs.length - 1 ? " " : null}
         </span>
@@ -50,7 +51,7 @@ type Props = {
   chapterName: string;
   scriptField: QuranScriptField;
   /** Set when a King Fahd Complex page font is selected. */
-  qcf: { variant: QcfVariant; ready: (page: number) => boolean; dark: boolean } | null;
+  qcf: { variant: QcfVariant; ready: (page: number) => boolean; tone: Tone } | null;
   showArabic: boolean;
   /** Bengali pronunciation: string, null = unavailable for this verse, undefined = off/loading. */
   uccharon?: string | null;
@@ -138,7 +139,7 @@ export const AyahCard = memo(function AyahCard(p: Props) {
             {verse.words.map((w, i) => (
               <span key={w.position} className="inline-flex flex-col items-center text-center">
                 {glyphs?.[i] && p.qcf ? (
-                  <span className="font-quran" style={{ lineHeight: 1.7, fontFamily: qcfFamily(p.qcf.variant, glyphs[i].p), fontPalette: qcfPalette(p.qcf.variant, glyphs[i].p, p.qcf.dark) }}>
+                  <span className="font-quran" style={{ lineHeight: 1.7, fontFamily: qcfFamily(p.qcf.variant, glyphs[i].p), fontPalette: qcfPalette(p.qcf.variant, glyphs[i].p, p.qcf.tone) }}>
                     {glyphs[i].c}
                   </span>
                 ) : (
@@ -156,7 +157,7 @@ export const AyahCard = memo(function AyahCard(p: Props) {
           </div>
         ) : (
           <p lang="ar" dir="rtl" className={cn("font-quran text-right text-foreground", glyphs && "qcf-line")}>
-            {glyphs && p.qcf ? <QcfLine glyphs={glyphs} variant={p.qcf.variant} dark={p.qcf.dark} /> : arabic}
+            {glyphs && p.qcf ? <QcfLine glyphs={glyphs} variant={p.qcf.variant} tone={p.qcf.tone} /> : arabic}
           </p>
         )
       ) : null}

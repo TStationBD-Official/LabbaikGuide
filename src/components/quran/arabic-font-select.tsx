@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useI18n } from "@/components/providers/i18n-provider";
 import { usePrefs } from "@/components/providers/preferences-provider";
 import { Select } from "@/components/ui/select";
-import { useIsDark } from "@/hooks/use-is-dark";
+import { useTone, type Tone } from "@/hooks/use-is-dark";
 import { qcfFamily, qcfPalette, useQcfFonts, type QcfVariant } from "@/hooks/use-qcf-fonts";
 import { ARABIC_FONTS, ARABIC_FONT_GROUPS, type ArabicFont, type QcfVersion, type QuranTextSource } from "@/lib/preferences";
 
@@ -20,7 +20,7 @@ const SAMPLE: Record<QuranTextSource, string> = {
   code_v2: "ﱁ ﱂ ﱃ ﱄ ﱅ",
 };
 
-function Preview({ font, dark }: { font: ArabicFont; dark: boolean }) {
+function Preview({ font, tone }: { font: ArabicFont; tone: Tone }) {
   const def = ARABIC_FONTS[font] as (typeof ARABIC_FONTS)[ArabicFont] & { qcf?: QcfVersion };
   const variant: QcfVariant | null = def.qcf ?? null;
   const ready = useQcfFonts(variant, variant ? [1] : []);
@@ -31,7 +31,7 @@ function Preview({ font, dark }: { font: ArabicFont; dark: boolean }) {
       dir="rtl"
       aria-hidden
       className="block min-h-[2.4rem] truncate text-right text-[1.45rem] leading-[2.4rem] text-foreground transition-opacity"
-      style={{ fontFamily: family ? `"${family}"` : undefined, opacity: family ? 1 : 0.25, fontPalette: variant ? qcfPalette(variant, 1, dark) : undefined }}
+      style={{ fontFamily: family ? `"${family}"` : undefined, opacity: family ? 1 : 0.25, fontPalette: variant ? qcfPalette(variant, 1, tone) : undefined }}
     >
       {family ? SAMPLE[def.script] : SAMPLE.text_qpc_hafs}
     </span>
@@ -43,7 +43,7 @@ export function ArabicFontSelect({ className }: { className?: string }) {
   const { t } = useI18n();
   const value = usePrefs((s) => s.arabicFont);
   const set = usePrefs((s) => s.set);
-  const dark = useIsDark();
+  const tone = useTone();
   const options = useMemo(
     () =>
       ARABIC_FONT_GROUPS.flatMap((g) =>
@@ -54,10 +54,10 @@ export function ArabicFontSelect({ className }: { className?: string }) {
             label: ARABIC_FONTS[k].label,
             description: t(`quranFonts.desc.${k}`),
             group: t(`quranFonts.group.${g}`),
-            preview: <Preview font={k} dark={dark} />,
+            preview: <Preview font={k} tone={tone} />,
           })),
       ),
-    [t, dark],
+    [t, tone],
   );
   return (
     <Select<ArabicFont>
