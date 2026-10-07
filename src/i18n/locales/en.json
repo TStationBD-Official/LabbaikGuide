@@ -242,7 +242,10 @@
     "autoAdvance": "Move to the next zikr when done",
     "autoAdvanceHint": "When a target is reached the phone vibrates and the next unfinished zikr starts.",
     "allDone": "All zikr completed — Alhamdulillah",
-    "haptics": "Vibration"
+    "haptics": "Vibration",
+    "resetAll": "Reset all counters",
+    "resetAllConfirm": "Reset every zikr counter to zero? Your daily statistics are kept.",
+    "resetAllDone": "All counters reset"
   },
   "tawaf": {
     "title": "Tawaf Counter",

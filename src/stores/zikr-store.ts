@@ -38,6 +38,8 @@ type ZikrState = {
   /** Count a tap in the daily statistics only (used by plans, which keep their own step counts). */
   recordTap: (delta?: 1 | -1) => void;
   reset: (id: string) => void;
+  /** Set every counter to zero (daily statistics are kept). */
+  resetAll: () => void;
   undoLast: (id?: string) => boolean;
   setTarget: (id: string, target: number) => void;
   addCustom: (input: CustomZikrInput) => string;
@@ -80,6 +82,7 @@ export const useZikrStore = create<ZikrState>()(
           return { history: { ...s.history, [day]: Math.max(0, (s.history[day] ?? 0) + delta) } };
         }),
       reset: (id) => set((s) => applyReset(s.counts, s.undo, id)),
+      resetAll: () => set({ counts: {}, undo: [] }),
       undoLast: (id) => {
         const s = get();
         const r = applyUndo(s.counts, s.history, s.undo, id);

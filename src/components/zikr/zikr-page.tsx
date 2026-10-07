@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowDown, ArrowUp, Copy, Pencil, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Copy, Pencil, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { useI18n } from "@/components/providers/i18n-provider";
 import { Badge, Card, SectionHeader } from "@/components/ui/card";
 import { Button, IconButton } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { SkeletonList } from "@/components/ui/states";
+import { useToast } from "@/components/ui/toast";
 import { useStoreHydrated } from "@/hooks/use-hydrated";
 import { useAllZikr, useZikrStore } from "@/stores/zikr-store";
 import { lt, type Zikr } from "@/types/content";
@@ -106,6 +107,8 @@ export function ZikrPage() {
   const targets = useZikrStore((s) => s.targets);
   const addCustom = useZikrStore((s) => s.addCustom);
   const updateCustom = useZikrStore((s) => s.updateCustom);
+  const resetAll = useZikrStore((s) => s.resetAll);
+  const toast = useToast();
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Zikr | null>(null);
   const [formKey, setFormKey] = useState(0);
@@ -141,10 +144,26 @@ export function ZikrPage() {
         <SectionHeader
           title={t("zikr.collection")}
           action={
-            <Button size="sm" onClick={openNew}>
-              <Plus className="size-4" aria-hidden />
-              {t("zikr.addCustom")}
-            </Button>
+            <div className="flex items-center gap-1.5">
+              <IconButton
+                size="sm"
+                variant="outline"
+                label={t("zikr.resetAll")}
+                title={t("zikr.resetAll")}
+                disabled={!Object.values(counts).some((n) => n > 0)}
+                onClick={() => {
+                  if (!window.confirm(t("zikr.resetAllConfirm"))) return;
+                  resetAll();
+                  toast(t("zikr.resetAllDone"));
+                }}
+              >
+                <RotateCcw className="size-4" aria-hidden />
+              </IconButton>
+              <Button size="sm" onClick={openNew}>
+                <Plus className="size-4" aria-hidden />
+                {t("zikr.addCustom")}
+              </Button>
+            </div>
           }
         />
         <ul className="space-y-2">
