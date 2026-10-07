@@ -6,7 +6,7 @@ import { SectionHeader } from "@/components/ui/card";
 import { usePrayerData } from "@/hooks/use-prayer";
 import { AdhanGuide, AdhanWindowCard } from "./adhan-guide";
 import { Card } from "@/components/ui/card";
-import { DatesCard, NextPrayerCard, PrayerNotices, PrayerSchedule, StaffSchedule, UpcomingStaff } from "./prayer-widgets";
+import { DatesCard, NextPrayerCard, NightCard, PrayerNotices, PrayerSchedule, StaffSchedule, UpcomingStaff } from "./prayer-widgets";
 
 export function PrayerDashboard() {
   const { t } = useI18n();
@@ -23,6 +23,10 @@ export function PrayerDashboard() {
           <PrayerSchedule data={data} />
           <div className="mt-3">
             <PrayerNotices data={data} />
+          </div>
+          <div className="mt-6">
+            <SectionHeader title={t("prayer.nightTitle")} />
+            <NightCard data={data} />
           </div>
         </section>
         <div className="space-y-6">

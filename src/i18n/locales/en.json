@@ -317,7 +317,19 @@
     "recentNote": "Where today's name isn't published yet, the name from the nearest published day is shown with its date — today's may differ.",
     "nextPublished": "Next published: {date}",
     "upcomingFillNote": "Where a name isn't published for that day, the nearest published day's name is shown with its date.",
-    "remaining": "remaining"
+    "remaining": "remaining",
+    "tahajjud": "Tahajjud",
+    "tahajjudSub": "Last third of the night · until Fajr {time}",
+    "tahajjudNow": "Last third now",
+    "nightTitle": "Night prayer (Tahajjud)",
+    "nightStart": "Night begins (Maghrib)",
+    "nightMiddle": "Middle of the night",
+    "nightLastThird": "Last third begins",
+    "nightEnd": "Night ends (Fajr)",
+    "nightTonight": "Tonight",
+    "nightNote": "Calculated from Maghrib to Fajr — not an announced time.",
+    "nightHadith": "The Prophet ﷺ said: “Our Lord descends every night to the lowest heaven when the last third of the night remains, and says: Who is calling upon Me, that I may answer him?”",
+    "nightRef": "Sahih al-Bukhari 1145 · Sahih Muslim 758"
   },
   "qibla": {
     "title": "Qibla Direction",

@@ -2,8 +2,8 @@
 
 import { motion } from "motion/react";
 import Link from "next/link";
-import { useState } from "react";
-import { CalendarDays, Clock3, MapPin, Moon, Sunrise, User, Mic } from "lucide-react";
+import { useMemo, useState } from "react";
+import { CalendarDays, Clock3, MapPin, Moon, MoonStar, Sunrise, User, Mic } from "lucide-react";
 import { useI18n } from "@/components/providers/i18n-provider";
 import { usePrefs } from "@/components/providers/preferences-provider";
 import { Badge, Card, SectionHeader } from "@/components/ui/card";
@@ -11,6 +11,8 @@ import { Skeleton, UnavailableNotice } from "@/components/ui/states";
 import { LOCATIONS } from "@/config/locations";
 import { formatGregorian, formatHijri, formatTime } from "@/features/prayer/calendar";
 import { SALAH, splitDuration, type PrayerName, type PrayerSlot } from "@/features/prayer/times";
+import { nightTimes, type NightTimes } from "@/features/prayer/night";
+import type { LocationId } from "@/config/locations";
 import { usePrayerData } from "@/hooks/use-prayer";
 import { cn } from "@/lib/utils";
 import type { TKey } from "@/i18n";
@@ -232,15 +234,48 @@ function StatusBadge({ status }: { status: string }) {
   return null;
 }
 
+/** Tahajjud for the night under way (or the coming one); recalculated once a minute. */
+export function useNight(location: LocationId, now: Date | null): NightTimes | null {
+  const minute = now ? Math.floor(now.getTime() / 60_000) : null;
+  return useMemo(() => (minute === null ? null : nightTimes(location, new Date(minute * 60_000))), [location, minute]);
+}
+
+function TahajjudRow({ night }: { night: NightTimes }) {
+  const { t, intlLocale } = useI18n();
+  return (
+    <li
+      aria-current={night.inLastThird ? "time" : undefined}
+      className={cn("flex min-h-14 items-center gap-3 border-b border-border/70 px-4 py-3 last:border-0", night.inLastThird && "bg-primary-soft")}
+    >
+      <span className="grid size-9 shrink-0 place-items-center rounded-full bg-muted text-gold">
+        <MoonStar className="size-4" aria-hidden />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block font-medium">{t("prayer.tahajjud")}</span>
+        <span className="block text-xs text-muted-foreground">{t("prayer.tahajjudSub", { time: formatTime(night.fajr, intlLocale) })}</span>
+      </span>
+      <span className="flex flex-col items-end gap-0.5">
+        <span className="text-base font-semibold tabular-nums">{formatTime(night.lastThird, intlLocale)}</span>
+        {night.inLastThird ? <Badge tone="primary">{t("prayer.tahajjudNow")}</Badge> : null}
+      </span>
+    </li>
+  );
+}
+
 export function PrayerSchedule({ data, compact }: { data: Data; compact?: boolean }) {
   const { t, intlLocale } = useI18n();
   const { days, info } = data;
+  const night = useNight(days?.today.location ?? "makkah", data.now ?? null);
   if (!days || !info) return <Skeleton className="h-72 w-full rounded-2xl" />;
   const { today } = days;
+  // After midnight the night under way ends at today's Fajr, so Tahajjud goes first; otherwise after Isha.
+  const todayFajr = today.prayers.find((p) => p.name === "fajr")!.adhan.getTime();
+  const nightFirst = night ? night.fajr.getTime() === todayFajr : false;
 
   return (
     <Card className="overflow-hidden p-0">
       <ul>
+        {night && nightFirst ? <TahajjudRow night={night} /> : null}
         {today.prayers.map((p: PrayerSlot) => {
           const status = info.statuses[p.name];
           const isSunrise = p.name === "sunrise";
@@ -271,7 +306,58 @@ export function PrayerSchedule({ data, compact }: { data: Data; compact?: boolea
             </li>
           );
         })}
+        {night && !nightFirst ? <TahajjudRow night={night} /> : null}
       </ul>
+    </Card>
+  );
+}
+
+/** Prayer page: the night split into halves and thirds, with the hadith on the last third. */
+export function NightCard({ data }: { data: Data }) {
+  const { t, intlLocale, locale } = useI18n();
+  const night = useNight(data.days?.today.location ?? "makkah", data.now ?? null);
+  if (!night) return <Skeleton className="h-48 w-full rounded-2xl" />;
+  const rows = [
+    { label: t("prayer.nightStart"), at: night.maghrib },
+    { label: t("prayer.nightMiddle"), at: night.midnight },
+    { label: t("prayer.nightLastThird"), at: night.lastThird, strong: true },
+    { label: t("prayer.nightEnd"), at: night.fajr },
+  ];
+  return (
+    <Card className="overflow-hidden p-0">
+      <div className="relative overflow-hidden bg-[linear-gradient(135deg,#0d2a33,#123d3a)] px-4 py-4 text-white">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <span className="grid size-9 place-items-center rounded-full bg-white/10 text-gold">
+              <MoonStar className="size-5" aria-hidden />
+            </span>
+            <div>
+              <p className="text-xs text-white/70">{night.current ? t("prayer.tahajjudSub", { time: formatTime(night.fajr, intlLocale) }) : t("prayer.nightTonight")}</p>
+              <p className="text-lg font-semibold">{t("prayer.tahajjud")}</p>
+            </div>
+          </div>
+          <div className="shrink-0 text-end">
+            <p className="whitespace-nowrap text-xl font-bold tabular-nums text-gold sm:text-2xl">{formatTime(night.lastThird, intlLocale)}</p>
+            {night.inLastThird ? <Badge tone="gold" className="whitespace-nowrap">{t("prayer.tahajjudNow")}</Badge> : null}
+          </div>
+        </div>
+      </div>
+      <ul>
+        {rows.map((r) => (
+          <li key={r.label} className={cn("flex items-center justify-between gap-3 border-b border-border/70 px-4 py-2.5 text-sm last:border-0", r.strong && "bg-gold-soft/40 font-semibold")}>
+            <span>{r.label}</span>
+            <span className="tabular-nums">{formatTime(r.at, intlLocale)}</span>
+          </li>
+        ))}
+      </ul>
+      <div className="space-y-2 border-t border-border px-4 py-3">
+        <p dir="auto" lang={locale} className={cn("text-sm leading-relaxed", locale === "ar" && "font-arabic")}>
+          {t("prayer.nightHadith")}
+        </p>
+        <p className="text-xs text-muted-foreground">
+          <span className="font-medium text-gold">{t("common.source")}:</span> {t("prayer.nightRef")} · {t("prayer.nightNote")}
+        </p>
+      </div>
     </Card>
   );
 }
