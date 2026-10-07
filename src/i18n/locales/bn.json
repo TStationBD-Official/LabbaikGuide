@@ -205,7 +205,13 @@
     "searchMinChars": "অন্তত ২টি অক্ষর লিখুন",
     "translationBy": "অনুবাদ: {name}",
     "tafsirBy": "তাফসির: {name}",
-    "audioError": "অডিও চালানো যাচ্ছে না।"
+    "audioError": "অডিও চালানো যাচ্ছে না।",
+    "scrollSpeed": "স্ক্রলের গতি",
+    "slower": "ধীরে",
+    "faster": "দ্রুত",
+    "speedN": "গতি {n}",
+    "autoScrollResume": "আবার চালু",
+    "autoScrollStop": "অটো-স্ক্রল বন্ধ"
   },
   "zikr": {
     "title": "জিকির",

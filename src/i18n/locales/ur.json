@@ -205,7 +205,13 @@
     "searchMinChars": "کم از کم 2 حروف لکھیں",
     "translationBy": "ترجمہ: {name}",
     "tafsirBy": "تفسیر: {name}",
-    "audioError": "آڈیو نہیں چل سکا۔"
+    "audioError": "آڈیو نہیں چل سکا۔",
+    "scrollSpeed": "اسکرول کی رفتار",
+    "slower": "آہستہ",
+    "faster": "تیز",
+    "speedN": "رفتار {n}",
+    "autoScrollResume": "دوبارہ چلائیں",
+    "autoScrollStop": "آٹو اسکرول بند کریں"
   },
   "zikr": {
     "title": "ذکر",

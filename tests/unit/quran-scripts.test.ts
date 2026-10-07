@@ -83,3 +83,14 @@ describe("Other readings data", () => {
     }
   });
 });
+
+describe("auto-scroll speed", async () => {
+  const { useQuranStore, AUTO_SCROLL_SPEEDS } = await import("@/stores/quran-store");
+  it("defaults to the previous speed and clamps to 1–10", () => {
+    expect(AUTO_SCROLL_SPEEDS[useQuranStore.getState().scrollSpeed - 1]).toBe(28);
+    useQuranStore.getState().setScrollSpeed(99);
+    expect(useQuranStore.getState().scrollSpeed).toBe(10);
+    useQuranStore.getState().setScrollSpeed(0);
+    expect(useQuranStore.getState().scrollSpeed).toBe(1);
+  });
+});

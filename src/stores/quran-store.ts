@@ -30,8 +30,14 @@ type ReaderLayers = {
   audio: boolean;
 };
 
+/** Auto-scroll speeds (px per second) for levels 1–10. */
+export const AUTO_SCROLL_SPEEDS = [10, 16, 22, 28, 36, 46, 58, 72, 90, 112] as const;
+
 type QuranState = ReaderLayers & {
   size: QuranSize;
+  /** Auto-scroll speed level, 1 (slowest) – 10. */
+  scrollSpeed: number;
+  setScrollSpeed: (n: number) => void;
   spacing: QuranSpacing;
   /** Selected translation/tafsir resource per UI language (null = first available). */
   translationByLang: Partial<Record<Locale, number>>;
@@ -57,6 +63,8 @@ export const useQuranStore = create<QuranState>()(
       audio: false,
       size: "md",
       spacing: "normal",
+      scrollSpeed: 4,
+      setScrollSpeed: (n) => set({ scrollSpeed: Math.min(AUTO_SCROLL_SPEEDS.length, Math.max(1, Math.round(n))) }),
       translationByLang: {},
       tafsirByLang: {},
       lastRead: null,

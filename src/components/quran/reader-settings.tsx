@@ -7,6 +7,7 @@ import { Sheet } from "@/components/ui/sheet";
 import { Toggle } from "@/components/ui/toggle";
 import { UnavailableNotice } from "@/components/ui/states";
 import { ArabicFontSelect } from "./arabic-font-select";
+import { ScrollSpeedStepper } from "./auto-scroll";
 import type { QuranResource } from "@/types/quran";
 import { useQuranStore, type QuranSize, type QuranSpacing } from "@/stores/quran-store";
 
@@ -86,7 +87,13 @@ export function ReaderSettings({
             {!tafsirLanguageMatched ? <UnavailableNotice message={t("quran.noTafsirForLanguage")} /> : null}
           </div>
         ) : null}
-        <Toggle label={t("quran.autoScroll")} checked={autoScroll} onChange={onAutoScroll} />
+        <div className="space-y-3">
+          <Toggle label={t("quran.autoScroll")} checked={autoScroll} onChange={onAutoScroll} />
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-sm font-medium">{t("quran.scrollSpeed")}</span>
+            <ScrollSpeedStepper />
+          </div>
+        </div>
       </div>
     </Sheet>
   );

@@ -205,7 +205,13 @@
     "searchMinChars": "Type at least 2 characters",
     "translationBy": "Translation: {name}",
     "tafsirBy": "Tafsir: {name}",
-    "audioError": "Could not play audio."
+    "audioError": "Could not play audio.",
+    "scrollSpeed": "Scroll speed",
+    "slower": "Slower",
+    "faster": "Faster",
+    "speedN": "Speed {n}",
+    "autoScrollResume": "Resume",
+    "autoScrollStop": "Stop auto-scroll"
   },
   "zikr": {
     "title": "Zikr",

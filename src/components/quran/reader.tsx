@@ -19,6 +19,7 @@ import { APP_CONFIG } from "@/config/app";
 import { AyahCard } from "./ayah-card";
 import { LayerToggles } from "./layer-toggles";
 import { ReaderSettings } from "./reader-settings";
+import { AutoScrollBar, useAutoScroll, type AutoScrollMode } from "./auto-scroll";
 
 /** Basmala heading in the encoding of each script family (KFGQPC Hafs / Uthmani / IndoPak). */
 const BASMALA = {
@@ -77,37 +78,6 @@ function useAyahAudio(verses: QuranVerse[], onError: () => void) {
   return { playingKey, play, stop };
 }
 
-/** Slow continuous scroll; any user touch/wheel/key pauses it. */
-function useAutoScroll(active: boolean, onStop: () => void) {
-  useEffect(() => {
-    if (!active) return;
-    let raf = 0;
-    let last = performance.now();
-    let carry = 0;
-    const tick = (now: number) => {
-      carry += ((now - last) / 1000) * 28; // px/second
-      last = now;
-      if (carry >= 1) {
-        window.scrollBy(0, Math.floor(carry));
-        carry -= Math.floor(carry);
-      }
-      if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 4) return onStop();
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    const interrupt = () => onStop();
-    window.addEventListener("wheel", interrupt, { passive: true });
-    window.addEventListener("touchstart", interrupt, { passive: true });
-    window.addEventListener("keydown", interrupt);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("wheel", interrupt);
-      window.removeEventListener("touchstart", interrupt);
-      window.removeEventListener("keydown", interrupt);
-    };
-  }, [active, onStop]);
-}
-
 export function QuranReader({ mode, id, initialAyah }: { mode: ReadingMode; id: number; initialAyah?: number }) {
   const { t, locale, formatNumber } = useI18n();
   const toast = useToast();
@@ -118,7 +88,7 @@ export function QuranReader({ mode, id, initialAyah }: { mode: ReadingMode; id: 
   const hydrated = useStoreHydrated(useQuranStore);
   const q = useQuranStore();
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [autoScroll, setAutoScroll] = useState(false);
+  const [autoScroll, setAutoScroll] = useState<AutoScrollMode>("off");
 
   const chapters = useChapters(locale);
   const translations = useResources("translations", locale);
@@ -151,8 +121,8 @@ export function QuranReader({ mode, id, initialAyah }: { mode: ReadingMode; id: 
   const qcfReady = useQcfFonts(qcfVariant, qcfPages);
   const qcf = useMemo(() => (qcfVariant ? { variant: qcfVariant, ready: qcfReady, dark } : null), [qcfVariant, qcfReady, dark]);
   const audio = useAyahAudio(allVerses, () => toast(t("quran.audioError"), "error"));
-  const stopAutoScroll = useCallback(() => setAutoScroll(false), []);
-  useAutoScroll(autoScroll, stopAutoScroll);
+  const pauseAutoScroll = useCallback(() => setAutoScroll((m) => (m === "running" ? "paused" : m)), []);
+  useAutoScroll(autoScroll, pauseAutoScroll);
 
   const chapterName = useCallback(
     (cid: number) => chapters.data?.find((c) => c.id === cid)?.nameSimple ?? `${t("quran.surah")} ${formatNumber(cid)}`,
@@ -344,11 +314,16 @@ export function QuranReader({ mode, id, initialAyah }: { mode: ReadingMode; id: 
         tafsirLanguageMatched={tafsirs.data?.matchedLanguage ?? true}
         translationId={translationId}
         tafsirId={tafsirId}
-        autoScroll={autoScroll}
+        autoScroll={autoScroll !== "off"}
         onAutoScroll={(v) => {
-          setAutoScroll(v);
+          setAutoScroll(v ? "running" : "off");
           if (v) setSettingsOpen(false);
         }}
+      />
+      <AutoScrollBar
+        mode={autoScroll}
+        onToggle={() => setAutoScroll((m) => (m === "running" ? "paused" : "running"))}
+        onStop={() => setAutoScroll("off")}
       />
     </div>
   );

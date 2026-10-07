@@ -205,7 +205,13 @@
     "searchMinChars": "اكتب حرفين على الأقل",
     "translationBy": "الترجمة: {name}",
     "tafsirBy": "التفسير: {name}",
-    "audioError": "تعذر تشغيل الصوت."
+    "audioError": "تعذر تشغيل الصوت.",
+    "scrollSpeed": "سرعة التمرير",
+    "slower": "أبطأ",
+    "faster": "أسرع",
+    "speedN": "السرعة {n}",
+    "autoScrollResume": "استئناف",
+    "autoScrollStop": "إيقاف التمرير التلقائي"
   },
   "zikr": {
     "title": "الذكر",
