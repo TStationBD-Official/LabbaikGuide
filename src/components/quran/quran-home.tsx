@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { BookmarkCheck, BookOpen, Search } from "lucide-react";
+import { BookmarkCheck, BookOpen, ChevronRight, Library, Search } from "lucide-react";
 import { useI18n } from "@/components/providers/i18n-provider";
 import { Card, GlassCard } from "@/components/ui/card";
 import { SegmentedControl } from "@/components/ui/segmented";
@@ -105,6 +105,19 @@ export function QuranHome() {
     <div className="space-y-5">
       <ContinueReadingCard />
       <OfflineQuranBanner />
+      <Link
+        href="/quran/riwayah"
+        className="group flex items-center gap-3 rounded-2xl border border-border bg-card/80 p-3.5 shadow-soft transition-colors hover:border-gold"
+      >
+        <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-gold-soft text-gold">
+          <Library className="size-5" aria-hidden />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block font-medium">{t("riwayah.title")}</span>
+          <span className="block truncate text-xs text-muted-foreground">{t("riwayah.entry")}</span>
+        </span>
+        <ChevronRight className="size-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 rtl:rotate-180" aria-hidden />
+      </Link>
 
       <Link
         href="/search?cat=quran"

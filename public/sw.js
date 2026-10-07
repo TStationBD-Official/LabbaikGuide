@@ -12,7 +12,7 @@
  * its build id changes). Reader pages for all 114 surahs + 30 juz are cached
  * when the user downloads the Quran for offline use ("precache-pages").
  */
-const VERSION = "v3";
+const VERSION = "v4";
 const STATIC = `hc-static-${VERSION}`;
 const PAGES = `hc-pages-${VERSION}`;
 const API = `hc-api-${VERSION}`;
@@ -20,6 +20,9 @@ const MAX_API_ENTRIES = 600;
 const MAX_PAGE_ENTRIES = 400;
 /** Map tiles survive SW updates (not versioned); capped so storage stays modest. */
 const TILES = "hc-tiles";
+/** Mushaf page fonts (immutable): kept across versions, capped. */
+const QCF = "hc-qcf";
+const MAX_QCF_ENTRIES = 1300;
 const MAX_TILE_ENTRIES = 4000;
 const TILE_HOSTS = ["tiles.openfreemap.org", "tile.openstreetmap.org"];
 
@@ -30,7 +33,7 @@ const CORE_PAGES = [
 const CORE_ASSETS = [
   "/vendor/maplibre-gl-csp-worker.js",
   "/offline.html", "/manifest.webmanifest", "/icons/icon.svg", "/icons/icon-192.png", "/icons/icon-512.png",
-  "/fonts/quran/indopak-alqalam.ttf", "/fonts/quran/kfgqpc-uthmanic-hafs.otf", "/fonts/quran/amiri-quran.woff2",
+  "/fonts/quran/indopak-alqalam.ttf", "/fonts/quran/kfgqpc-hafs-v18.woff2", "/fonts/quran/amiri-quran.woff2",
   "/fonts/quran/scheherazade-new.woff2", "/fonts/quran/noto-naskh-arabic.woff2", "/fonts/quran/noto-nastaliq-urdu.woff2",
 ];
 
@@ -124,7 +127,7 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches
       .keys()
-      .then((keys) => Promise.all(keys.filter((k) => k.startsWith("hc-") && k !== TILES && !k.endsWith(VERSION)).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.filter((k) => k.startsWith("hc-") && k !== TILES && k !== QCF && !k.endsWith(VERSION)).map((k) => caches.delete(k))))
       .then(() => self.clients.claim()),
   );
 });
@@ -208,6 +211,18 @@ async function cacheFirst(req) {
   return res;
 }
 
+async function qcfFont(req) {
+  const cache = await caches.open(QCF);
+  const cached = await cache.match(req);
+  if (cached) return cached;
+  const res = await fetch(req);
+  if (res.ok) {
+    await cache.put(req, res.clone());
+    trim(QCF, MAX_QCF_ENTRIES);
+  }
+  return res;
+}
+
 async function staleWhileRevalidate(req) {
   const cache = await caches.open(API);
   const cached = await cache.match(req);
@@ -257,11 +272,13 @@ self.addEventListener("fetch", (event) => {
   if (url.pathname === "/api/haramain/photo") return event.respondWith(cacheFirst(req));
   if (url.pathname.startsWith("/api/haramain") || url.pathname.startsWith("/api/time")) return; // network-only
   if (url.pathname.startsWith("/api/quran/")) return event.respondWith(staleWhileRevalidate(req));
+  if (url.pathname.startsWith("/qcf/")) return event.respondWith(qcfFont(req));
   if (
     url.pathname.startsWith("/_next/static/") ||
     url.pathname.startsWith("/icons/") ||
     url.pathname.startsWith("/vendor/") ||
     url.pathname.startsWith("/fonts/") ||
+    url.pathname.startsWith("/data/riwayat/") ||
     /\.(woff2?|ttf|otf)$/.test(url.pathname)
   ) {
     return event.respondWith(cacheFirst(req));

@@ -4,6 +4,7 @@ import { memo } from "react";
 import { Bookmark, BookmarkCheck, Copy, Pause, Play, Share2 } from "lucide-react";
 import type { QuranVerse } from "@/types/quran";
 import type { QuranScriptField } from "@/lib/preferences";
+import { qcfFamily, qcfPalette, type QcfVariant } from "@/hooks/use-qcf-fonts";
 import { useI18n } from "@/components/providers/i18n-provider";
 import { useToast } from "@/components/ui/toast";
 import { IconButton } from "@/components/ui/button";
@@ -19,15 +20,37 @@ function htmlToText(html: string): string {
   return (tpl.content.textContent ?? "").replace(/\s+/g, " ").trim();
 }
 
+/**
+ * Unicode Arabic for a script (used for display and for copy/share). QCF page
+ * fonts are glyph codes, not readable text, so copying uses the KFGQPC Unicode
+ * text of the same Mushaf.
+ */
 export function verseText(v: QuranVerse, field: QuranScriptField): string {
-  const primary = field === "text_indopak" ? v.textIndopak : v.textUthmani;
+  const primary =
+    field === "text_indopak" ? v.textIndopak : field === "text_uthmani" ? v.textUthmani : (v.textQpcHafs ?? v.textUthmani);
   return primary ?? v.textUthmani ?? v.textIndopak ?? "";
+}
+
+/** One glyph per word in the font of its own Mushaf page. */
+function QcfLine({ glyphs, variant, dark }: { glyphs: { p: number; c: string }[]; variant: QcfVariant; dark: boolean }) {
+  return (
+    <>
+      {glyphs.map((g, i) => (
+        <span key={i} style={{ fontFamily: qcfFamily(variant, g.p), fontPalette: qcfPalette(variant, g.p, dark) }}>
+          {g.c}
+          {i < glyphs.length - 1 ? " " : null}
+        </span>
+      ))}
+    </>
+  );
 }
 
 type Props = {
   verse: QuranVerse;
   chapterName: string;
   scriptField: QuranScriptField;
+  /** Set when a King Fahd Complex page font is selected. */
+  qcf: { variant: QcfVariant; ready: (page: number) => boolean; dark: boolean } | null;
   showArabic: boolean;
   showTranslation: boolean;
   showTafsir: boolean;
@@ -47,6 +70,8 @@ export const AyahCard = memo(function AyahCard(p: Props) {
   const { ref, seen } = useInViewOnce<HTMLElement>("400px");
   const { verse } = p;
   const arabic = verseText(verse, p.scriptField);
+  // Glyphs are used only when every page font this verse needs has loaded.
+  const glyphs = p.qcf && verse.qcf && verse.qcf.glyphs.every((g) => p.qcf!.ready(g.p)) ? verse.qcf.glyphs : null;
 
   const shareBody = () => {
     // Quran text is shared exactly as received — never altered.
@@ -108,11 +133,17 @@ export const AyahCard = memo(function AyahCard(p: Props) {
       {p.showArabic ? (
         p.wordByWord && verse.words?.length ? (
           <div lang="ar" dir="rtl" className="flex flex-wrap gap-x-3 gap-y-4">
-            {verse.words.map((w) => (
+            {verse.words.map((w, i) => (
               <span key={w.position} className="inline-flex flex-col items-center text-center">
-                <span className="font-quran" style={{ lineHeight: 1.7 }}>
-                  {w.text}
-                </span>
+                {glyphs?.[i] && p.qcf ? (
+                  <span className="font-quran" style={{ lineHeight: 1.7, fontFamily: qcfFamily(p.qcf.variant, glyphs[i].p), fontPalette: qcfPalette(p.qcf.variant, glyphs[i].p, p.qcf.dark) }}>
+                    {glyphs[i].c}
+                  </span>
+                ) : (
+                  <span className="font-quran" style={{ lineHeight: 1.7 }}>
+                    {w.text}
+                  </span>
+                )}
                 {w.translation ? (
                   <span dir="auto" className="mt-1 max-w-[9rem] text-xs text-muted-foreground">
                     {w.translation}
@@ -122,8 +153,8 @@ export const AyahCard = memo(function AyahCard(p: Props) {
             ))}
           </div>
         ) : (
-          <p lang="ar" dir="rtl" className="font-quran text-right text-foreground">
-            {arabic}
+          <p lang="ar" dir="rtl" className={cn("font-quran text-right text-foreground", glyphs && "qcf-line")}>
+            {glyphs && p.qcf ? <QcfLine glyphs={glyphs} variant={p.qcf.variant} dark={p.qcf.dark} /> : arabic}
           </p>
         )
       ) : null}

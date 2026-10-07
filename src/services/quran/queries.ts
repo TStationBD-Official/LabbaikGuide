@@ -43,8 +43,8 @@ async function withOffline<T>(online: () => Promise<T>, offline: () => Promise<T
  */
 export const quranKeys = {
   chapters: (lang: Locale) => ["quran", "chapters", lang] as const,
-  verses: (p: { mode: ReadingMode; id: number; lang: Locale; translationId: number | null; words: boolean; audio: boolean }) =>
-    ["quran", "verses", p.mode, p.id, p.lang, p.translationId ?? "none", p.words, p.audio] as const,
+  verses: (p: { mode: ReadingMode; id: number; lang: Locale; translationId: number | null; words: boolean; audio: boolean; qcf?: "v1" | "v2" | null }) =>
+    ["quran", "verses", p.mode, p.id, p.lang, p.translationId ?? "none", p.words, p.audio, p.qcf ?? "none"] as const,
   resources: (type: "translations" | "tafsirs", lang: Locale) => ["quran", "resources", type, lang] as const,
   tafsir: (id: number, key: string) => ["quran", "tafsir", id, key] as const,
   search: (q: string, lang: Locale, translationId: number | null) =>
@@ -95,6 +95,8 @@ export function useVerses(p: {
   translationId: number | null;
   words: boolean;
   audio: boolean;
+  /** King Fahd Complex page-font glyphs (v4 Tajweed uses the v2 codes). */
+  qcf?: "v1" | "v2" | null;
   startPage?: number;
   enabled?: boolean;
 }) {
@@ -113,6 +115,7 @@ export function useVerses(p: {
               translation: p.translationId,
               words: p.words,
               audio: p.audio,
+              qcf: p.qcf ?? undefined,
             })}`,
             VersesResponseSchema,
             { signal },

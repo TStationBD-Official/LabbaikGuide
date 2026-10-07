@@ -2,15 +2,17 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Languages, Moon, PanelLeftClose, PanelLeftOpen, Search, Settings, Sun } from "lucide-react";
 import { FOOTER_NAV, MORE_ICON, PRIMARY_NAV, SECONDARY_NAV, type NavItem } from "@/config/navigation";
 import { useI18n } from "@/components/providers/i18n-provider";
 import { usePrefs } from "@/components/providers/preferences-provider";
+import { useOsDark } from "@/hooks/use-is-dark";
 import { LOCALE_NAMES } from "@/i18n";
 import { LOCALES, type Locale } from "@/lib/preferences";
 import { useOnline } from "@/hooks/use-online";
 import { Sheet } from "@/components/ui/sheet";
+import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { Logo, LogoMark } from "./logo";
 import { AccentSelector, LanguageSelector, LocationSwitcher } from "./selectors";
@@ -177,24 +179,18 @@ function DesktopTopBar({ path }: { path: string }) {
         <span className="flex-1 truncate">{t("nav.searchHint")}</span>
         <kbd className="hidden rounded-md border border-border bg-muted px-1.5 py-0.5 font-sans text-[0.7rem] lg:inline">/</kbd>
       </Link>
-      <label className="sr-only" htmlFor="topbar-lang">
-        {t("language.label")}
-      </label>
-      <div className="relative">
-        <Languages className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
-        <select
-          id="topbar-lang"
-          value={locale}
-          onChange={(e) => void setLocale(e.target.value as Locale)}
-          className="h-10 appearance-none rounded-full border border-border bg-card/80 ps-9 pe-4 text-sm text-foreground hover:border-primary/40"
-        >
-          {LOCALES.map((l) => (
-            <option key={l} value={l}>
-              {LOCALE_NAMES[l]}
-            </option>
-          ))}
-        </select>
-      </div>
+      <Select<Locale>
+        className="w-36 shrink-0"
+        hideLabel
+        label={t("language.label")}
+        value={locale}
+        onChange={(v) => void setLocale(v)}
+        options={LOCALES.map((l) => ({ value: l, label: LOCALE_NAMES[l] }))}
+        size="sm"
+        icon={<Languages className="size-4" aria-hidden />}
+        triggerClassName="rounded-full bg-card/80"
+        minListWidthRem={10}
+      />
       <button
         type="button"
         onClick={() => set({ theme: dark ? "light" : "dark" })}
@@ -216,19 +212,6 @@ function DesktopTopBar({ path }: { path: string }) {
         <Settings className="size-[1.1rem]" aria-hidden />
       </Link>
     </header>
-  );
-}
-
-const DARK_MQ = "(prefers-color-scheme: dark)";
-function useOsDark() {
-  return useSyncExternalStore(
-    (cb) => {
-      const mq = window.matchMedia(DARK_MQ);
-      mq.addEventListener("change", cb);
-      return () => mq.removeEventListener("change", cb);
-    },
-    () => window.matchMedia(DARK_MQ).matches,
-    () => false,
   );
 }
 

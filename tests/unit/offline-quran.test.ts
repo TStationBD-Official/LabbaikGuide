@@ -13,6 +13,8 @@ const verse = (c: number, n: number, juz: number, tr: string): QuranVerse => ({
   page: c,
   textUthmani: `ٱلْحَمْدُ ${n}`,
   textIndopak: `اَلۡحَمۡدُ ${n}`,
+  textQpcHafs: null,
+  qcf: null,
   translationHtml: tr,
   words: null,
   audioUrl: null,

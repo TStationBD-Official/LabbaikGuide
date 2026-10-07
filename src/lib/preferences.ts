@@ -48,19 +48,42 @@ export const BANGLA_FONT_LABEL: Record<keyof typeof BANGLA_FONTS, string> = {
 export type BanglaFont = keyof typeof BANGLA_FONTS;
 
 /**
- * Arabic/Quran fonts. Each maps to the Quran API script field it must be
- * paired with — IndoPak text comes from `text_indopak`, never converted.
+ * Quran scripts. Every option pairs a typeface with the exact text it was
+ * designed for — nothing is ever converted from one script to another:
+ *  - QCF (King Fahd Complex page fonts) render the API's glyph codes
+ *    (`code_v1` / `code_v2`) with the font of that word's Mushaf page,
+ *    reproducing the printed Madinah Mushaf exactly.
+ *  - Unicode fonts render `text_qpc_hafs`, `text_uthmani` or `text_indopak`.
+ * `family` is also the face used for Arabic outside the reader (duas, adhkar),
+ * so QCF options fall back to the matching KFGQPC Unicode font there.
  */
+export type QuranTextSource = "text_uthmani" | "text_indopak" | "text_qpc_hafs" | "code_v1" | "code_v2";
+export type QcfVersion = "v1" | "v2" | "v4";
+export type QuranScriptGroup = "madinah" | "uthmani" | "indopak";
+type ScriptDef = {
+  family: string;
+  script: QuranTextSource;
+  group: QuranScriptGroup;
+  label: string;
+  qcf?: QcfVersion;
+};
 export const ARABIC_FONTS = {
-  indopak: { family: "'Quran IndoPak'", script: "text_indopak", label: "IndoPak — Al-Qalam (South Asian Mushaf)" },
-  indopakNaskh: { family: "'Quran Naskh'", script: "text_indopak", label: "IndoPak — Naskh (Noto Naskh)" },
-  nastaleeq: { family: "'Quran Nastaliq'", script: "text_indopak", label: "IndoPak Nastaleeq (Noto Nastaliq)" },
-  hafs: { family: "'Quran Hafs'", script: "text_uthmani", label: "Madinah Mushaf — KFGQPC Uthmanic Hafs" },
-  uthmani: { family: "'Quran Amiri'", script: "text_uthmani", label: "Uthmani — Amiri Quran" },
-  scheherazade: { family: "'Quran Scheherazade'", script: "text_uthmani", label: "Uthmani Naskh — Scheherazade New" },
-} as const;
+  qcfV2: { family: "'Quran Hafs'", script: "code_v2", group: "madinah", qcf: "v2", label: "King Fahd Complex — Madinah Mushaf V2" },
+  qcfV1: { family: "'Quran Hafs'", script: "code_v1", group: "madinah", qcf: "v1", label: "King Fahd Complex — Madinah Mushaf V1" },
+  qcfTajweed: { family: "'Quran Hafs'", script: "code_v2", group: "madinah", qcf: "v4", label: "King Fahd Complex — Tajweed Mushaf V4 (colour-coded)" },
+  hafs: { family: "'Quran Hafs'", script: "text_qpc_hafs", group: "madinah", label: "KFGQPC Uthmanic Script Hafs" },
+  uthmani: { family: "'Quran Amiri'", script: "text_uthmani", group: "uthmani", label: "Amiri Quran" },
+  scheherazade: { family: "'Quran Scheherazade'", script: "text_uthmani", group: "uthmani", label: "Scheherazade New" },
+  indopak: { family: "'Quran IndoPak'", script: "text_indopak", group: "indopak", label: "Al-Qalam IndoPak" },
+  indopakWaqf: { family: "'Quran IndoPak Nastaleeq'", script: "text_indopak", group: "indopak", label: "IndoPak Nastaleeq (Waqf Lazim)" },
+  nastaleeq: { family: "'Quran Nastaliq'", script: "text_indopak", group: "indopak", label: "Noto Nastaliq (Urdu style)" },
+  indopakNaskh: { family: "'Quran Naskh'", script: "text_indopak", group: "indopak", label: "Noto Naskh (IndoPak text)" },
+} as const satisfies Record<string, ScriptDef>;
 export type ArabicFont = keyof typeof ARABIC_FONTS;
-export type QuranScriptField = (typeof ARABIC_FONTS)[ArabicFont]["script"];
+export const ARABIC_FONT_GROUPS: QuranScriptGroup[] = ["madinah", "uthmani", "indopak"];
+export const scriptDef = (f: ArabicFont): ScriptDef => ARABIC_FONTS[f];
+/** The API text field a script needs (QCF codes are word-level; see the server). */
+export type QuranScriptField = QuranTextSource;
 
 export const FONT_SCALES = [80, 90, 100, 110, 120, 130, 150] as const;
 

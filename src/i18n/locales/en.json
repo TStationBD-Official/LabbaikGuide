@@ -476,7 +476,7 @@
     "title": "Sources & Attribution",
     "intro": "Religious content in this app is never invented. Each dataset below has a defined source.",
     "quranTitle": "Quran text, translation, tafsir and audio",
-    "quranBody": "Served through our secure server from the Quran Foundation / Quran.com API. Arabic text uses the API's Uthmani and IndoPak fields directly. Translation and tafsir authors are shown next to the content.",
+    "quranBody": "Served through our secure server from the Quran Foundation / Quran.com API. Arabic text uses the API's KFGQPC Hafs, Uthmani, IndoPak and QCF page-glyph fields directly — never converted between scripts. Other readings (riwayat) use the official KFGQPC Unicode text of each reading. Translation and tafsir authors are shown next to the content.",
     "prayerTitle": "Prayer times",
     "prayerBody": "Calculated on-device with the open-source Adhan library using the Umm al-Qura method and the coordinates of Masjid al-Haram and Masjid an-Nabawi. These are calculated times, not the Haram's official announcements.",
     "haramainTitle": "Imam and Muezzin schedules",
@@ -486,7 +486,7 @@
     "guidesTitle": "Umrah, Hajj guides and duas",
     "guidesBody": "Compiled from the Quran and hadith collections cited on each item (e.g. Sahih al-Bukhari, Sahih Muslim, Sunan Abi Dawud). Where scholars differ, the difference is labelled. This content should be reviewed by a qualified scholar before publication.",
     "fontsTitle": "Fonts",
-    "fontsBody": "UI: Inter, Anek Bangla, Noto Sans Bengali, Hind Siliguri, Baloo Da 2, Tiro Bangla, Noto Naskh Arabic, Noto Nastaliq Urdu (SIL Open Font License). Quran: KFGQPC Uthmanic Script Hafs © King Fahd Glorious Quran Printing Complex (distributed unmodified under its free licence); Amiri Quran, Scheherazade New (SIL OFL); IndoPak Al-Qalam font (Al QuranWBW).",
+    "fontsBody": "UI: Inter, Anek Bangla, Noto Sans Bengali, Hind Siliguri, Baloo Da 2, Tiro Bangla, Noto Naskh Arabic, Noto Nastaliq Urdu (SIL Open Font License). Quran: King Fahd Complex (QCF) Madinah Mushaf page fonts V1 and V2, KFGQPC Uthmanic Script Hafs, and the KFGQPC fonts for Warsh, Qalun, Shu'bah, al-Duri, al-Susi, al-Bazzi and Qunbul © King Fahd Glorious Quran Printing Complex (distributed unmodified under its free licence). Tajweed V4 fonts were created by Quran.com using the Easy Quran – Dar Al Marifa Tajweed Mushaf and the KFGQPC Uthmanic Hafs V4 fonts, with permission from both. Amiri Quran, Scheherazade New (SIL OFL); IndoPak Al-Qalam and IndoPak Nastaleeq fonts (Al QuranWBW).",
     "mapsTitle": "Maps",
     "mapsBody": "Maps: OpenFreeMap (© OpenMapTiles), data © OpenStreetMap contributors; OpenStreetMap tiles as a fallback. Your saved locations stay on your phone."
   },
@@ -738,5 +738,54 @@
     "sectionTitle": "Answering the adhan & dua",
     "sectionHint": "This also appears on Home from 5 minutes before each adhan until 10 minutes after.",
     "answerRef": "Sahih al-Bukhari 611 · Sahih Muslim 383, 385"
+  },
+  "riwayah": {
+    "title": "Other readings (Qira'at)",
+    "subtitle": "The Quran in other authentic readings, from the King Fahd Complex",
+    "open": "Open",
+    "verses": "{n} verses",
+    "surahLabel": "Surah",
+    "textOnly": "Arabic text only. This reading numbers its verses differently from Hafs, so translations, tafsir and recitation (which follow Hafs) are not shown.",
+    "source": "Text and font: King Fahd Glorious Quran Printing Complex (KFGQPC).",
+    "page": "Page {n}",
+    "prev": "Previous surah",
+    "next": "Next surah",
+    "hafsNote": "The main reader uses Hafs ʿan ʿĀṣim — the most widely printed reading.",
+    "entry": "Read in other Qira'at — Warsh, Qalun and more",
+    "name_warsh": "Warsh ʿan Nāfiʿ",
+    "name_qaloon": "Qālūn ʿan Nāfiʿ",
+    "name_shouba": "Shuʿbah ʿan ʿĀṣim",
+    "name_doori": "Al-Dūrī ʿan Abī ʿAmr",
+    "name_soosi": "Al-Sūsī ʿan Abī ʿAmr",
+    "name_bazzi": "Al-Bazzī ʿan Ibn Kathīr",
+    "name_qumbul": "Qunbul ʿan Ibn Kathīr",
+    "where_warsh": "Read across North and West Africa and by many in Western Europe",
+    "where_qaloon": "Read in Libya, Tunisia and parts of Mauritania",
+    "where_shouba": "Studied by students and teachers of recitation",
+    "where_doori": "Read in parts of Sudan and East Africa",
+    "where_soosi": "Studied by students and teachers of recitation",
+    "where_bazzi": "Studied by students and teachers of recitation",
+    "where_qumbul": "Studied by students and teachers of recitation"
+  },
+  "quranFonts": {
+    "group": {
+      "madinah": "Madinah Mushaf — King Fahd Complex",
+      "uthmani": "Uthmani Naskh",
+      "indopak": "IndoPak — South Asia"
+    },
+    "desc": {
+      "qcfV2": "The printed Madinah Mushaf, glyph for glyph (newer edition)",
+      "qcfV1": "The printed Madinah Mushaf, glyph for glyph (earlier edition)",
+      "qcfTajweed": "Madinah Mushaf with the tajweed rules in colour",
+      "hafs": "Unicode Uthmani script by the King Fahd Complex — loads fastest",
+      "uthmani": "Naskh in the Bulaq (Cairo) print tradition",
+      "scheherazade": "Open, clear Naskh — easy on small screens",
+      "indopak": "South Asian Mushaf style (Bangladesh, India, Pakistan)",
+      "indopakWaqf": "Nastaleeq-style IndoPak with Waqf Lazim marks",
+      "nastaleeq": "Urdu Nastaliq calligraphy with IndoPak text",
+      "indopakNaskh": "IndoPak text in simple Naskh"
+    },
+    "pageFontsNote": "King Fahd Complex page fonts load one page at a time; until a page is ready its verses show in the KFGQPC Unicode font.",
+    "search": "Search fonts"
   }
 }

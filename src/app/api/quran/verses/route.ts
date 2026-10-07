@@ -15,6 +15,7 @@ export async function GET(req: Request) {
         translationId: q.translation,
         words: q.words,
         audio: q.audio,
+        qcf: q.qcf,
       }),
     { sMaxAge: 60 * 60 * 24 * 7, swr: 60 * 60 * 24 * 30 },
   );

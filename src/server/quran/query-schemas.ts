@@ -18,6 +18,8 @@ export const VersesQuery = z
     translation: optionalId,
     words: bool,
     audio: bool,
+    /** King Fahd Complex page-font glyphs to include. */
+    qcf: z.enum(["v1", "v2"]).optional(),
   })
   .refine((q) => q.id <= MODE_LIMITS[q.mode], { message: "id out of range" });
 

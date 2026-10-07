@@ -7,13 +7,11 @@ import { Check } from "lucide-react";
 import {
   ACCENTS,
   ACCENT_SWATCH,
-  ARABIC_FONTS,
   BANGLA_FONTS,
   BANGLA_FONT_LABEL,
   FONT_SCALES,
   LOCALES,
   THEMES,
-  type ArabicFont,
   type BanglaFont,
   type Theme,
 } from "@/lib/preferences";
@@ -21,6 +19,7 @@ import { useI18n } from "@/components/providers/i18n-provider";
 import { usePrefs } from "@/components/providers/preferences-provider";
 import { SegmentedControl } from "@/components/ui/segmented";
 import { Select } from "@/components/ui/select";
+import { ArabicFontSelect } from "@/components/quran/arabic-font-select";
 import { cn } from "@/lib/utils";
 
 /** Global Makkah / Madinah switch. */
@@ -142,7 +141,6 @@ export function LanguageSelector({ compact }: { compact?: boolean }) {
 export function FontSelectors() {
   const { t, formatNumber } = useI18n();
   const banglaFont = usePrefs((s) => s.banglaFont);
-  const arabicFont = usePrefs((s) => s.arabicFont);
   const fontScale = usePrefs((s) => s.fontScale);
   const set = usePrefs((s) => s.set);
   return (
@@ -156,12 +154,7 @@ export function FontSelectors() {
           label: BANGLA_FONT_LABEL[k],
         }))}
       />
-      <Select<ArabicFont>
-        label={t("settings.arabicFont")}
-        value={arabicFont}
-        onChange={(v) => set({ arabicFont: v })}
-        options={(Object.keys(ARABIC_FONTS) as ArabicFont[]).map((k) => ({ value: k, label: ARABIC_FONTS[k].label }))}
-      />
+      <ArabicFontSelect />
       <Select<number>
         className="sm:col-span-2"
         label={t("settings.fontSize")}

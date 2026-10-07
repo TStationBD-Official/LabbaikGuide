@@ -1,13 +1,12 @@
 "use client";
 
 import { useI18n } from "@/components/providers/i18n-provider";
-import { usePrefs } from "@/components/providers/preferences-provider";
 import { SegmentedControl } from "@/components/ui/segmented";
 import { Select } from "@/components/ui/select";
 import { Sheet } from "@/components/ui/sheet";
 import { Toggle } from "@/components/ui/toggle";
 import { UnavailableNotice } from "@/components/ui/states";
-import { ARABIC_FONTS, type ArabicFont } from "@/lib/preferences";
+import { ArabicFontSelect } from "./arabic-font-select";
 import type { QuranResource } from "@/types/quran";
 import { useQuranStore, type QuranSize, type QuranSpacing } from "@/stores/quran-store";
 
@@ -35,19 +34,12 @@ export function ReaderSettings({
   onAutoScroll: (v: boolean) => void;
 }) {
   const { t, locale } = useI18n();
-  const arabicFont = usePrefs((s) => s.arabicFont);
-  const setPrefs = usePrefs((s) => s.set);
   const q = useQuranStore();
 
   return (
     <Sheet open={open} onClose={onClose} title={t("quran.readerSettings")}>
       <div className="space-y-5">
-        <Select<ArabicFont>
-          label={t("settings.arabicFont")}
-          value={arabicFont}
-          onChange={(v) => setPrefs({ arabicFont: v })}
-          options={(Object.keys(ARABIC_FONTS) as ArabicFont[]).map((k) => ({ value: k, label: ARABIC_FONTS[k].label }))}
-        />
+        <ArabicFontSelect />
         <div>
           <p className="mb-2 text-sm font-medium">{t("quran.fontSize")}</p>
           <SegmentedControl<QuranSize>

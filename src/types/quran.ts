@@ -34,6 +34,17 @@ export const VerseSchema = z.object({
   page: z.number().int(),
   textUthmani: z.string().nullable(),
   textIndopak: z.string().nullable(),
+  /** KFGQPC Uthmanic Hafs encoding (ends with the ayah number). Absent in older offline data. */
+  textQpcHafs: z.string().nullable().optional().default(null),
+  /**
+   * King Fahd Complex page-font glyphs, one per word plus the ayah-end marker.
+   * Each glyph must be drawn with the font of its own Mushaf page (`p`).
+   */
+  qcf: z
+    .object({ v: z.enum(["v1", "v2"]), glyphs: z.array(z.object({ p: z.number().int().min(1).max(604), c: z.string().min(1).max(8) })) })
+    .nullable()
+    .optional()
+    .default(null),
   /** Sanitized HTML (footnote markers only). */
   translationHtml: z.string().nullable(),
   words: z.array(WordSchema).nullable(),

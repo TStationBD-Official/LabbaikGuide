@@ -9,7 +9,9 @@ import { Button, IconButton } from "@/components/ui/button";
 import { ErrorState, SkeletonList } from "@/components/ui/states";
 import { useToast } from "@/components/ui/toast";
 import { useStoreHydrated } from "@/hooks/use-hydrated";
-import { ARABIC_FONTS } from "@/lib/preferences";
+import { ARABIC_FONTS, type ArabicFont } from "@/lib/preferences";
+import { qcfVariantFor, useQcfFonts } from "@/hooks/use-qcf-fonts";
+import { useIsDark } from "@/hooks/use-is-dark";
 import { useChapters, useResources, useVerses } from "@/services/quran/queries";
 import { useQuranStore } from "@/stores/quran-store";
 import { MODE_LIMITS, type QuranVerse, type ReadingMode } from "@/types/quran";
@@ -17,6 +19,13 @@ import { APP_CONFIG } from "@/config/app";
 import { AyahCard } from "./ayah-card";
 import { LayerToggles } from "./layer-toggles";
 import { ReaderSettings } from "./reader-settings";
+
+/** Basmala heading in the encoding of each script family (KFGQPC Hafs / Uthmani / IndoPak). */
+const BASMALA = {
+  madinah: "بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ",
+  uthmani: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ",
+  indopak: "بِسۡمِ اللهِ الرَّحۡمٰنِ الرَّحِيۡمِ",
+} as const;
 
 const MODE_LABEL = { surah: "quran.surah", juz: "quran.juz", page: "quran.page", hizb: "quran.hizb" } as const;
 
@@ -103,7 +112,9 @@ export function QuranReader({ mode, id, initialAyah }: { mode: ReadingMode; id: 
   const { t, locale, formatNumber } = useI18n();
   const toast = useToast();
   const arabicFont = usePrefs((s) => s.arabicFont);
-  const scriptField = ARABIC_FONTS[arabicFont].script;
+  const scriptDef = ARABIC_FONTS[arabicFont] as (typeof ARABIC_FONTS)[ArabicFont] & { qcf?: "v1" | "v2" | "v4" };
+  const scriptField = scriptDef.script;
+  const qcfVersion = scriptDef.qcf ?? null;
   const hydrated = useStoreHydrated(useQuranStore);
   const q = useQuranStore();
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -127,11 +138,18 @@ export function QuranReader({ mode, id, initialAyah }: { mode: ReadingMode; id: 
     translationId: q.showTranslation ? translationId : null,
     words: q.wordByWord,
     audio: q.audio,
+    // Tajweed V4 fonts draw the V2 glyph codes.
+    qcf: qcfVersion ? (qcfVersion === "v1" ? "v1" : "v2") : null,
     startPage,
     enabled: ready,
   });
 
   const allVerses = useMemo(() => verses.data?.pages.flatMap((p) => p.verses) ?? [], [verses.data]);
+  const dark = useIsDark();
+  const qcfVariant = qcfVersion ? qcfVariantFor(qcfVersion) : null;
+  const qcfPages = useMemo(() => allVerses.flatMap((v) => v.qcf?.glyphs.map((g) => g.p) ?? []), [allVerses]);
+  const qcfReady = useQcfFonts(qcfVariant, qcfPages);
+  const qcf = useMemo(() => (qcfVariant ? { variant: qcfVariant, ready: qcfReady, dark } : null), [qcfVariant, qcfReady, dark]);
   const audio = useAyahAudio(allVerses, () => toast(t("quran.audioError"), "error"));
   const stopAutoScroll = useCallback(() => setAutoScroll(false), []);
   useAutoScroll(autoScroll, stopAutoScroll);
@@ -262,7 +280,7 @@ export function QuranReader({ mode, id, initialAyah }: { mode: ReadingMode; id: 
 
       {showBismillah && q.showArabic ? (
         <p lang="ar" dir="rtl" className="font-quran mb-4 text-center text-gold">
-          بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
+          {BASMALA[scriptDef.group]}
         </p>
       ) : null}
 
@@ -278,6 +296,7 @@ export function QuranReader({ mode, id, initialAyah }: { mode: ReadingMode; id: 
               verse={v}
               chapterName={chapterName(v.chapterId)}
               scriptField={scriptField}
+              qcf={qcf}
               showArabic={q.showArabic}
               showTranslation={q.showTranslation}
               showTafsir={q.showTafsir}

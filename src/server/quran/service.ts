@@ -53,16 +53,22 @@ export type VersesQuery = {
   audio: boolean;
   /** Override page size (whole-surah offline download uses the upstream maximum). */
   perPage?: number;
+  /** Include King Fahd Complex page-font glyphs (word-level codes + page numbers). */
+  qcf?: "v1" | "v2";
 };
 
 export async function getVerses(q: VersesQuery): Promise<VersesResponse> {
+  const wordFields = [
+    ...(q.words ? ["text_uthmani", "text_indopak"] : []),
+    ...(q.qcf ? [`code_${q.qcf}`, `${q.qcf}_page`] : []),
+  ];
   const raw = await quranFetch(`verses/${MODE_UPSTREAM[q.mode]}/${q.id}`, {
     language: q.lang,
-    words: q.words,
-    word_fields: q.words ? "text_uthmani,text_indopak" : undefined,
+    words: q.words || Boolean(q.qcf),
+    word_fields: wordFields.length ? wordFields.join(",") : undefined,
     translations: q.translationId,
-    // Arabic text comes straight from the API — IndoPak is never converted from Uthmani.
-    fields: "text_uthmani,text_indopak",
+    // Arabic text comes straight from the API in each script — never converted between scripts.
+    fields: "text_uthmani,text_indopak,text_qpc_hafs",
     audio: q.audio ? APP_CONFIG.quran.defaultRecitationId : undefined,
     per_page: q.perPage ?? APP_CONFIG.quran.versesPerPage,
     page: q.page,
@@ -81,6 +87,8 @@ export async function getVerses(q: VersesQuery): Promise<VersesResponse> {
       page: v.page_number,
       textUthmani: v.text_uthmani ?? null,
       textIndopak: v.text_indopak ?? null,
+      textQpcHafs: v.text_qpc_hafs ?? null,
+      qcf: q.qcf ? qcfGlyphs(v.words ?? [], q.qcf) : null,
       translationHtml: translation ? sanitizeInline(translation.text) : null,
       words: q.words
         ? (v.words ?? [])
@@ -109,6 +117,25 @@ export async function getVerses(q: VersesQuery): Promise<VersesResponse> {
       totalRecords: data.pagination.total_records,
     },
   };
+}
+
+/**
+ * Word glyphs for the QCF page fonts. Every word (and the ayah-end marker) must
+ * carry its own code and page; if any is missing the verse falls back to Unicode
+ * text rather than drawing a glyph with the wrong page font.
+ */
+export function qcfGlyphs(
+  words: { code_v1?: string | null; code_v2?: string | null; v1_page?: number | null; v2_page?: number | null }[],
+  v: "v1" | "v2",
+): { v: "v1" | "v2"; glyphs: { p: number; c: string }[] } | null {
+  const glyphs: { p: number; c: string }[] = [];
+  for (const w of words) {
+    const c = v === "v1" ? w.code_v1 : w.code_v2;
+    const p = v === "v1" ? w.v1_page : w.v2_page;
+    if (!c || !p || p < 1 || p > 604) return null;
+    glyphs.push({ p, c });
+  }
+  return glyphs.length ? { v, glyphs } : null;
 }
 
 export async function getResources(
