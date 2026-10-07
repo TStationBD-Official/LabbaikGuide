@@ -126,3 +126,27 @@ describe("tajweed markup parsing", async () => {
     expect(parseTajweed('ب<img src=x onerror="alert(1)">')).toBeNull();
   });
 });
+
+describe("reading history and bookmarks", async () => {
+  const { useQuranStore, HISTORY_SIZE } = await import("@/stores/quran-store");
+  const read = (mode: "surah" | "juz", id: number, ayah: number, at: number) =>
+    useQuranStore.getState().setLastRead({ mode, id, verseKey: `${id}:${ayah}`, chapterId: id, ayah, page: 1, juz: 1, at });
+  it("keeps one entry per surah/juz, newest first, at most 10", () => {
+    useQuranStore.setState({ history: [], lastRead: null });
+    read("surah", 2, 5, 1);
+    read("surah", 2, 9, 2); // same surah → updated, not duplicated
+    read("juz", 3, 1, 3);
+    expect(useQuranStore.getState().history.map((h) => [h.mode, h.id, h.ayah])).toEqual([["juz", 3, 1], ["surah", 2, 9]]);
+    for (let i = 10; i < 30; i++) read("surah", i, 1, 10 + i);
+    expect(useQuranStore.getState().history).toHaveLength(HISTORY_SIZE);
+    expect(useQuranStore.getState().history[0].id).toBe(29);
+  });
+  it("toggles reading bookmarks", () => {
+    useQuranStore.setState({ readingMarks: [] });
+    const m = { verseKey: "18:10", chapterId: 18, ayah: 10, page: 294, juz: 15 };
+    useQuranStore.getState().toggleReadingMark(m);
+    expect(useQuranStore.getState().readingMarks.map((x) => x.verseKey)).toEqual(["18:10"]);
+    useQuranStore.getState().toggleReadingMark(m);
+    expect(useQuranStore.getState().readingMarks).toHaveLength(0);
+  });
+});

@@ -20,7 +20,15 @@ export type LastRead = {
   at: number;
 };
 
+/** A saved ayah (favourite). */
 export type Bookmark = { verseKey: string; chapterId: number; ayah: number; createdAt: number };
+/** A reading bookmark: a place to continue reading from later. */
+export type ReadingMark = { verseKey: string; chapterId: number; ayah: number; page: number; juz: number; createdAt: number };
+/** One reading session (one surah / juz / page), newest first. */
+export type HistoryEntry = LastRead;
+
+export const HISTORY_SIZE = 10;
+const MAX_MARKS = 50;
 
 type ReaderLayers = {
   showArabic: boolean;
@@ -51,6 +59,12 @@ type QuranState = ReaderLayers & {
   tafsirByLang: Partial<Record<Locale, number>>;
   lastRead: LastRead | null;
   bookmarks: Bookmark[];
+  readingMarks: ReadingMark[];
+  history: HistoryEntry[];
+  toggleReadingMark: (m: Omit<ReadingMark, "createdAt">) => void;
+  removeReadingMark: (verseKey: string) => void;
+  removeHistory: (at: number) => void;
+  clearHistory: () => void;
   setLayer: (k: keyof ReaderLayers, v: boolean) => void;
   setSize: (s: QuranSize) => void;
   setSpacing: (s: QuranSpacing) => void;
@@ -80,6 +94,17 @@ export const useQuranStore = create<QuranState>()(
       tafsirByLang: {},
       lastRead: null,
       bookmarks: [],
+      readingMarks: [],
+      history: [],
+      toggleReadingMark: (m) =>
+        set((s) =>
+          s.readingMarks.some((x) => x.verseKey === m.verseKey)
+            ? { readingMarks: s.readingMarks.filter((x) => x.verseKey !== m.verseKey) }
+            : { readingMarks: [{ ...m, createdAt: Date.now() }, ...s.readingMarks].slice(0, MAX_MARKS) },
+        ),
+      removeReadingMark: (verseKey) => set((s) => ({ readingMarks: s.readingMarks.filter((x) => x.verseKey !== verseKey) })),
+      removeHistory: (at) => set((s) => ({ history: s.history.filter((h) => h.at !== at) })),
+      clearHistory: () => set({ history: [] }),
       setLayer: (k, v) =>
         set((s) => {
           // At least one of Arabic / translation must remain visible.
@@ -91,7 +116,13 @@ export const useQuranStore = create<QuranState>()(
       setSpacing: (spacing) => set({ spacing }),
       setTranslation: (lang, id) => set((s) => ({ translationByLang: { ...s.translationByLang, [lang]: id } })),
       setTafsir: (lang, id) => set((s) => ({ tafsirByLang: { ...s.tafsirByLang, [lang]: id } })),
-      setLastRead: (lastRead) => set({ lastRead }),
+      // Also keeps the last 10 reading sessions: reading on in the same surah/juz/page
+      // updates its entry and moves it to the top instead of adding a new one.
+      setLastRead: (lastRead) =>
+        set((s) => {
+          const rest = s.history.filter((h) => !(h.mode === lastRead.mode && h.id === lastRead.id));
+          return { lastRead, history: [lastRead, ...rest].slice(0, HISTORY_SIZE) };
+        }),
       toggleBookmark: (b) =>
         set((s) =>
           s.bookmarks.some((x) => x.verseKey === b.verseKey)

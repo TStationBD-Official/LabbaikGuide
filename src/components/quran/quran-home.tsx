@@ -2,18 +2,21 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { BookmarkCheck, BookOpen, ChevronRight, Library, Search } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { BookOpen, ChevronRight, Library, Search } from "lucide-react";
 import { useI18n } from "@/components/providers/i18n-provider";
 import { Card, GlassCard } from "@/components/ui/card";
 import { SegmentedControl } from "@/components/ui/segmented";
-import { EmptyState, ErrorState, SkeletonList } from "@/components/ui/states";
+import { ErrorState, SkeletonList } from "@/components/ui/states";
 import { useStoreHydrated } from "@/hooks/use-hydrated";
 import { useChapters } from "@/services/quran/queries";
 import { useQuranStore } from "@/stores/quran-store";
 import type { Chapter } from "@/types/quran";
 import { OfflineQuranBanner } from "@/components/settings/offline-section";
+import { ReadingBookmarks, ReadingHistory, SavedAyat } from "./my-quran";
 
-type Tab = "surahs" | "juz" | "bookmarks";
+type Tab = "surahs" | "juz" | "saved" | "bookmarks" | "history";
+const TABS: Tab[] = ["surahs", "juz", "saved", "bookmarks", "history"];
 
 export function ContinueReadingCard({ compact }: { compact?: boolean }) {
   const { t, locale, formatNumber } = useI18n();
@@ -83,11 +86,19 @@ function SurahRow({ c }: { c: Chapter }) {
 
 export function QuranHome() {
   const { t, locale, formatNumber } = useI18n();
-  const [tab, setTab] = useState<Tab>("surahs");
+  // The tab is kept in the URL (?tab=saved) so links and the back button land on it.
+  const params = useSearchParams();
+  const initial = params.get("tab");
+  const [tab, setTabState] = useState<Tab>(TABS.includes(initial as Tab) ? (initial as Tab) : "surahs");
+  const setTab = (v: Tab) => {
+    setTabState(v);
+    const url = new URL(window.location.href);
+    if (v === "surahs") url.searchParams.delete("tab");
+    else url.searchParams.set("tab", v);
+    window.history.replaceState(window.history.state, "", url.pathname + url.search);
+  };
   const [filter, setFilter] = useState("");
   const chapters = useChapters(locale);
-  const hydrated = useStoreHydrated(useQuranStore);
-  const bookmarks = useQuranStore((s) => s.bookmarks);
 
   const filtered = useMemo(() => {
     const f = filter.trim().toLowerCase();
@@ -134,7 +145,9 @@ export function QuranHome() {
         options={[
           { value: "surahs", label: t("quran.surahs") },
           { value: "juz", label: t("quran.juz") },
+          { value: "saved", label: t("quran.saved") },
           { value: "bookmarks", label: t("quran.bookmarks") },
+          { value: "history", label: t("quran.history") },
         ]}
       />
 
@@ -185,32 +198,9 @@ export function QuranHome() {
         </ul>
       ) : null}
 
-      {tab === "bookmarks" ? (
-        !hydrated ? (
-          <SkeletonList rows={2} />
-        ) : bookmarks.length === 0 ? (
-          <EmptyState message={t("quran.noBookmarks")} icon={<BookmarkCheck className="size-8 text-muted-foreground" aria-hidden />} />
-        ) : (
-          <ul className="space-y-2">
-            {bookmarks.map((b) => {
-              const ch = chapters.data?.find((c) => c.id === b.chapterId);
-              return (
-                <li key={b.verseKey}>
-                  <Link
-                    href={`/quran/surah/${b.chapterId}?ayah=${b.ayah}`}
-                    className="flex min-h-14 items-center justify-between rounded-xl border border-border bg-card px-4 hover:border-gold"
-                  >
-                    <span className="font-medium">
-                      {ch?.nameSimple ?? `${t("quran.surah")} ${formatNumber(b.chapterId)}`}
-                    </span>
-                    <span className="text-sm text-muted-foreground">{t("quran.ayahN", { n: b.ayah })}</span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        )
-      ) : null}
+      {tab === "saved" ? <SavedAyat /> : null}
+      {tab === "bookmarks" ? <ReadingBookmarks /> : null}
+      {tab === "history" ? <ReadingHistory /> : null}
     </div>
   );
 }

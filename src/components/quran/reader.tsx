@@ -203,6 +203,12 @@ export function QuranReader({ mode, id, initialAyah }: { mode: ReadingMode; id: 
 
   const bookmarks = useMemo(() => new Set(q.bookmarks.map((b) => b.verseKey)), [q.bookmarks]);
   const toggleBookmark = q.toggleBookmark;
+  const marks = useMemo(() => new Set(q.readingMarks.map((m) => m.verseKey)), [q.readingMarks]);
+  const toggleReadingMark = q.toggleReadingMark;
+  const onToggleMark = useCallback(
+    (v: QuranVerse) => toggleReadingMark({ verseKey: v.key, chapterId: v.chapterId, ayah: v.number, page: v.page, juz: v.juz }),
+    [toggleReadingMark],
+  );
   const onToggleBookmark = useCallback(
     (v: QuranVerse) => toggleBookmark({ verseKey: v.key, chapterId: v.chapterId, ayah: v.number }),
     [toggleBookmark],
@@ -304,6 +310,8 @@ export function QuranReader({ mode, id, initialAyah }: { mode: ReadingMode; id: 
               audioEnabled={q.audio}
               tafsirId={tafsirId}
               bookmarked={bookmarks.has(v.key)}
+              marked={marks.has(v.key)}
+              onToggleMark={onToggleMark}
               playing={audio.playingKey === v.key}
               highlighted={v.key === targetKey}
               onToggleBookmark={onToggleBookmark}

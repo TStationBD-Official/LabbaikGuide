@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { Bookmark, BookmarkCheck, Copy, Pause, Play, Share2 } from "lucide-react";
+import { BookmarkCheck, BookmarkPlus, Copy, Heart, Pause, Play, Share2 } from "lucide-react";
 import type { QuranVerse, TajweedRule } from "@/types/quran";
 import type { QuranScriptField } from "@/lib/preferences";
 import { qcfFamily, qcfPalette, type QcfVariant } from "@/hooks/use-qcf-fonts";
@@ -86,7 +86,11 @@ type Props = {
   wordByWord: boolean;
   audioEnabled: boolean;
   tafsirId: number | null;
+  /** Saved (favourite) ayah. */
   bookmarked: boolean;
+  /** Has a reading bookmark ("continue from here"). */
+  marked: boolean;
+  onToggleMark: (v: QuranVerse) => void;
   playing: boolean;
   highlighted: boolean;
   onToggleBookmark: (v: QuranVerse) => void;
@@ -122,8 +126,16 @@ export const AyahCard = memo(function AyahCard(p: Props) {
       )}
     >
       <header className="mb-3 flex items-center justify-between gap-2">
-        <span className="inline-flex h-9 min-w-9 items-center justify-center rounded-full border border-gold/60 px-2 text-sm font-semibold text-gold">
-          {formatNumber(verse.chapterId)}:{formatNumber(verse.number)}
+        <span className="flex items-center gap-2">
+          <span className="inline-flex h-9 min-w-9 items-center justify-center rounded-full border border-gold/60 px-2 text-sm font-semibold text-gold">
+            {formatNumber(verse.chapterId)}:{formatNumber(verse.number)}
+          </span>
+          {p.marked ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-primary-soft px-2 py-0.5 text-xs font-medium text-primary">
+              <BookmarkCheck className="size-3.5" aria-hidden />
+              {t("quran.bookmarkBadge")}
+            </span>
+          ) : null}
         </span>
         <div className="flex items-center gap-0.5">
           {p.audioEnabled && verse.audioUrl ? (
@@ -133,11 +145,27 @@ export const AyahCard = memo(function AyahCard(p: Props) {
           ) : null}
           <IconButton
             size="sm"
-            label={p.bookmarked ? t("quran.removeBookmark") : t("quran.bookmark")}
-            pressed={p.bookmarked}
-            onClick={() => p.onToggleBookmark(verse)}
+            label={p.marked ? t("quran.unmark") : t("quran.markHere")}
+            title={p.marked ? t("quran.unmark") : t("quran.markHere")}
+            pressed={p.marked}
+            onClick={() => {
+              if (!p.marked) toast(t("quran.markedToast"));
+              p.onToggleMark(verse);
+            }}
           >
-            {p.bookmarked ? <BookmarkCheck className="size-4 text-gold" aria-hidden /> : <Bookmark className="size-4" aria-hidden />}
+            {p.marked ? <BookmarkCheck className="size-4 text-primary" aria-hidden /> : <BookmarkPlus className="size-4" aria-hidden />}
+          </IconButton>
+          <IconButton
+            size="sm"
+            label={p.bookmarked ? t("quran.unsaveAyah") : t("quran.saveAyah")}
+            title={p.bookmarked ? t("quran.unsaveAyah") : t("quran.saveAyah")}
+            pressed={p.bookmarked}
+            onClick={() => {
+              if (!p.bookmarked) toast(t("quran.savedToast"));
+              p.onToggleBookmark(verse);
+            }}
+          >
+            <Heart className={cn("size-4", p.bookmarked && "fill-rose-500 text-rose-500")} aria-hidden />
           </IconButton>
           <IconButton
             size="sm"
