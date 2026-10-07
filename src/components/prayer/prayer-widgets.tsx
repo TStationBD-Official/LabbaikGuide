@@ -114,6 +114,9 @@ export function NextPrayerCard({ data, strip = true, stripClassName }: { data: D
 
   if (!info || !days || !now) return <Skeleton className="h-64 w-full rounded-3xl" />;
   const forbidden = nafl ? forbiddenAt(nafl, now) : null;
+  // The whole card turns red for the sun-fixed windows. After Fajr/Asr the window only starts once the
+  // person has prayed, so there the card keeps its colour and just shows the banner.
+  const redCard = Boolean(forbidden && !forbidden.afterPrayer);
 
   const isFriday = info.nextIsTomorrow ? days.tomorrow.isFriday : days.today.isFriday;
   const nextName = t(prayerLabelKey(info.next.name, isFriday));
@@ -137,10 +140,13 @@ export function NextPrayerCard({ data, strip = true, stripClassName }: { data: D
     <section
       aria-label={t("prayer.nextPrayer")}
       className="relative isolate overflow-hidden rounded-3xl text-white shadow-soft ring-1 ring-black/10"
-      // Always a deep shade of the accent colour (light and dark themes alike) so white text and gold stay crisp.
+      data-forbidden={redCard ? "true" : undefined}
+      // Always a deep shade so white text and gold stay crisp: the accent colour normally,
+      // deep red while the sun is rising, at its zenith or setting (forbidden for voluntary prayer).
       style={{
-        background:
-          "linear-gradient(145deg, color-mix(in oklab, var(--primary) 42%, #03110c) 0%, color-mix(in oklab, var(--primary) 62%, #03110c) 55%, color-mix(in oklab, var(--primary) 52%, #1d1504) 100%)",
+        background: redCard
+          ? "linear-gradient(145deg, #3d0a0d 0%, #6e1219 55%, #4a1208 100%)"
+          : "linear-gradient(145deg, color-mix(in oklab, var(--primary) 42%, #03110c) 0%, color-mix(in oklab, var(--primary) 62%, #03110c) 55%, color-mix(in oklab, var(--primary) 52%, #1d1504) 100%)",
       }}
     >
       <GeometricPattern className="pointer-events-none absolute inset-0 -z-10 text-white opacity-[0.07]" />
@@ -181,7 +187,10 @@ export function NextPrayerCard({ data, strip = true, stripClassName }: { data: D
           <motion.p
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mt-3 flex max-w-full flex-wrap items-center gap-x-2 gap-y-0.5 rounded-2xl bg-[#3a0d0d]/55 px-3 py-1.5 text-xs ring-1 ring-red-300/40 backdrop-blur-sm sm:inline-flex sm:text-sm"
+            className={cn(
+              "mt-3 flex max-w-full flex-wrap items-center gap-x-2 gap-y-0.5 rounded-2xl px-3 py-1.5 text-xs ring-1 ring-red-300/40 backdrop-blur-sm sm:inline-flex sm:text-sm",
+              redCard ? "bg-white/12" : "bg-[#3a0d0d]/55",
+            )}
             role="status"
           >
             <span className="inline-flex items-center gap-1.5 font-semibold text-red-200">
