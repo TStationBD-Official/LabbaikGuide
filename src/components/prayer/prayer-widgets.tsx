@@ -108,6 +108,7 @@ export function NextPrayerCard({ data, strip = true, stripClassName }: { data: D
   const showHome = useClockStore((s) => s.showHome);
   const homeTz = useClockStore((s) => s.homeTz);
   const { info, days, now } = data;
+  const night = useNight(location, now ?? null);
 
   if (!info || !days || !now) return <Skeleton className="h-64 w-full rounded-3xl" />;
 
@@ -169,6 +170,22 @@ export function NextPrayerCard({ data, strip = true, stripClassName }: { data: D
               <span className="relative inline-flex size-2 rounded-full bg-current" />
             </span>
             {info.iqamahApproaching ? t("prayer.iqamahSoon") : t("prayer.prayerNow")}: {t(prayerLabelKey(info.current.name, days.today.isFriday))}
+          </motion.p>
+        ) : null}
+
+        {/* Last third of the night: Tahajjud is running while Fajr is coming. */}
+        {!info.current && night?.inLastThird && info.next.name === "fajr" ? (
+          <motion.p
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-3 inline-flex max-w-full flex-wrap items-center gap-x-2 gap-y-0.5 rounded-2xl bg-white/12 px-3 py-1.5 text-xs ring-1 ring-gold/40 backdrop-blur-sm sm:text-sm"
+            role="status"
+          >
+            <span className="inline-flex items-center gap-1.5 font-semibold text-gold">
+              <MoonStar className="size-4 shrink-0" aria-hidden />
+              {t("prayer.tahajjudRunning")}
+            </span>
+            <span className="opacity-80">{t("prayer.tahajjudSince", { time: formatTime(night.lastThird, intlLocale) })}</span>
           </motion.p>
         ) : null}
 

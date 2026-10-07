@@ -329,7 +329,9 @@
     "nightTonight": "Tonight",
     "nightNote": "Calculated from Maghrib to Fajr — not an announced time.",
     "nightHadith": "The Prophet ﷺ said: “Our Lord descends every night to the lowest heaven when the last third of the night remains, and says: Who is calling upon Me, that I may answer him?”",
-    "nightRef": "Sahih al-Bukhari 1145 · Sahih Muslim 758"
+    "nightRef": "Sahih al-Bukhari 1145 · Sahih Muslim 758",
+    "tahajjudRunning": "Tahajjud time now",
+    "tahajjudSince": "Last third since {time}"
   },
   "qibla": {
     "title": "Qibla Direction",
