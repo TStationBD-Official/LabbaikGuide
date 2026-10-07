@@ -331,7 +331,22 @@
     "nightHadith": "The Prophet ﷺ said: “Our Lord descends every night to the lowest heaven when the last third of the night remains, and says: Who is calling upon Me, that I may answer him?”",
     "nightRef": "Sahih al-Bukhari 1145 · Sahih Muslim 758",
     "tahajjudRunning": "Tahajjud time now",
-    "tahajjudSince": "Last third since {time}"
+    "tahajjudSince": "Last third since {time}",
+    "duha": "Duha",
+    "duhaFull": "Salat ad-Duha",
+    "duhaSub": "Until about {time}",
+    "duhaNow": "Duha time now",
+    "duhaBest": "Best later in the morning, when the sun grows hot.",
+    "duhaVirtue": "Two rak'ahs of Duha take the place of the charity due for every joint of the body.",
+    "duhaRef": "Sahih Muslim 720 · Sahih Muslim 748",
+    "naflTitle": "Voluntary prayer times",
+    "forbiddenTitle": "When voluntary prayer is not offered",
+    "forbidden_afterFajr": "After praying Fajr until the sun has risen",
+    "forbidden_zenith": "While the sun is at its zenith",
+    "forbidden_afterAsr": "After praying Asr until sunset",
+    "forbiddenRef": "Sahih al-Bukhari 586 · Sahih Muslim 831",
+    "approxNote": "Approximate: the hadiths describe the sun's position, so the minute margins are estimates.",
+    "approx": "approx."
   },
   "qibla": {
     "title": "Qibla Direction",

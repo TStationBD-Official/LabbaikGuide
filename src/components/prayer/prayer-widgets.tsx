@@ -2,8 +2,8 @@
 
 import { motion } from "motion/react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { CalendarDays, Clock3, MapPin, Moon, MoonStar, Sunrise, User, Mic } from "lucide-react";
+import { Fragment, useMemo, useState } from "react";
+import { Ban, CalendarDays, Clock3, MapPin, Moon, MoonStar, Sun, Sunrise, User, Mic } from "lucide-react";
 import { useI18n } from "@/components/providers/i18n-provider";
 import { usePrefs } from "@/components/providers/preferences-provider";
 import { Badge, Card, SectionHeader } from "@/components/ui/card";
@@ -12,6 +12,7 @@ import { LOCATIONS } from "@/config/locations";
 import { formatGregorian, formatHijri, formatTime } from "@/features/prayer/calendar";
 import { SALAH, splitDuration, type PrayerName, type PrayerSlot } from "@/features/prayer/times";
 import { nightTimes, type NightTimes } from "@/features/prayer/night";
+import { naflTimes, type NaflTimes } from "@/features/prayer/nafl";
 import type { LocationId } from "@/config/locations";
 import { usePrayerData } from "@/hooks/use-prayer";
 import { cn } from "@/lib/utils";
@@ -279,10 +280,96 @@ function TahajjudRow({ night }: { night: NightTimes }) {
   );
 }
 
+const within = (now: Date | null | undefined, w: { from: Date; to: Date }) =>
+  Boolean(now && now.getTime() >= w.from.getTime() && now.getTime() < w.to.getTime());
+
+function DuhaRow({ duha, now }: { duha: NaflTimes["duha"]; now: Date | null | undefined }) {
+  const { t, intlLocale } = useI18n();
+  const active = within(now, duha);
+  const passed = Boolean(now && now.getTime() >= duha.to.getTime());
+  return (
+    <li
+      aria-current={active ? "time" : undefined}
+      className={cn("flex min-h-14 items-center gap-3 border-b border-border/70 px-4 py-3 last:border-0", active && "bg-primary-soft", passed && "opacity-70")}
+    >
+      <span className="grid size-9 shrink-0 place-items-center rounded-full bg-muted text-gold">
+        <Sun className="size-4" aria-hidden />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block font-medium">{t("prayer.duha")}</span>
+        <span className="block text-xs text-muted-foreground">{t("prayer.duhaSub", { time: formatTime(duha.to, intlLocale) })}</span>
+      </span>
+      <span className="flex flex-col items-end gap-0.5">
+        <span className="text-base font-semibold tabular-nums">{formatTime(duha.from, intlLocale)}</span>
+        {active ? <Badge tone="primary">{t("prayer.duhaNow")}</Badge> : null}
+      </span>
+    </li>
+  );
+}
+
+/** Prayer page: Duha, Tahajjud and the times when voluntary prayer is not offered. */
+export function NaflCard({ data }: { data: Data }) {
+  const { t, intlLocale } = useI18n();
+  const night = useNight(data.days?.today.location ?? "makkah", data.now ?? null);
+  const nafl = useMemo(() => (data.days ? naflTimes(data.days.today) : null), [data.days]);
+  if (!nafl || !night) return <Skeleton className="h-64 w-full rounded-2xl" />;
+  const range = (w: { from: Date; to: Date }) => `${formatTime(w.from, intlLocale)} – ${formatTime(w.to, intlLocale)}`;
+  return (
+    <Card className="overflow-hidden p-0">
+      <ul>
+        <li className={cn("border-b border-border/70 px-4 py-3", within(data.now, nafl.duha) && "bg-primary-soft")}>
+          <div className="flex items-center gap-3">
+            <span className="grid size-9 shrink-0 place-items-center rounded-full bg-gold-soft text-gold">
+              <Sun className="size-4" aria-hidden />
+            </span>
+            <span className="min-w-0 flex-1 font-semibold">{t("prayer.duhaFull")}</span>
+            <span className="text-end">
+              <span className="block whitespace-nowrap font-semibold tabular-nums">{range(nafl.duha)}</span>
+              <span className="block text-[11px] text-muted-foreground">{t("prayer.approx")}</span>
+            </span>
+          </div>
+          <p className="mt-2 text-sm text-muted-foreground">{t("prayer.duhaBest")} {t("prayer.duhaVirtue")}</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            <span className="font-medium text-gold">{t("common.source")}:</span> {t("prayer.duhaRef")}
+          </p>
+        </li>
+        <li className={cn("flex items-center gap-3 border-b border-border/70 px-4 py-3", night.inLastThird && "bg-primary-soft")}>
+          <span className="grid size-9 shrink-0 place-items-center rounded-full bg-gold-soft text-gold">
+            <MoonStar className="size-4" aria-hidden />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block font-semibold">{t("prayer.tahajjud")}</span>
+            <span className="block text-xs text-muted-foreground">{t("prayer.nightRef")}</span>
+          </span>
+          <span className="whitespace-nowrap font-semibold tabular-nums">{range({ from: night.lastThird, to: night.fajr })}</span>
+        </li>
+      </ul>
+      <div className="border-t border-border bg-muted/30 px-4 py-3">
+        <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-danger">
+          <Ban className="size-4" aria-hidden />
+          {t("prayer.forbiddenTitle")}
+        </p>
+        <ul className="space-y-1.5">
+          {nafl.forbidden.map((f) => (
+            <li key={f.key} className={cn("flex items-start justify-between gap-3 rounded-lg px-2 py-1 text-sm", within(data.now, f) && "bg-danger/10")}>
+              <span>{t(`prayer.forbidden_${f.key}`)}</span>
+              <span className="whitespace-nowrap tabular-nums text-muted-foreground">{range(f)}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-2 text-xs text-muted-foreground">
+          <span className="font-medium text-gold">{t("common.source")}:</span> {t("prayer.forbiddenRef")} · {t("prayer.approxNote")}
+        </p>
+      </div>
+    </Card>
+  );
+}
+
 export function PrayerSchedule({ data, compact }: { data: Data; compact?: boolean }) {
   const { t, intlLocale } = useI18n();
   const { days, info } = data;
   const night = useNight(days?.today.location ?? "makkah", data.now ?? null);
+  const nafl = useMemo(() => (days ? naflTimes(days.today) : null), [days]);
   if (!days || !info) return <Skeleton className="h-72 w-full rounded-2xl" />;
   const { today } = days;
   // After midnight the night under way ends at today's Fajr, so Tahajjud goes first; otherwise after Isha.
@@ -297,8 +384,8 @@ export function PrayerSchedule({ data, compact }: { data: Data; compact?: boolea
           const status = info.statuses[p.name];
           const isSunrise = p.name === "sunrise";
           return (
+            <Fragment key={p.name}>
             <li
-              key={p.name}
               aria-current={status === "next" || status === "now" ? "time" : undefined}
               className={cn(
                 "flex min-h-14 items-center gap-3 border-b border-border/70 px-4 py-3 last:border-0",
@@ -321,6 +408,8 @@ export function PrayerSchedule({ data, compact }: { data: Data; compact?: boolea
                 {!isSunrise ? <StatusBadge status={status} /> : null}
               </span>
             </li>
+            {isSunrise && nafl ? <DuhaRow duha={nafl.duha} now={data.now} /> : null}
+            </Fragment>
           );
         })}
         {night && !nightFirst ? <TahajjudRow night={night} /> : null}
