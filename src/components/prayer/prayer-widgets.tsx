@@ -293,9 +293,9 @@ function TahajjudRow({ night }: { night: NightTimes }) {
   return (
     <li
       aria-current={night.inLastThird ? "time" : undefined}
-      className={cn("flex min-h-14 items-center gap-3 border-b border-border/70 px-4 py-3 last:border-0", night.inLastThird && "bg-primary-soft")}
+      className={cn("relative flex min-h-14 items-center gap-3 border-b border-border/70 px-4 py-3 last:border-0", night.inLastThird && RUNNING_ROW)}
     >
-      <span className="grid size-9 shrink-0 place-items-center rounded-full bg-muted text-gold">
+      <span className={cn("grid size-9 shrink-0 place-items-center rounded-full", night.inLastThird ? "bg-primary text-primary-foreground" : "bg-muted text-gold")}>
         <MoonStar className="size-4" aria-hidden />
       </span>
       <span className="min-w-0 flex-1">
@@ -306,6 +306,7 @@ function TahajjudRow({ night }: { night: NightTimes }) {
         <span className="text-base font-semibold tabular-nums">{formatTime(night.lastThird, intlLocale)}</span>
         {night.inLastThird ? <Badge tone="primary">{t("prayer.tahajjudNow")}</Badge> : null}
       </span>
+      {night.inLastThird ? <ElapsedBar from={night.lastThird} to={night.fajr} now={new Date()} /> : null}
     </li>
   );
 }
@@ -322,8 +323,8 @@ function ForbiddenRow({ w, now }: { w: ForbiddenWindow; now: Date | null | undef
     <li
       aria-current={active ? "time" : undefined}
       className={cn(
-        "flex items-center gap-3 border-b border-border/70 px-4 py-2 last:border-0",
-        active ? "bg-danger/10" : "bg-danger/[0.035]",
+        "relative flex items-center gap-3 border-b border-border/70 px-4 py-2 last:border-0",
+        active ? "bg-danger/10 before:absolute before:inset-y-0 before:start-0 before:w-1 before:bg-danger" : "bg-danger/[0.035]",
         passed && "opacity-60",
       )}
     >
@@ -340,6 +341,7 @@ function ForbiddenRow({ w, now }: { w: ForbiddenWindow; now: Date | null | undef
         </span>
         {active ? <Badge tone="danger">{t("prayer.nowShort")}</Badge> : null}
       </span>
+      {active ? <ElapsedBar from={w.from} to={w.to} now={now} tone="danger" /> : null}
     </li>
   );
 }
@@ -351,9 +353,9 @@ function DuhaRow({ duha, now }: { duha: NaflTimes["duha"]; now: Date | null | un
   return (
     <li
       aria-current={active ? "time" : undefined}
-      className={cn("flex min-h-14 items-center gap-3 border-b border-border/70 px-4 py-3 last:border-0", active && "bg-primary-soft", passed && "opacity-70")}
+      className={cn("relative flex min-h-14 items-center gap-3 border-b border-border/70 px-4 py-3 last:border-0", active && RUNNING_ROW, passed && "opacity-70")}
     >
-      <span className="grid size-9 shrink-0 place-items-center rounded-full bg-muted text-gold">
+      <span className={cn("grid size-9 shrink-0 place-items-center rounded-full", active ? "bg-primary text-primary-foreground" : "bg-muted text-gold")}>
         <Sun className="size-4" aria-hidden />
       </span>
       <span className="min-w-0 flex-1">
@@ -364,6 +366,7 @@ function DuhaRow({ duha, now }: { duha: NaflTimes["duha"]; now: Date | null | un
         <span className="text-base font-semibold tabular-nums">{formatTime(duha.from, intlLocale)}</span>
         {active ? <Badge tone="primary">{t("prayer.duhaNow")}</Badge> : null}
       </span>
+      {active ? <ElapsedBar from={duha.from} to={duha.to} now={now} /> : null}
     </li>
   );
 }
@@ -445,6 +448,23 @@ export function NaflCard({ data }: { data: Data }) {
   );
 }
 
+/** Thin bar along the bottom of the running row: how much of this time has passed. */
+function ElapsedBar({ from, to, now, tone = "primary" }: { from: Date; to: Date; now: Date | null | undefined; tone?: "primary" | "danger" }) {
+  if (!now) return null;
+  const pct = Math.min(100, Math.max(0, ((now.getTime() - from.getTime()) / (to.getTime() - from.getTime())) * 100));
+  return (
+    <span aria-hidden className="absolute inset-x-0 bottom-0 h-1 bg-border/40">
+      <span
+        className={cn("block h-full rounded-e-full transition-[width] duration-1000", tone === "danger" ? "bg-danger" : "bg-primary")}
+        style={{ width: `${pct}%` }}
+      />
+    </span>
+  );
+}
+
+/** Accent stripe on the leading edge of the running row. */
+const RUNNING_ROW = "relative bg-primary-soft before:absolute before:inset-y-0 before:start-0 before:w-1 before:bg-primary";
+
 export function PrayerSchedule({ data, compact }: { data: Data; compact?: boolean }) {
   const { t, intlLocale } = useI18n();
   const { days, info } = data;
@@ -456,6 +476,21 @@ export function PrayerSchedule({ data, compact }: { data: Data; compact?: boolea
   const todayFajr = today.prayers.find((p) => p.name === "fajr")!.adhan.getTime();
   const nightFirst = night ? night.fajr.getTime() === todayFajr : false;
   const sunWin = (key: ForbiddenWindow["key"]) => nafl?.forbidden.find((f) => f.key === key) ?? null;
+  // The time each prayer's row covers on today's timeline (until the next prayer;
+  // Isha until the last third of the night, where the Tahajjud row takes over).
+  const at = (n: PrayerName) => today.prayers.find((x) => x.name === n)!.adhan;
+  const period: Partial<Record<PrayerName, { from: Date; to: Date }>> = {
+    fajr: { from: at("fajr"), to: at("sunrise") },
+    dhuhr: { from: at("dhuhr"), to: at("asr") },
+    asr: { from: at("asr"), to: at("maghrib") },
+    maghrib: { from: at("maghrib"), to: at("isha") },
+    isha: { from: at("isha"), to: night && !nightFirst ? night.lastThird : new Date(at("isha").getTime() + 6 * 3600_000) },
+  };
+  const nowMs = data.now?.getTime() ?? 0;
+  const runningOf = (n: PrayerName) => {
+    const r = period[n];
+    return r && nowMs >= r.from.getTime() && nowMs < r.to.getTime() ? r : null;
+  };
 
   return (
     <Card className="overflow-hidden p-0">
@@ -464,20 +499,21 @@ export function PrayerSchedule({ data, compact }: { data: Data; compact?: boolea
         {today.prayers.map((p: PrayerSlot) => {
           const status = info.statuses[p.name];
           const isSunrise = p.name === "sunrise";
+          const running = runningOf(p.name);
           const before = p.name === "dhuhr" ? sunWin("zenith") : p.name === "maghrib" ? sunWin("sunset") : null;
           return (
             <Fragment key={p.name}>
             {before ? <ForbiddenRow w={before} now={data.now} /> : null}
             <li
-              aria-current={status === "next" || status === "now" ? "time" : undefined}
+              aria-current={running || status === "next" ? "time" : undefined}
               className={cn(
-                "flex min-h-14 items-center gap-3 border-b border-border/70 px-4 py-3 last:border-0",
-                status === "now" && "bg-primary-soft",
-                status === "next" && "bg-gold-soft/50",
-                status === "passed" && "opacity-70",
+                "relative flex min-h-14 items-center gap-3 border-b border-border/70 px-4 py-3 last:border-0",
+                running && RUNNING_ROW,
+                !running && status === "next" && "bg-gold-soft/50",
+                !running && status === "passed" && "opacity-70",
               )}
             >
-              <span className="grid size-9 shrink-0 place-items-center rounded-full bg-muted text-gold">
+              <span className={cn("grid size-9 shrink-0 place-items-center rounded-full", running ? "bg-primary text-primary-foreground" : "bg-muted text-gold")}>
                 {isSunrise ? <Sunrise className="size-4" aria-hidden /> : p.name === "isha" || p.name === "maghrib" ? <Moon className="size-4" aria-hidden /> : <Clock3 className="size-4" aria-hidden />}
               </span>
               <span className="min-w-0 flex-1">
@@ -488,8 +524,19 @@ export function PrayerSchedule({ data, compact }: { data: Data; compact?: boolea
               </span>
               <span className="flex flex-col items-end gap-0.5">
                 <span className="text-base font-semibold tabular-nums">{formatTime(p.adhan, intlLocale)}</span>
-                {!isSunrise ? <StatusBadge status={status} /> : null}
+                {running ? (
+                  <Badge tone="primary" className="whitespace-nowrap">
+                    <span className="relative me-1 flex size-1.5" aria-hidden>
+                      <span className="absolute inline-flex size-full animate-ping rounded-full bg-current opacity-60" />
+                      <span className="relative inline-flex size-1.5 rounded-full bg-current" />
+                    </span>
+                    {t("prayer.runningUntil", { time: formatTime(running.to, intlLocale) })}
+                  </Badge>
+                ) : !isSunrise ? (
+                  <StatusBadge status={status === "now" ? "passed" : status} />
+                ) : null}
               </span>
+              {running ? <ElapsedBar from={running.from} to={running.to} now={data.now} /> : null}
             </li>
             {isSunrise && sunWin("sunrise") ? <ForbiddenRow w={sunWin("sunrise")!} now={data.now} /> : null}
             {isSunrise && nafl ? <DuhaRow duha={nafl.duha} now={data.now} /> : null}

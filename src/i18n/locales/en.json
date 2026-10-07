@@ -391,7 +391,8 @@
     "forbiddenGroupSun": "By the sun's position",
     "forbiddenGroupPrayer": "After the obligatory prayer",
     "forbiddenMissed": "A missed obligatory prayer is prayed when it is remembered, even at these times (Sahih al-Bukhari 597, Sahih Muslim 684). Scholars differ on voluntary prayers that have a reason, such as two rak'ahs after Tawaf in the Haram — ask a scholar you trust.",
-    "nowShort": "Now"
+    "nowShort": "Now",
+    "runningUntil": "Now · until {time}"
   },
   "qibla": {
     "title": "Qibla Direction",
