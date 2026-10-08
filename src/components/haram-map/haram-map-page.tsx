@@ -54,7 +54,10 @@ const layerOf = (p: Poi): Layer => (p.kind === "zamzam" ? "water" : p.kind);
 /** Rules shown per city, each with its source. */
 const RULES: Record<LocationId, { key: TKey; extra?: TKey[]; src: { label: string; url: string }[] }[]> = {
   makkah: [
-    { key: "haramMap.mk_mataf", src: [{ label: "The Islamic Information, 1 Jul 2024", url: "https://theislamicinformation.com/news/only-pilgrims-wearing-ihram-can-enter-into-mataaf/" }] },
+    {
+      key: "haramMap.mk_mataf",
+      src: [{ label: "Ministry of Hajj and Umrah, 10 Mar 2026", url: "https://haj.gov.sa/en/Media-Center/Ministry-News/2026/Ministry-of-Hajj-and-Umrah-Adherence-to-Tawaf-Regulations-Enhances-Movement-Flow" }],
+    },
     { key: "haramMap.mk_mataf_only", src: [{ label: "Saudi Press Agency, 25 May 2025", url: "https://www.spa.gov.sa/en/N2325213" }] },
     { key: "haramMap.mk_gates", src: [{ label: "Saudi Press Agency, 25 May 2025", url: "https://www.spa.gov.sa/en/N2325213" }] },
   ],
@@ -62,7 +65,10 @@ const RULES: Record<LocationId, { key: TKey; extra?: TKey[]; src: { label: strin
     {
       key: "haramMap.md_rawdah",
       extra: ["haramMap.md_rawdah_men", "haramMap.md_rawdah_women", "haramMap.md_rawdah_asof"],
-      src: [{ label: "ProPakistani, 25 May 2026", url: "https://propakistani.pk/2026/05/25/saudi-arabia-announces-new-visiting-schedule-for-masjid-e-nabawi/" }],
+      src: [
+        { label: "Saudi Press Agency, 5 Dec 2025", url: "https://spa.gov.sa/en/N2459265" },
+        { label: "ProPakistani, 25 May 2026", url: "https://propakistani.pk/2026/05/25/saudi-arabia-announces-new-visiting-schedule-for-masjid-e-nabawi/" },
+      ],
     },
     { key: "haramMap.md_baqi", src: [{ label: "Visit Madinah (official)", url: "https://visitmadinahsa.com/sa-en/destinations/Baqi'-Al-Gharqad-" }] },
   ],

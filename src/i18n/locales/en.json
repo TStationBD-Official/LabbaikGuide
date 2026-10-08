@@ -29,13 +29,15 @@
       "tawaf": "Tawaf",
       "sai": "Sa'i",
       "hotel": "Hotel",
-      "haramMap": "Map"
+      "haramMap": "Map",
+      "travelGuide": "Guide"
     },
     "collapse": "Collapse menu",
     "expand": "Expand menu",
     "searchHint": "Search Quran, duas, guides…",
     "toggleTheme": "Switch light/dark",
-    "haramMap": "Haram Map"
+    "haramMap": "Haram Map",
+    "travelGuide": "Travel Guide"
   },
   "location": {
     "makkah": "Makkah",
@@ -969,10 +971,10 @@
     "retry": "Try again",
     "rulesTitle": "Rules & tips",
     "sources": "Sources",
-    "mk_mataf": "Mataf (ground floor around the Ka'bah): reported since July 2024 to be for Umrah pilgrims in ihram; others make tawaf on the upper floors. The rule can change — follow the staff.",
+    "mk_mataf": "Mataf (ground floor around the Ka'bah): reserved for Umrah performers; tawaf is also allowed on the upper floors, subject to capacity.",
     "mk_mataf_only": "The Mataf area is dedicated to tawaf only; it spans the ground floor, first floor, mezzanines and the roof.",
     "mk_gates": "Main and secondary entrances are assigned by the authority, with extra doors for services and emergencies — some gates may be closed at busy times.",
-    "md_rawdah": "Ar-Rawdah needs a permit booked in the Nusuk app; the QR code becomes active two hours before your slot.",
+    "md_rawdah": "Ar-Rawdah needs a Nusuk permit — once every 365 days — with entry only from the southern courtyards opposite Gate 37; the QR code becomes active two hours before your slot.",
     "md_rawdah_men": "Men (daily): 2:00 am until Fajr, and 11:20 am until Isha. Friday: 2:00 am until Fajr, and 9:00 am until Isha.",
     "md_rawdah_women": "Women (daily): after Fajr until 11:00 am, and after Isha until 2:00 am. Friday: after Fajr until 9:00 am.",
     "md_rawdah_asof": "Times as announced in May 2026 — check Nusuk for your date.",
@@ -980,5 +982,15 @@
     "privacy": "Your location and path stay on this device and are cleared when you leave the page.",
     "homeSub": "Gates, toilets, Zamzam & your live location",
     "open": "Open map"
+  },
+  "travelGuide": {
+    "title": "Travel Guide",
+    "subtitle": "SIM, transport, visa, money, health and emergencies — with sources",
+    "checked": "Last checked: {date}.",
+    "changeNote": "Prices and rules change often — use the source links to confirm before you rely on them.",
+    "search": "Search the guide (e.g. SIM, train, Zamzam)",
+    "sources": "Sources",
+    "homeSub": "SIM, train, visa, money, health & emergency numbers",
+    "open": "Open"
   }
 }
