@@ -544,3 +544,7 @@ html[lang="ur"] :where(p, span, label, a, button, li, legend, h1, h2, h3, h4, dt
 @media (prefers-reduced-motion: reduce) { .hc-user-pulse, .hc-pin-pick .hc-pin-inner { animation: none; } }
 .maplibregl-ctrl-attrib, .maplibregl-ctrl-scale { font-family: var(--font-latin); }
 
+
+/* Next-prayer card: night-sky stars */
+@keyframes hc-twinkle { 0%, 100% { opacity: .85; } 50% { opacity: .25; } }
+.hc-twinkle { animation: hc-twinkle 3.2s ease-in-out infinite; }
