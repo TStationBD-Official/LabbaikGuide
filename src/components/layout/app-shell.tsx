@@ -362,8 +362,8 @@ export function AppShell({ children }: { children: ReactNode }) {
             tabIndex={-1}
             className="mx-auto w-full max-w-5xl flex-1 px-4 pb-28 pt-5 outline-none sm:px-6 md:pb-12 md:pt-7 lg:px-8 xl:max-w-6xl 2xl:max-w-7xl"
           >
+            <AdBanner className="mb-5" />
             {children}
-            <AdBanner className="mt-10" />
           </main>
         </div>
       </div>
