@@ -166,7 +166,7 @@ export function AdBanner({ className }: { className?: string }) {
           />
         ))}
         {/* Light dim so bright sites sit calmly in the app; the site stays clearly visible and clickable. */}
-        <div aria-hidden className="pointer-events-none absolute inset-0 bg-black/30" />
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-black/100" />
         <span className="pointer-events-none absolute start-1.5 top-1.5 z-10 rounded-full bg-black/55 px-1.5 py-px text-[9px] font-medium text-white backdrop-blur-sm">
           {t("ads.label")}
         </span>
