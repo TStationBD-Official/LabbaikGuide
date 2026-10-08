@@ -12,6 +12,7 @@ import { AnimatedNumber } from "@/components/ui/animated-number";
 import { NextPrayerCard, NextPrayerStaffCard, PrayerSchedule } from "@/components/prayer/prayer-widgets";
 import { ContinueReadingCard } from "@/components/quran/quran-home";
 import { HotelHomeCard } from "@/components/places/hotel-home-card";
+import { HaramMapHomeCard } from "@/components/haram-map/haram-map-home-card";
 import { DualClock } from "@/components/home/dual-clock";
 import { AdhanWindowCard } from "@/components/prayer/adhan-guide";
 import { DuaCard } from "@/components/dua/dua-card";
@@ -114,6 +115,7 @@ export function HomeDashboard() {
           <NextPrayerCard data={data} stripClassName="lg:hidden" />
           <DualClock />
           <NextPrayerStaffCard data={data} />
+          <HaramMapHomeCard />
           <HotelHomeCard />
         </div>
         {/* Wide screens: schedule (and on xl the dua of the day) stay in view beside the main column. */}

@@ -977,6 +977,8 @@
     "md_rawdah_women": "Women (daily): after Fajr until 11:00 am, and after Isha until 2:00 am. Friday: after Fajr until 9:00 am.",
     "md_rawdah_asof": "Times as announced in May 2026 — check Nusuk for your date.",
     "md_baqi": "Al-Baqi' is east of the Prophet's Mosque; visiting it is open to men and children. The recommended time is after the obligatory prayers.",
-    "privacy": "Your location and path stay on this device and are cleared when you leave the page."
+    "privacy": "Your location and path stay on this device and are cleared when you leave the page.",
+    "homeSub": "Gates, toilets, Zamzam & your live location",
+    "open": "Open map"
   }
 }

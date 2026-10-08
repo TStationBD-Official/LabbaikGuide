@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { Accessibility, Crosshair, DoorOpen, ExternalLink, Footprints, Info, Navigation, Route, Search, Trash2, X } from "lucide-react";
 import { useI18n } from "@/components/providers/i18n-provider";
@@ -103,10 +104,11 @@ function DirectionArrow({ bearing, heading }: { bearing: number; heading: number
   );
 }
 
-export function HaramMapPage() {
+export function HaramMapPage({ initialLoc }: { initialLoc?: LocationId }) {
   const { t, formatNumber } = useI18n();
   const prefLoc = usePrefs((s) => s.location);
-  const [loc, setLoc] = useState<LocationId>(prefLoc);
+  const router = useRouter();
+  const [loc, setLoc] = useState<LocationId>(initialLoc ?? prefLoc);
   const center = LOCATIONS[loc];
   const dark = useIsDark();
   const text = usePoiText();
@@ -177,6 +179,8 @@ export function HaramMapPage() {
 
   const switchLoc = (l: LocationId) => {
     setLoc(l);
+    // Keep the city in the address so back/refresh/share open the same map.
+    router.replace(`/haram-map?loc=${l}`, { scroll: false });
     setSelectedId(null);
     setRouteOn(false);
     setFollow(false);
