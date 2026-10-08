@@ -2,6 +2,7 @@
 
 import { SkyBackdrop, SkyBody, skyAt } from "./sky-backdrop";
 import { HaramScene } from "./haram-scene";
+import { useTilt } from "@/hooks/use-tilt";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { Fragment, useMemo, useState } from "react";
@@ -113,6 +114,7 @@ export function NextPrayerCard({ data, strip = true, stripClassName }: { data: D
   const { info, days, now } = data;
   const night = useNight(location, now ?? null);
   const nafl = useMemo(() => (days ? naflTimes(days.today) : null), [days]);
+  const tilt = useTilt<HTMLElement>();
 
   if (!info || !days || !now) return <Skeleton className="h-64 w-full rounded-3xl" />;
   const forbidden = nafl ? forbiddenAt(nafl, now) : null;
@@ -141,8 +143,9 @@ export function NextPrayerCard({ data, strip = true, stripClassName }: { data: D
 
   return (
     <section
+      ref={tilt}
       aria-label={t("prayer.nextPrayer")}
-      className="relative isolate overflow-hidden rounded-3xl text-white shadow-soft ring-1 ring-black/10"
+      className="relative isolate overflow-hidden rounded-3xl text-white ring-1 ring-black/10 shadow-[0_22px_40px_-18px_rgb(0_0_0/0.55),0_8px_16px_-10px_rgb(0_0_0/0.35),inset_0_1px_0_rgb(255_255_255/0.18),inset_0_-2px_0_rgb(0_0_0/0.25)] [transform:perspective(1100px)_rotateX(calc(var(--py,0)*-4deg))_rotateY(calc(var(--px,0)*5deg))] will-change-transform"
       data-forbidden={redCard ? "true" : undefined}
       // Normally a sky that follows the prayer times at the selected city (Fajr, Duha, Dhuhr, Asr, Maghrib, Isha, Tahajjud);
       // deep red while the sun is rising, at its zenith or setting (forbidden for voluntary prayer).
@@ -151,6 +154,12 @@ export function NextPrayerCard({ data, strip = true, stripClassName }: { data: D
     >
       {redCard ? null : <SkyBackdrop sky={sky} />}
       <GeometricPattern className="pointer-events-none absolute inset-0 -z-10 text-white opacity-[0.06]" />
+      {/* moving shine that follows the tilt */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-10 rounded-3xl mix-blend-soft-light"
+        style={{ background: "radial-gradient(120% 80% at calc(50% + var(--px,0) * 45%) calc(20% + var(--py,0) * 35%), rgb(255 255 255 / 0.28), transparent 55%)" }}
+      />
       {redCard ? <div aria-hidden className="pointer-events-none absolute -end-16 -top-20 -z-10 size-64 rounded-full bg-gold/20 blur-3xl" /> : null}
 
       <div className={cn("relative p-5 sm:p-6", !redCard && "pb-24 sm:pb-28")}>

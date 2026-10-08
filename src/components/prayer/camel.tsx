@@ -117,3 +117,78 @@ export function Camel3D({ width = 46, light = 1, delay = 0, saddle = false }: { 
     </svg>
   );
 }
+
+/**
+ * A camel kneeling to sleep (couched, legs folded under the body, neck resting
+ * forward, eyes closed). It breathes slowly; `zzz` adds a drifting "z z z".
+ */
+export function SleepingCamel({ width = 46, light = 0.2, delay = 0, zzz = false, saddle = false }: { width?: number; light?: number; delay?: number; zzz?: boolean; saddle?: boolean }) {
+  const id = useId().replace(/:/g, "");
+  const g = (n: string) => `url(#${id}-${n})`;
+  return (
+    <svg
+      aria-hidden
+      width={width}
+      height={width * 0.75}
+      viewBox="0 0 120 90"
+      className="block overflow-visible"
+      // Moonlit: never darker than this, so they stay visible on the night sand.
+      style={{ filter: `brightness(${0.62 + Math.max(0, light - 0.42) * 0.65}) saturate(.62)`, ["--d" as string]: `${delay}s` }}
+    >
+      <defs>
+        <linearGradient id={`${id}-body`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#e2b57a" />
+          <stop offset=".5" stopColor="#c48d52" />
+          <stop offset="1" stopColor="#8c5a2e" />
+        </linearGradient>
+        <radialGradient id={`${id}-hump`} cx=".45" cy=".25" r=".6">
+          <stop offset="0" stopColor="#f6d6a3" stopOpacity=".8" />
+          <stop offset="1" stopColor="#f6d6a3" stopOpacity="0" />
+        </radialGradient>
+        <linearGradient id={`${id}-neck`} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#d7a76c" />
+          <stop offset="1" stopColor="#a87140" />
+        </linearGradient>
+        <radialGradient id={`${id}-shadow`} cx=".5" cy=".5" r=".5">
+          <stop offset="0" stopColor="#000" stopOpacity=".4" />
+          <stop offset="1" stopColor="#000" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <ellipse cx="62" cy="88" rx="50" ry="4" fill={g("shadow")} />
+      {/* folded legs tucked under: forearms and hind legs lying on the sand */}
+      <path d="M26 82c4-3 14-3 22-1l2 6H24Z" fill="#7d5230" />
+      <path d="M64 82c6-2 16-2 24 0l1 5.5H62Z" fill="#7d5230" />
+      <ellipse cx="86" cy="86" rx="4.5" ry="2" fill="#5a3a20" />
+      <ellipse cx="30" cy="86.5" rx="4" ry="1.8" fill="#5a3a20" />
+      <g className="hc-breathe">
+        {/* body resting low, hump up */}
+        <path d="M20 76c-1-9 6-15 15-17 3-9 9-15 17-15 9 0 14 7 16 15 7 1 12 5 13 11 1 6-1 11-6 13-7 2-14 2-21 2H32c-7 0-12-3-12-9Z" fill={g("body")} />
+        <path d="M35 59c3-9 9-15 17-15 9 0 14 7 16 15-9-3-24-3-33 0Z" fill={g("hump")} />
+        {/* moonlight rim along the back */}
+        <path d="M22 70c1-6 7-10 13-11 3-9 9-15 17-15 9 0 14 7 16 15 6 1 11 4 12 9" stroke="#dfe6ff" strokeOpacity=".55" strokeWidth="1.3" fill="none" strokeLinecap="round" />
+        {saddle ? (
+          <g>
+            <path d="M38 58c6-3 22-3 28 0l2 13c-10 3-22 3-32 0Z" fill="#9b1c24" />
+            <path d="M38 58c6-3 22-3 28 0l.5 3c-7-2.4-22-2.4-29 0Z" fill="#c9a24c" />
+          </g>
+        ) : null}
+        <path d="M22 72c-3 3-3 8-1 11" stroke="#8c5a2e" strokeWidth="2" fill="none" strokeLinecap="round" />
+      </g>
+      {/* neck stretched forward and low, head resting near the sand, eyes closed */}
+      <g className="hc-sleep-head">
+        <path d="M76 66c8 2 13 8 19 11 4 2 8 2 11 1" stroke={g("neck")} strokeWidth="9" fill="none" strokeLinecap="round" />
+        <path d="M101 76c3-3 8-4 13-2l4 2c1.6.8 1.4 3-.4 3.4l-5 1c-4 .7-9 .4-11.6-1-1.2-.8-1-2.4 0-3.4Z" fill={g("neck")} />
+        <path d="M78 63c7 2 12 7 17 10" stroke="#dfe6ff" strokeOpacity=".45" strokeWidth="1.1" fill="none" strokeLinecap="round" />
+        <path d="M103 72.5l.6-3.6 2.6 2.6Z" fill="#8c5a2e" />
+        <path d="M106.2 76.6c.8.7 2 .7 2.8 0" stroke="#2a1a0e" strokeWidth=".9" fill="none" strokeLinecap="round" />
+      </g>
+      {zzz ? (
+        <g fill="#fef3c7" fontFamily="sans-serif" fontWeight="700">
+          <text className="hc-z hc-z1" x="110" y="64" fontSize="7">z</text>
+          <text className="hc-z hc-z2" x="114" y="56" fontSize="9">z</text>
+          <text className="hc-z hc-z3" x="118" y="46" fontSize="11">z</text>
+        </g>
+      ) : null}
+    </svg>
+  );
+}

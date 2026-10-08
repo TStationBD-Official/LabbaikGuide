@@ -572,6 +572,14 @@ html[lang="ur"] :where(p, span, label, a, button, li, legend, h1, h2, h3, h4, dt
 .hc-sway { transform-box: fill-box; transform-origin: 50% 100%; animation: hc-sway 5.5s ease-in-out infinite; }
 .hc-shoot { background: linear-gradient(90deg, transparent, #fff); transform-origin: left center; animation: hc-shoot 11s ease-in infinite; }
 .hc-umbrella { transition: transform 1.2s ease; }
+/* Sleeping camels: slow breathing, head rising a touch, drifting z z z */
+@keyframes hc-breathe { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.035); } }
+@keyframes hc-sleep-head { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-2deg); } }
+@keyframes hc-z { 0% { opacity: 0; transform: translate(0, 4px); } 30% { opacity: .9; } 100% { opacity: 0; transform: translate(6px, -10px); } }
+.hc-breathe { transform-box: fill-box; transform-origin: 50% 100%; animation-name: hc-breathe; animation-duration: 4.2s; animation-iteration-count: infinite; animation-timing-function: ease-in-out; animation-delay: var(--d, 0s); }
+.hc-sleep-head { transform-box: fill-box; transform-origin: 0% 50%; animation-name: hc-sleep-head; animation-duration: 4.2s; animation-iteration-count: infinite; animation-timing-function: ease-in-out; animation-delay: var(--d, 0s); }
+.hc-z { animation-name: hc-z; animation-duration: 3.6s; animation-iteration-count: infinite; animation-timing-function: ease-out; opacity: 0; }
+.hc-z2 { animation-delay: 1.2s; } .hc-z3 { animation-delay: 2.4s; }
 /* Camel pace: same-side legs together; far pair half a cycle later. Knees fold on the forward swing. */
 @keyframes hc-thigh { 0% { transform: rotate(-20deg); } 60% { transform: rotate(18deg); } 100% { transform: rotate(-20deg); } }
 @keyframes hc-shin { 0%, 55% { transform: rotate(0); } 75% { transform: rotate(38deg); } 92%, 100% { transform: rotate(0); } }
@@ -587,11 +595,13 @@ html[lang="ur"] :where(p, span, label, a, button, li, legend, h1, h2, h3, h4, dt
 /* Reduce motion: everything stands still in a natural pose (not frozen mid-flight off screen). */
 @media (prefers-reduced-motion: reduce) {
   .hc-fly-x, .hc-fly-y, .hc-flap, .hc-caravan, .hc-bob, .hc-step-a, .hc-step-b, .hc-sway, .hc-twinkle,
-  .hc-thigh-a, .hc-thigh-b, .hc-shin-a, .hc-shin-b, .hc-camel-bob, .hc-camel-nod { animation: none !important; }
+  .hc-thigh-a, .hc-thigh-b, .hc-shin-a, .hc-shin-b, .hc-camel-bob, .hc-camel-nod, .hc-breathe, .hc-sleep-head { animation: none !important; }
+  .hc-z { display: none; }
   .hc-shoot { display: none; }
 }
 [data-reduced-motion="true"] .hc-fly-x, [data-reduced-motion="true"] .hc-fly-y, [data-reduced-motion="true"] .hc-flap,
 [data-reduced-motion="true"] .hc-caravan, [data-reduced-motion="true"] .hc-bob, [data-reduced-motion="true"] .hc-step-a,
 [data-reduced-motion="true"] .hc-step-b, [data-reduced-motion="true"] .hc-sway, [data-reduced-motion="true"] .hc-twinkle,
-[data-reduced-motion="true"] :is(.hc-thigh-a, .hc-thigh-b, .hc-shin-a, .hc-shin-b, .hc-camel-bob, .hc-camel-nod) { animation: none !important; }
+[data-reduced-motion="true"] :is(.hc-thigh-a, .hc-thigh-b, .hc-shin-a, .hc-shin-b, .hc-camel-bob, .hc-camel-nod, .hc-breathe, .hc-sleep-head) { animation: none !important; }
+[data-reduced-motion="true"] .hc-z { display: none; }
 [data-reduced-motion="true"] .hc-shoot { display: none; }
