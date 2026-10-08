@@ -30,14 +30,16 @@
       "sai": "Sa'i",
       "hotel": "Hotel",
       "haramMap": "Map",
-      "travelGuide": "Guide"
+      "travelGuide": "Guide",
+      "janazah": "Janazah"
     },
     "collapse": "Collapse menu",
     "expand": "Expand menu",
     "searchHint": "Search Quran, duas, guides…",
     "toggleTheme": "Switch light/dark",
     "haramMap": "Haram Map",
-    "travelGuide": "Travel Guide"
+    "travelGuide": "Travel Guide",
+    "janazah": "Janazah Prayer"
   },
   "location": {
     "makkah": "Makkah",
@@ -997,5 +999,36 @@
     "c_pk": "Pakistan",
     "c_in": "India",
     "c_intl": "Other country"
+  },
+  "janazah": {
+    "title": "Janazah (Funeral) Prayer",
+    "subtitle": "Step-by-step animated guide with authentic duas and sources",
+    "homeSub": "4 takbirs, duas & what to do in the Haramain",
+    "open": "Learn",
+    "sceneLabel": "animated illustration seen from behind the rows; figures have no faces and the deceased is shown only as a covered bier",
+    "play": "Play",
+    "pause": "Pause",
+    "prev": "Back",
+    "next": "Next",
+    "replay": "Play from the start",
+    "takbir": "Takbir",
+    "steps": "Steps",
+    "niyyahShort": "Intention",
+    "takbirN": "Takbir {n}",
+    "deceased": "The prayer is for",
+    "man": "Man",
+    "woman": "Woman",
+    "child": "Child",
+    "method": "Method",
+    "haramain": "As in the Haramain",
+    "hanafi": "Hanafi",
+    "posMan": "For a man, the imam stands level with the head.",
+    "posWoman": "For a woman, the imam stands level with the middle of the body.",
+    "posChild": "For a child, the prayer is the same; the dua changes (see the 3rd takbir).",
+    "openQuran": "Open in the Quran",
+    "rulings": "Rulings & virtues",
+    "inHaramain": "In Masjid al-Haram & Masjid an-Nabawi",
+    "artNote": "About the illustration: out of respect and following the scholars' guidance on images, every figure is shown from behind without a face, and the deceased is never depicted — only a covered bier. There is no music.",
+    "you": "You"
   }
 }

@@ -14,6 +14,7 @@ import { ContinueReadingCard } from "@/components/quran/quran-home";
 import { HotelHomeCard } from "@/components/places/hotel-home-card";
 import { HaramMapHomeCard } from "@/components/haram-map/haram-map-home-card";
 import { TravelGuideHomeCard } from "@/components/travel-guide/travel-guide-home-card";
+import { JanazahHomeCard } from "@/components/janazah/janazah-home-card";
 import { DualClock } from "@/components/home/dual-clock";
 import { AdhanWindowCard } from "@/components/prayer/adhan-guide";
 import { DuaCard } from "@/components/dua/dua-card";
@@ -118,6 +119,7 @@ export function HomeDashboard() {
           <NextPrayerStaffCard data={data} />
           <HaramMapHomeCard />
           <TravelGuideHomeCard />
+          <JanazahHomeCard />
           <HotelHomeCard />
         </div>
         {/* Wide screens: schedule (and on xl the dua of the day) stay in view beside the main column. */}

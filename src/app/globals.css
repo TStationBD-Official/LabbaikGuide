@@ -605,3 +605,7 @@ html[lang="ur"] :where(p, span, label, a, button, li, legend, h1, h2, h3, h4, dt
 [data-reduced-motion="true"] :is(.hc-thigh-a, .hc-thigh-b, .hc-shin-a, .hc-shin-b, .hc-camel-bob, .hc-camel-nod, .hc-breathe, .hc-sleep-head) { animation: none !important; }
 [data-reduced-motion="true"] .hc-z { display: none; }
 [data-reduced-motion="true"] .hc-shoot { display: none; }
+
+/* Janazah tutorial: the imam's words pop in above him; figures breathe gently while standing. */
+@keyframes hc-say { from { opacity: 0; transform: translateY(4px) scale(.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.hc-say { transform-box: fill-box; transform-origin: 50% 100%; animation-name: hc-say; animation-duration: 320ms; animation-timing-function: ease-out; }

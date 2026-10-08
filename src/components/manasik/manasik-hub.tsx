@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { CircleDot, Footprints, Landmark, Mountain, type LucideIcon } from "lucide-react";
+import { CircleDot, Footprints, HeartHandshake, Landmark, Mountain, type LucideIcon } from "lucide-react";
 import { useI18n } from "@/components/providers/i18n-provider";
 import { Progress } from "@/components/ui/progress";
 import { GlassCard } from "@/components/ui/card";
@@ -71,6 +71,7 @@ export function ManasikHub() {
         desc="manasik.saiDesc"
         progress={hydrated ? { value: s.sai.completed, max: RITUAL_TOTAL } : undefined}
       />
+      <HubCard href="/janazah" icon={HeartHandshake} title="janazah.title" desc="janazah.homeSub" />
     </div>
   );
 }
