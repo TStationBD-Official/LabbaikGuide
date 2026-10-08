@@ -8,10 +8,8 @@ import { useMounted } from "@/hooks/use-hydrated";
 import { useOnline } from "@/hooks/use-online";
 import { cn } from "@/lib/utils";
 
-/** Each site stays on screen this long once it has loaded. */
+/** A new site every 7 seconds, counted from the moment the previous one was requested. */
 export const ROTATE_MS = 7000;
-/** A site that has not loaded by then is skipped. */
-export const LOAD_TIMEOUT_MS = 10000;
 
 const AdsSchema = z.object({ links: z.array(z.object({ id: z.string(), url: z.string().url() })) });
 type Ad = z.infer<typeof AdsSchema>["links"][number];
@@ -116,11 +114,24 @@ export function AdBanner({ className }: { className?: string }) {
   }, []);
   const active = inView && pageVisible;
 
+  // Exactly 7 s per site. Time spent off screen / in a background tab is not counted,
+  // so the timer and the gold progress line resume where they stopped.
+  const advanceRef = useRef(advance);
   useEffect(() => {
-    if (!active || !current || deck.length < 2) return;
-    const id = setTimeout(advance, current.loaded ? ROTATE_MS : LOAD_TIMEOUT_MS);
-    return () => clearTimeout(id);
-  }, [active, current, deck.length, advance]);
+    advanceRef.current = advance;
+  }, [advance]);
+  const timing = useRef({ key: -1, elapsed: 0 });
+  const currentKey = current?.key ?? -1;
+  useEffect(() => {
+    if (timing.current.key !== currentKey) timing.current = { key: currentKey, elapsed: 0 };
+    if (!active || currentKey < 0 || deck.length < 2) return;
+    const start = performance.now();
+    const id = setTimeout(() => advanceRef.current(), Math.max(0, ROTATE_MS - timing.current.elapsed));
+    return () => {
+      clearTimeout(id);
+      if (timing.current.key === currentKey) timing.current.elapsed += performance.now() - start;
+    };
+  }, [active, currentKey, deck.length]);
 
   if (!enabled || !current) return null;
 
@@ -159,7 +170,7 @@ export function AdBanner({ className }: { className?: string }) {
         <span className="pointer-events-none absolute start-1.5 top-1.5 z-10 rounded-full bg-black/55 px-1.5 py-px text-[9px] font-medium text-white backdrop-blur-sm">
           {t("ads.label")}
         </span>
-        {deck.length > 1 && current.loaded ? (
+        {deck.length > 1 ? (
           <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-1 bg-black/10">
             <div
               key={current.key}
