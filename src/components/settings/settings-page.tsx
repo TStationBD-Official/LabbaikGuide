@@ -146,6 +146,7 @@ export function SettingsPage() {
 
       <Section id="s-a11y" title={t("settings.accessibility")}>
         <Toggle
+          emoji="🐢"
           label={t("settings.reducedMotion")}
           description={t("settings.reducedMotionDesc")}
           checked={reducedMotion}

@@ -122,7 +122,7 @@ export function OfflineSection() {
         ) : (
           <>
             {tafsir ? (
-              <Toggle compact label={t("offline.includeTafsir", { name: tafsir.name })} description={t("offline.tafsirNote")} checked={withTafsir} onChange={setWithTafsir} />
+              <Toggle compact label={t("offline.includeTafsir", { name: tafsir.name })} description={t("offline.tafsirNote")} checked={withTafsir} onChange={setWithTafsir} emoji="📚" />
             ) : null}
             {dl.status === "done" && complete && !mismatch ? (
               <p className="flex items-center gap-2 text-sm font-medium text-success" role="status">

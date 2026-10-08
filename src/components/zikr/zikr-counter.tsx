@@ -217,8 +217,8 @@ export function ZikrCounter({ zikr, next }: { zikr: Zikr; next: Zikr | null }) {
       </div>
 
       <div className="mt-5 w-full max-w-sm border-t border-border/70 pt-3">
-        <Toggle compact checked={autoAdvance} onChange={setAutoAdvance} label={t("zikr.autoAdvance")} description={t("zikr.autoAdvanceHint")} />
-        <Toggle compact checked={haptics} onChange={setHaptics} label={t("zikr.haptics")} />
+        <Toggle compact emoji="⏭️" checked={autoAdvance} onChange={setAutoAdvance} label={t("zikr.autoAdvance")} description={t("zikr.autoAdvanceHint")} />
+        <Toggle compact emoji="📳" checked={haptics} onChange={setHaptics} label={t("zikr.haptics")} />
         {autoAdvance && next ? (
           <button
             type="button"

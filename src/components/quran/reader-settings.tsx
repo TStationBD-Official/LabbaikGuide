@@ -88,7 +88,7 @@ export function ReaderSettings({
           </div>
         ) : null}
         <div className="space-y-3">
-          <Toggle label={t("quran.autoScroll")} checked={autoScroll} onChange={onAutoScroll} />
+          <Toggle emoji="📜" label={t("quran.autoScroll")} checked={autoScroll} onChange={onAutoScroll} />
           <div className="flex items-center justify-between gap-3">
             <span className="text-sm font-medium">{t("quran.scrollSpeed")}</span>
             <ScrollSpeedStepper />

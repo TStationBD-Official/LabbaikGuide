@@ -682,7 +682,7 @@ function PlanEditor({ plan, onClose, onDeleted }: { plan: ZikrPlan | null; onClo
           </Button>
         </fieldset>
 
-        <Toggle checked={remind} onChange={setRemind} label={t("zikrPlan.remind")} />
+        <Toggle emoji="🔔" checked={remind} onChange={setRemind} label={t("zikrPlan.remind")} />
         {error ? <p className="text-sm text-danger">{error}</p> : null}
 
         <div className="flex flex-wrap gap-2 pt-1">

@@ -128,7 +128,7 @@ export function HomeClockSettings({ onChosen }: { onChosen?: () => void }) {
 
   return (
     <div className="space-y-3">
-      <Toggle checked={showHome} onChange={setShowHome} label={t("clock.show")} description={t("clock.showDesc")} />
+      <Toggle emoji="🕰️" checked={showHome} onChange={setShowHome} label={t("clock.show")} description={t("clock.showDesc")} />
       <Select
         label={t("clock.choose")}
         value={homeTz ?? ""}

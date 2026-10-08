@@ -568,7 +568,7 @@ function Navigator({
         ) : null}
       </div>
       {wake.supported ? (
-        <Toggle className="mt-2" compact checked={wake.active} onChange={(v) => (v ? wake.enable() : wake.disable())} label={t("hotel.keepAwake")} />
+        <Toggle className="mt-2" compact checked={wake.active} onChange={(v) => (v ? wake.enable() : wake.disable())} label={t("hotel.keepAwake")} emoji="🔆" />
       ) : null}
       <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">{t("hotel.background")}</p>
     </Card>
