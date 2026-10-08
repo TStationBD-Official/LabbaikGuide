@@ -572,12 +572,26 @@ html[lang="ur"] :where(p, span, label, a, button, li, legend, h1, h2, h3, h4, dt
 .hc-sway { transform-box: fill-box; transform-origin: 50% 100%; animation: hc-sway 5.5s ease-in-out infinite; }
 .hc-shoot { background: linear-gradient(90deg, transparent, #fff); transform-origin: left center; animation: hc-shoot 11s ease-in infinite; }
 .hc-umbrella { transition: transform 1.2s ease; }
+/* Camel pace: same-side legs together; far pair half a cycle later. Knees fold on the forward swing. */
+@keyframes hc-thigh { 0% { transform: rotate(-20deg); } 60% { transform: rotate(18deg); } 100% { transform: rotate(-20deg); } }
+@keyframes hc-shin { 0%, 55% { transform: rotate(0); } 75% { transform: rotate(38deg); } 92%, 100% { transform: rotate(0); } }
+@keyframes hc-camel-bob { 0%, 50%, 100% { transform: translateY(0); } 25%, 75% { transform: translateY(-1.6px); } }
+@keyframes hc-camel-nod { 0%, 50%, 100% { transform: rotate(0); } 25%, 75% { transform: rotate(-3deg); } }
+.hc-thigh-a, .hc-thigh-b, .hc-shin-a, .hc-shin-b { transform-box: view-box; transform-origin: 0 0; animation-duration: 1.5s; animation-iteration-count: infinite; }
+.hc-thigh-a, .hc-thigh-b { animation-name: hc-thigh; animation-timing-function: ease-in-out; }
+.hc-shin-a, .hc-shin-b { animation-name: hc-shin; animation-timing-function: ease-in-out; }
+.hc-thigh-a, .hc-shin-a { animation-delay: var(--d, 0s); }
+.hc-thigh-b, .hc-shin-b { animation-delay: calc(var(--d, 0s) - 0.75s); }
+.hc-camel-bob { animation: hc-camel-bob 1.5s ease-in-out infinite; animation-delay: var(--d, 0s); }
+.hc-camel-nod { transform-box: fill-box; transform-origin: 0% 60%; animation: hc-camel-nod 1.5s ease-in-out infinite; animation-delay: var(--d, 0s); }
 /* Reduce motion: everything stands still in a natural pose (not frozen mid-flight off screen). */
 @media (prefers-reduced-motion: reduce) {
-  .hc-fly-x, .hc-fly-y, .hc-flap, .hc-caravan, .hc-bob, .hc-step-a, .hc-step-b, .hc-sway, .hc-twinkle { animation: none !important; }
+  .hc-fly-x, .hc-fly-y, .hc-flap, .hc-caravan, .hc-bob, .hc-step-a, .hc-step-b, .hc-sway, .hc-twinkle,
+  .hc-thigh-a, .hc-thigh-b, .hc-shin-a, .hc-shin-b, .hc-camel-bob, .hc-camel-nod { animation: none !important; }
   .hc-shoot { display: none; }
 }
 [data-reduced-motion="true"] .hc-fly-x, [data-reduced-motion="true"] .hc-fly-y, [data-reduced-motion="true"] .hc-flap,
 [data-reduced-motion="true"] .hc-caravan, [data-reduced-motion="true"] .hc-bob, [data-reduced-motion="true"] .hc-step-a,
-[data-reduced-motion="true"] .hc-step-b, [data-reduced-motion="true"] .hc-sway, [data-reduced-motion="true"] .hc-twinkle { animation: none !important; }
+[data-reduced-motion="true"] .hc-step-b, [data-reduced-motion="true"] .hc-sway, [data-reduced-motion="true"] .hc-twinkle,
+[data-reduced-motion="true"] :is(.hc-thigh-a, .hc-thigh-b, .hc-shin-a, .hc-shin-b, .hc-camel-bob, .hc-camel-nod) { animation: none !important; }
 [data-reduced-motion="true"] .hc-shoot { display: none; }

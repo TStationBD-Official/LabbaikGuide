@@ -194,5 +194,8 @@ export function sceneColors(sky: Sky) {
   const sand = mix(s.sand.from[0], s.sand.to[0], f);
   const sandFar = mix(s.sand.from[1], s.sand.to[1], f);
   const city = mix(skyBottom, "#000000", 0.55);
-  return { city, sand, sandFar, camel: mix(sand, "#000000", 0.6), palm: mix(city, "#0d3b2a", 0.35) };
+  // How lit the foreground is (camels keep their natural colours, dimmed at dusk and night).
+  const LIGHT: Record<Waqt, [number, number]> = { tahajjud: [0.12, 0.15], fajr: [0.2, 0.7], duha: [0.8, 1], dhuhr: [1, 1], asr: [1, 0.75], maghrib: [0.6, 0.18], isha: [0.18, 0.12] };
+  const light = lerp(LIGHT[sky.waqt], f);
+  return { city, sand, sandFar, camel: mix(sand, "#000000", 0.6), palm: mix(city, "#0d3b2a", 0.35), light };
 }

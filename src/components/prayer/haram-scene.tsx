@@ -3,6 +3,7 @@
 import { useId } from "react";
 import type { LocationId } from "@/config/locations";
 import { mixColor, sceneColors, type Sky } from "./sky-backdrop";
+import { Camel3D } from "./camel";
 
 /** Pigeon flock: depth (size/opacity), height band, speed and start offset. */
 const BIRDS = [
@@ -27,26 +28,6 @@ function Bird({ b, color }: { b: (typeof BIRDS)[number]; color: string }) {
         </svg>
       </span>
     </span>
-  );
-}
-
-function Camel({ color, scale = 1, lead = false }: { color: string; scale?: number; lead?: boolean }) {
-  return (
-    <svg width={34 * scale} height={26 * scale} viewBox="0 0 34 26" className="block overflow-visible" aria-hidden>
-      <g fill={color} className="hc-bob">
-        {/* body, hump, neck and head */}
-        <path d="M5 13c0-4 3-7 7-8 2-3 6-3 8 0 2 1 3 3 4 5l2-4c1-2 3-3 5-2l1 1-1 1h-2l-2 6c-1 2-3 3-5 3H8c-2 0-3-1-3-2Z" />
-        <path d="M4 12c-1 1-2 3-1 5" stroke={color} strokeWidth="1.2" fill="none" strokeLinecap="round" />
-        {lead ? <path d="M30 6l3 4" stroke={color} strokeWidth=".6" /> : null}
-      </g>
-      {/* legs: pairs swing in opposite phase */}
-      <g fill={color}>
-        <rect className="hc-step-a" x="8" y="15" width="1.6" height="10" rx=".8" />
-        <rect className="hc-step-b" x="10.5" y="15" width="1.6" height="10" rx=".8" />
-        <rect className="hc-step-b" x="20" y="15" width="1.6" height="10" rx=".8" />
-        <rect className="hc-step-a" x="22.5" y="15" width="1.6" height="10" rx=".8" />
-      </g>
-    </svg>
   );
 }
 
@@ -192,11 +173,11 @@ export function HaramScene({ location, sky }: { location: LocationId; sky: Sky }
           </>
         ) : null}
         {/* camel caravan walking across the dunes */}
-        <span className="hc-caravan absolute inset-x-0 bottom-[12px] block h-8">
-          <span className="absolute bottom-0 start-[38%] flex items-end gap-2">
-            <Camel color={c.camel} scale={0.95} />
-            <Camel color={c.camel} scale={1.05} />
-            <Camel color={c.camel} scale={1.15} lead />
+        <span className="hc-caravan absolute inset-x-0 bottom-[8px] block h-11">
+          <span className="absolute bottom-0 start-[36%] flex items-end gap-1">
+            <Camel3D width={44} light={c.light} delay={-0.5} />
+            <Camel3D width={50} light={c.light} delay={-1.1} />
+            <Camel3D width={56} light={c.light} delay={0} saddle />
           </span>
         </span>
       </div>
