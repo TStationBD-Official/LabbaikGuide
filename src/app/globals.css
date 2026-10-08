@@ -548,3 +548,36 @@ html[lang="ur"] :where(p, span, label, a, button, li, legend, h1, h2, h3, h4, dt
 /* Next-prayer card: night-sky stars */
 @keyframes hc-twinkle { 0%, 100% { opacity: .85; } 50% { opacity: .25; } }
 .hc-twinkle { animation: hc-twinkle 3.2s ease-in-out infinite; }
+
+/* Next-prayer card: Haramain scene (birds, camels, palms, shooting star) */
+@keyframes hc-fly-x { from { transform: translateX(-70%); } to { transform: translateX(75%); } }
+@keyframes hc-fly-y { from { transform: translateY(-5px); } to { transform: translateY(5px); } }
+@keyframes hc-flap { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(-0.55) translateY(-2px); } }
+@keyframes hc-caravan { from { transform: translateX(-75%); } to { transform: translateX(80%); } }
+@keyframes hc-bob { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-0.6px) rotate(-1.2deg); } }
+@keyframes hc-step { 0%, 100% { transform: rotate(14deg); } 50% { transform: rotate(-14deg); } }
+@keyframes hc-sway { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(5deg); } }
+@keyframes hc-shoot {
+  0%, 82% { opacity: 0; transform: rotate(18deg) translateX(0) scaleX(.3); }
+  86% { opacity: 1; }
+  96%, 100% { opacity: 0; transform: rotate(18deg) translateX(220px) scaleX(1); }
+}
+.hc-fly-x { animation: hc-fly-x linear infinite; }
+.hc-fly-y { animation: hc-fly-y ease-in-out infinite alternate; }
+.hc-flap { transform-box: fill-box; transform-origin: center; animation: hc-flap ease-in-out infinite; }
+.hc-caravan { animation: hc-caravan 70s linear infinite; animation-delay: -24s; }
+.hc-bob { transform-box: fill-box; transform-origin: 50% 100%; animation: hc-bob 1.1s ease-in-out infinite; }
+.hc-step-a, .hc-step-b { transform-box: fill-box; transform-origin: 50% 0; animation: hc-step 1.1s ease-in-out infinite; }
+.hc-step-b { animation-delay: -0.55s; }
+.hc-sway { transform-box: fill-box; transform-origin: 50% 100%; animation: hc-sway 5.5s ease-in-out infinite; }
+.hc-shoot { background: linear-gradient(90deg, transparent, #fff); transform-origin: left center; animation: hc-shoot 11s ease-in infinite; }
+.hc-umbrella { transition: transform 1.2s ease; }
+/* Reduce motion: everything stands still in a natural pose (not frozen mid-flight off screen). */
+@media (prefers-reduced-motion: reduce) {
+  .hc-fly-x, .hc-fly-y, .hc-flap, .hc-caravan, .hc-bob, .hc-step-a, .hc-step-b, .hc-sway, .hc-twinkle { animation: none !important; }
+  .hc-shoot { display: none; }
+}
+[data-reduced-motion="true"] .hc-fly-x, [data-reduced-motion="true"] .hc-fly-y, [data-reduced-motion="true"] .hc-flap,
+[data-reduced-motion="true"] .hc-caravan, [data-reduced-motion="true"] .hc-bob, [data-reduced-motion="true"] .hc-step-a,
+[data-reduced-motion="true"] .hc-step-b, [data-reduced-motion="true"] .hc-sway, [data-reduced-motion="true"] .hc-twinkle { animation: none !important; }
+[data-reduced-motion="true"] .hc-shoot { display: none; }

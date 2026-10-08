@@ -2,7 +2,6 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import type { PrayerDay } from "@/features/prayer/times";
-import type { LocationId } from "@/config/locations";
 
 /** The prayer-time window we are in (Duha = from sunrise until Dhuhr; Tahajjud = last third of the night). */
 export type Waqt = "tahajjud" | "fajr" | "duha" | "dhuhr" | "asr" | "maghrib" | "isha";
@@ -43,7 +42,8 @@ type Scene = {
   /** Warm light on the horizon, strength at start/end of the waqt. */
   glow?: { color: string; at: number; strength: [number, number] };
   body?: Body;
-  skyline: number;
+  /** Dune colours (near, far) at the start and end of the waqt. */
+  sand: { from: [string, string]; to: [string, string] };
 };
 
 /** All colours stay deep enough for white text and the gold ring. */
@@ -54,7 +54,7 @@ const SCENES: Record<Waqt, Scene> = {
     to: ["#081030", "#18204c", "#2a2752"],
     stars: [34, 30],
     body: { kind: "moon", x: [55, 58], top: [12, 16], size: 24, glow: "#fde68a" },
-    skyline: 0.55,
+    sand: { from: ["#1d1a2e", "#25213a"], to: ["#221d34", "#2c2742"] },
   },
   // True dawn → sunrise: stars fade, the horizon slowly brightens.
   fajr: {
@@ -62,7 +62,7 @@ const SCENES: Record<Waqt, Scene> = {
     to: ["#22426f", "#7b5577", "#c9805f"],
     stars: [14, 0],
     glow: { color: "255 175 125", at: 50, strength: [0.15, 0.6] },
-    skyline: 0.5,
+    sand: { from: ["#2c2540", "#3a3150"], to: ["#7a5646", "#94695a"] },
   },
   // Sunrise → Dhuhr: warm early light turning into clear blue, the sun climbs.
   duha: {
@@ -71,7 +71,7 @@ const SCENES: Record<Waqt, Scene> = {
     stars: [0, 0],
     glow: { color: "255 200 130", at: 46, strength: [0.45, 0] },
     body: { kind: "sun", x: [44, 50], top: [34, 6], size: 30, glow: "#fff1b8" },
-    skyline: 0.38,
+    sand: { from: ["#a87a4c", "#c09060"], to: ["#c49a62", "#d6b07a"] },
   },
   // Dhuhr → Asr: sun past its highest point, deep clear sky.
   dhuhr: {
@@ -79,7 +79,7 @@ const SCENES: Record<Waqt, Scene> = {
     to: ["#0d5476", "#2a6f8a", "#5a8a95"],
     stars: [0, 0],
     body: { kind: "sun", x: [52, 57], top: [-6, 6], size: 36, glow: "#fffbe0" },
-    skyline: 0.35,
+    sand: { from: ["#c9a067", "#dcb983"], to: ["#c49860", "#d6ae78"] },
   },
   // Asr → Maghrib: golden light, deepening to orange as sunset nears.
   asr: {
@@ -88,7 +88,7 @@ const SCENES: Record<Waqt, Scene> = {
     stars: [0, 0],
     glow: { color: "255 150 80", at: 60, strength: [0, 0.55] },
     body: { kind: "sun", x: [58, 62], top: [12, 60], size: 32, glow: "#ffcf7a" },
-    skyline: 0.45,
+    sand: { from: ["#bf925a", "#d2a874"], to: ["#9e5534", "#b8693f"] },
   },
   // Maghrib → Isha: the sun has set; red afterglow fades, first stars appear.
   maghrib: {
@@ -96,7 +96,7 @@ const SCENES: Record<Waqt, Scene> = {
     to: ["#141a44", "#2c2a58", "#4a3158"],
     stars: [0, 12],
     glow: { color: "255 120 80", at: 58, strength: [0.6, 0.05] },
-    skyline: 0.55,
+    sand: { from: ["#5e3036", "#75403f"], to: ["#231d34", "#2c2540"] },
   },
   // Isha → last third: night deepens, crescent and stars.
   isha: {
@@ -104,15 +104,17 @@ const SCENES: Record<Waqt, Scene> = {
     to: ["#06142a", "#0b2342", "#0f3049"],
     stars: [14, 26],
     body: { kind: "moon", x: [56, 55], top: [20, 14], size: 22, glow: "#fef3c7" },
-    skyline: 0.5,
+    sand: { from: ["#211c33", "#2a2440"], to: ["#141526", "#1b1d31"] },
   },
 };
 
 const hex = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
-const mix = (a: string, b: string, f: number) => {
+/** Blend two #rrggbb colours (0 = a, 1 = b). */
+export const mixColor = (a: string, b: string, f: number) => {
   const [x, y] = [hex(a), hex(b)];
-  return `rgb(${x.map((v, i) => Math.round(v + (y[i] - v) * f)).join(" ")})`;
+  return `#${x.map((v, i) => Math.round(v + (y[i] - v) * f).toString(16).padStart(2, "0")).join("")}`;
 };
+const mix = mixColor;
 const lerp = ([a, b]: [number, number], f: number) => a + (b - a) * f;
 
 /** Fixed pseudo-random star field (same on server and client). */
@@ -184,42 +186,13 @@ export function SkyBody({ sky }: { sky: Sky }) {
   );
 }
 
-export const skylineOpacity = (sky: Sky) => SCENES[sky.waqt].skyline;
-
-/** Simple skyline: the Haram with the clock tower (Makkah) or the green-domed Prophet's Mosque (Madinah). */
-export function Skyline({ location, opacity }: { location: LocationId; opacity: number }) {
-  return (
-    <svg
-      aria-hidden
-      viewBox="0 0 400 70"
-      preserveAspectRatio="xMidYMax slice"
-      className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-16 w-full sm:h-20"
-      style={{ opacity }}
-    >
-      <g fill="#000">
-        {location === "makkah" ? (
-          <>
-            <path d="M296 70V30h4v-6h3v-8h2l2-10 2 10h2v8h3v6h4v40Z" />
-            <circle cx="307" cy="36" r="5" fill="#fde68a" opacity=".55" />
-            <path d="M278 70V44h10v26Zm38 0V46h12v24Z" />
-            {[58, 92, 150, 196, 236, 356].map((x) => (
-              <path key={x} d={`M${x} 70V30l2-4 2 4v40Z M${x + 1} 26l1-6 1 6Z`} />
-            ))}
-            <path d="M0 70V58h70v-6h120v6h80v12Zm330 0V60h70v10Z" />
-          </>
-        ) : (
-          <>
-            <path d="M120 70V54h160v16Z" />
-            <path d="M176 54a24 22 0 0 1 48 0Z" fill="#0d5c3a" opacity=".9" />
-            <path d="M199 32l1-8 1 8Z" />
-            <path d="M228 54a14 12 0 0 1 28 0Zm-112 0a14 12 0 0 1 28 0Z" />
-            {[96, 140, 262, 306].map((x) => (
-              <path key={x} d={`M${x} 70V24l2.5-5 2.5 5v46Z M${x + 1.5} 19l1-7 1 7Z`} />
-            ))}
-            <path d="M0 70V62h120v8Zm280 0V62h120v8Z" />
-          </>
-        )}
-      </g>
-    </svg>
-  );
+/** Colours for the Haramain scene at this moment (city silhouette, dunes, camels, palms). */
+export function sceneColors(sky: Sky) {
+  const s = SCENES[sky.waqt];
+  const f = sky.f;
+  const skyBottom = mix(s.from[2], s.to[2], f);
+  const sand = mix(s.sand.from[0], s.sand.to[0], f);
+  const sandFar = mix(s.sand.from[1], s.sand.to[1], f);
+  const city = mix(skyBottom, "#000000", 0.55);
+  return { city, sand, sandFar, camel: mix(sand, "#000000", 0.6), palm: mix(city, "#0d3b2a", 0.35) };
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import { SkyBackdrop, SkyBody, Skyline, skyAt, skylineOpacity } from "./sky-backdrop";
+import { SkyBackdrop, SkyBody, skyAt } from "./sky-backdrop";
+import { HaramScene } from "./haram-scene";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { Fragment, useMemo, useState } from "react";
@@ -152,11 +153,11 @@ export function NextPrayerCard({ data, strip = true, stripClassName }: { data: D
       <GeometricPattern className="pointer-events-none absolute inset-0 -z-10 text-white opacity-[0.06]" />
       {redCard ? <div aria-hidden className="pointer-events-none absolute -end-16 -top-20 -z-10 size-64 rounded-full bg-gold/20 blur-3xl" /> : null}
 
-      <div className="relative p-5 sm:p-6">
+      <div className={cn("relative p-5 sm:p-6", !redCard && "pb-24 sm:pb-28")}>
         {redCard ? null : (
           <>
             <SkyBody sky={sky} />
-            <Skyline location={location} opacity={skylineOpacity(sky)} />
+            <HaramScene location={location} sky={sky} />
           </>
         )}
         {/* Top bar: place · live local time */}
