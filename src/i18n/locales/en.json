@@ -991,6 +991,11 @@
     "search": "Search the guide (e.g. SIM, train, Zamzam)",
     "sources": "Sources",
     "homeSub": "SIM, train, visa, money, health & emergency numbers",
-    "open": "Open"
+    "open": "Open",
+    "from": "Where are you travelling from?",
+    "c_bd": "Bangladesh",
+    "c_pk": "Pakistan",
+    "c_in": "India",
+    "c_intl": "Other country"
   }
 }

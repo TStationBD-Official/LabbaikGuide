@@ -1,7 +1,22 @@
-import type { LText } from "@/types/content";
+/** Guide text: English always; Bangla and Urdu where written (falls back to English). */
+export type GText = { en: string; bn?: string; ur?: string };
+type LText = GText;
+
+/** Who an item is for: users from Bangladesh, Pakistan, India, or anywhere else. */
+export type Audience = "bd" | "pk" | "in" | "intl";
+export const AUDIENCES: Audience[] = ["bd", "pk", "in", "intl"];
+
+export function gt(t: GText, locale: string): string {
+  if (locale === "ur") return t.ur ?? t.en;
+  if (locale === "bn") return t.bn ?? t.en;
+  return t.en;
+}
+
+/** An app with its official store links (verified 2026-10-08). */
+export type GuideApp = { id: string; name: string; purpose: GText; play?: string; ios?: string; note?: GText; audience?: Audience[] };
 
 /**
- * Practical travel guide for pilgrims (mainly from Bangladesh).
+ * Practical travel guide for pilgrims; country-specific items (roaming, embassy, health) per audience.
  * Every item carries its sources and the date it was checked. Prices and rules
  * change often: where sources disagree or a figure moves with the season, the
  * text says so instead of picking a number.
@@ -12,6 +27,8 @@ export type GuideSource = { label: string; url: string; date?: string };
 export type GuideTable = { head: LText[]; rows: (string | LText)[][]; note?: LText };
 export type GuideItem = {
   id: string;
+  /** Only shown to these users (default: everyone). */
+  audience?: Audience[];
   title: LText;
   /** Paragraphs; lines starting with "• " render as a list. */
   body: LText;
@@ -20,14 +37,46 @@ export type GuideItem = {
   warn?: LText;
   sources: GuideSource[];
 };
-export type GuideSection = { id: string; icon: string; title: LText; summary: LText; items: GuideItem[] };
+export type GuideSection = { id: string; icon: string; title: LText; summary: LText; items: GuideItem[]; apps?: GuideApp[] };
 
 export const TRAVEL_GUIDE: GuideSection[] = [
+  {
+    id: "apps",
+    icon: "📲",
+    title: { bn: "দরকারি অ্যাপ (ডাউনলোড লিংক)", en: "Useful apps (download links)", ur: "ضروری ایپس (ڈاؤن لوڈ لنکس)" },
+    summary: { bn: "নুসুক, ট্রেন, বাস, ট্যাক্সি, সিম ও রোমিং অ্যাপ — অফিসিয়াল লিংক", en: "Nusuk, train, bus, taxi, SIM and roaming apps — official links", ur: "نسک، ٹرین، بس، ٹیکسی، سم اور رومنگ ایپس — آفیشل لنکس" },
+    items: [],
+    apps: [
+      { id: "nusuk", name: "Nusuk", purpose: {"en": "Umrah permit, Rawdah permit, packages — required", "bn": "উমরাহ পারমিট, রওজার পারমিট, প্যাকেজ — আবশ্যক", "ur": "عمرہ پرمٹ، ریاض الجنہ پرمٹ، پیکیج — لازمی"}, play: "https://play.google.com/store/apps/details?id=com.moh.nusukapp", ios: "https://apps.apple.com/app/id6469515422" },
+      { id: "hhr", name: "HHR Train", purpose: {"en": "Haramain high-speed train tickets", "bn": "হারামাইন ট্রেনের টিকিট", "ur": "حرمین ٹرین کے ٹکٹ"}, play: "https://play.google.com/store/apps/details?id=com.indra.haramain.pro", ios: "https://apps.apple.com/app/id1533264335" },
+      { id: "makkah-bus", name: "Makkah Bus", purpose: {"en": "Makkah bus routes, live map, tickets", "bn": "মক্কা বাসের রুট, লাইভ ম্যাপ, টিকিট", "ur": "مکہ بس کے روٹ، لائیو نقشہ، ٹکٹ"}, play: "https://play.google.com/store/apps/details?id=sa.mbco.makkahbuses", ios: "https://apps.apple.com/app/id1609922603" },
+      { id: "madinah-bus", name: "Madinah Bus", purpose: {"en": "Madinah bus routes and tickets", "bn": "মদিনা বাসের রুট ও টিকিট", "ur": "مدینہ بس کے روٹ اور ٹکٹ"}, play: "https://play.google.com/store/apps/details?id=com.saptco.android.afcm", ios: "https://apps.apple.com/app/id1636644140" },
+      { id: "careem", name: "Careem", purpose: {"en": "Taxi rides (cash accepted)", "bn": "ট্যাক্সি (নগদেও দেওয়া যায়)", "ur": "ٹیکسی (نقد بھی)"}, play: "https://play.google.com/store/apps/details?id=com.careem.acma", ios: "https://apps.apple.com/app/id592978487" },
+      { id: "uber", name: "Uber", purpose: {"en": "Taxi rides", "bn": "ট্যাক্সি", "ur": "ٹیکسی"}, play: "https://play.google.com/store/apps/details?id=com.ubercab", ios: "https://apps.apple.com/app/id368677368" },
+      { id: "tawakkalna", name: "Tawakkalna", purpose: {"en": "Digital ID; shows Nusuk permits (optional)", "bn": "ডিজিটাল পরিচয়; নুসুক পারমিট দেখায় (ঐচ্ছিক)", "ur": "ڈیجیٹل شناخت؛ نسک پرمٹ دکھاتی ہے (اختیاری)"}, play: "https://play.google.com/store/apps/details?id=sa.gov.nic.twkhayat", ios: "https://apps.apple.com/app/id1613539452" },
+      { id: "absher", name: "Absher", purpose: {"en": "Saudi government services; used to verify eSIMs", "bn": "সৌদি সরকারি সেবা; ই-সিম যাচাইয়ে লাগে", "ur": "سعودی سرکاری خدمات؛ ای سم کی تصدیق کے لیے"}, play: "https://play.google.com/store/apps/details?id=sa.gov.moi", ios: "https://apps.apple.com/app/id1004966456", note: {"en": "Many look-alike apps exist — use the official one by the National Information Center.", "bn": "অনেক নকল অ্যাপ আছে — ন্যাশনাল ইনফরমেশন সেন্টারের অফিসিয়াল অ্যাপটিই নিন।", "ur": "کئی نقلی ایپس ہیں — نیشنل انفارمیشن سینٹر کی آفیشل ایپ ہی لیں۔"} },
+      { id: "tanaqol", name: "Tanaqol", purpose: {"en": "Golf-cart booking at Masjid al-Haram (elderly & disabled)", "bn": "মসজিদুল হারামে গল্ফ কার্ট বুকিং (বয়স্ক ও প্রতিবন্ধী)", "ur": "مسجد الحرام میں گالف کارٹ بکنگ (بزرگ و معذور)"}, ios: "https://apps.apple.com/app/id1524250896", note: {"en": "Appears to have been removed from Google Play — on Android book at carts.alharamain.gov.sa.", "bn": "গুগল প্লে থেকে সরানো হয়েছে বলে মনে হয় — অ্যান্ড্রয়েডে carts.alharamain.gov.sa-তে বুক করুন।", "ur": "لگتا ہے گوگل پلے سے ہٹا دی گئی — اینڈرائیڈ پر carts.alharamain.gov.sa پر بک کریں۔"} },
+      { id: "mystc", name: "mystc", purpose: {"en": "stc SIM: packages, recharge", "bn": "stc সিম: প্যাকেজ, রিচার্জ", "ur": "stc سم: پیکیج، ری چارج"}, play: "https://play.google.com/store/apps/details?id=com.stc", ios: "https://apps.apple.com/app/id808807355" },
+      { id: "mobily", name: "Mobily", purpose: {"en": "Mobily SIM: packages, recharge", "bn": "Mobily সিম: প্যাকেজ, রিচার্জ", "ur": "موبائلی سم: پیکیج، ری چارج"}, play: "https://play.google.com/store/apps/details?id=com.mobily.activity", ios: "https://apps.apple.com/app/id375539359" },
+      { id: "zain", name: "Zain KSA", purpose: {"en": "Zain SIM: packages, recharge", "bn": "Zain সিম: প্যাকেজ, রিচার্জ", "ur": "زین سم: پیکیج، ری چارج"}, play: "https://play.google.com/store/apps/details?id=com.zainsa.b2c", ios: "https://apps.apple.com/app/id1272141660" },
+      { id: "mygp", name: "MyGP", purpose: {"en": "Grameenphone roaming packs", "bn": "গ্রামীণফোনের রোমিং প্যাক"}, play: "https://play.google.com/store/apps/details?id=com.portonics.mygp", ios: "https://apps.apple.com/app/id1128691313", audience: ["bd"] },
+      { id: "mybl", name: "MyBL", purpose: {"en": "Banglalink roaming packs", "bn": "বাংলালিংকের রোমিং প্যাক"}, play: "https://play.google.com/store/apps/details?id=com.arena.banglalinkmela.app", ios: "https://apps.apple.com/app/id934133022", audience: ["bd"] },
+      { id: "myrobi", name: "My Robi", purpose: {"en": "Robi roaming packs", "bn": "রবির রোমিং প্যাক"}, play: "https://play.google.com/store/apps/details?id=net.omobio.robisc", ios: "https://apps.apple.com/app/id963785828", audience: ["bd"] },
+      { id: "myteletalk", name: "MyTeletalk", purpose: {"en": "Teletalk account & roaming", "bn": "টেলিটক অ্যাকাউন্ট ও রোমিং"}, play: "https://play.google.com/store/apps/details?id=teletalk.teletalkcustomerapp", ios: "https://apps.apple.com/app/id1560806114", audience: ["bd"] },
+      { id: "simosa", name: "SIMOSA – Jazz World", purpose: {"en": "Jazz roaming bundles", "ur": "جاز رومنگ بنڈل"}, play: "https://play.google.com/store/apps/details?id=com.jazz.jazzworld", ios: "https://apps.apple.com/app/id1441912305", note: {"en": "Use this official listing — an unrelated “Jazz World” app also exists.", "ur": "یہی آفیشل ایپ لیں — ایک غیر متعلقہ ”Jazz World“ ایپ بھی موجود ہے۔"}, audience: ["pk"] },
+      { id: "myzong", name: "My Zong", purpose: {"en": "Zong roaming bundles", "ur": "زونگ رومنگ بنڈل"}, play: "https://play.google.com/store/apps/details?id=com.zong.customercare", ios: "https://apps.apple.com/app/id1141387383", audience: ["pk"] },
+      { id: "mytelenor", name: "My Telenor", purpose: {"en": "Telenor roaming bundles", "ur": "ٹیلی نار رومنگ بنڈل"}, play: "https://play.google.com/store/apps/details?id=com.telenor.pakistan.mytelenor", ios: "https://apps.apple.com/app/id1087721779", audience: ["pk"] },
+      { id: "uptcl", name: "UPTCL (Ufone)", purpose: {"en": "Ufone account & roaming", "ur": "یوفون اکاؤنٹ و رومنگ"}, play: "https://play.google.com/store/apps/details?id=com.ufoneselfcare", ios: "https://apps.apple.com/app/id1189813122", audience: ["pk"] },
+      { id: "myjio", name: "MyJio", purpose: {"en": "Jio international roaming packs", "ur": "جیو انٹرنیشنل رومنگ پیک"}, play: "https://play.google.com/store/apps/details?id=com.jio.myjio", ios: "https://apps.apple.com/app/id1074964262", audience: ["in"] },
+      { id: "airtel", name: "Airtel Thanks", purpose: {"en": "Airtel international roaming packs", "ur": "ایئرٹیل انٹرنیشنل رومنگ پیک"}, play: "https://play.google.com/store/apps/details?id=com.myairtelapp", ios: "https://apps.apple.com/app/id543184334", audience: ["in"] },
+      { id: "vi", name: "Vi", purpose: {"en": "Vi international roaming packs", "ur": "Vi انٹرنیشنل رومنگ پیک"}, play: "https://play.google.com/store/apps/details?id=com.mventus.selfcare.activity", ios: "https://apps.apple.com/app/id623834540", audience: ["in"] },
+    ],
+  },
   {
     id: "sim",
     icon: "📱",
     title: { bn: "সিম, ইন্টারনেট ও রোমিং", en: "SIM, internet & roaming" },
-    summary: { bn: "সৌদি সিম কোথায় ও কীভাবে কিনবেন, ই-সিম, বাংলাদেশি রোমিং", en: "Where and how to buy a Saudi SIM, eSIM, roaming from Bangladesh" },
+    summary: { bn: "সৌদি সিম কোথায় ও কীভাবে কিনবেন, ই-সিম, দেশের সিমে রোমিং", en: "Where and how to buy a Saudi SIM, eSIM, roaming from home", ur: "سعودی سم کہاں اور کیسے لیں، ای سم، اپنی سم پر رومنگ" },
     items: [
       {
         id: "sim-where",
@@ -93,6 +142,7 @@ export const TRAVEL_GUIDE: GuideSection[] = [
       },
       {
         id: "roaming",
+        audience: ["bd"],
         title: { bn: "বাংলাদেশি সিমে রোমিং", en: "Roaming on your Bangladeshi SIM" },
         body: {
           bn: "যাওয়ার আগেই দেশে রোমিং চালু করুন — চালু হতে ২৪ ঘণ্টা পর্যন্ত লাগতে পারে। প্যাক না নিয়ে ডেটা চালালে খরচ ডলারে কাটে এবং অনেক বেশি হয় — ডেটা রোমিং বন্ধ রেখে প্যাক কিনুন।\n• গ্রামীণফোন: MyGP অ্যাপের “Roaming (Taka)” অংশে সৌদি প্যাক। হজ ২০২৬-এ প্রকাশিত ৪৫ দিনের প্যাক: ২০ GB ২,৪৯৯ টাকা; ১৫ GB + ৭৫ মিনিট ২,৯৯৯ টাকা; শুধু ১০০ মিনিট ১,৬৯৯ টাকা। পাসপোর্ট, ভিসা ও টিকিট লাগে। হেল্পলাইন (বিদেশ থেকে): +৮৮০১৭০০১০০১২১।\n• বাংলালিংক: MyBL অ্যাপে হজ রোমিং প্যাক, ৫৯৪ টাকা থেকে শুরু।\n• রবি ও টেলিটক: সর্বশেষ প্যাক অপারেটরের অ্যাপ/হেল্পলাইনে জেনে নিন (রবি: ১২১)।\n• বাংলাদেশ ব্যাংকের সীমা: টাকায় রোমিং প্যাক কেনা যায় প্রতি সফরে ৬,০০০ টাকা ও বছরে ৩০,০০০ টাকা পর্যন্ত — সব নম্বর ও অপারেটর মিলিয়ে।\n• ব্যাংকের ওটিপি পেতে বাংলাদেশি সিম চালু রাখুন; প্যাকে মিনিট বা ডলার ব্যালেন্স না থাকলে কল আসা-যাওয়া নাও হতে পারে।",
@@ -107,6 +157,52 @@ export const TRAVEL_GUIDE: GuideSection[] = [
           { label: "Grameenphone – Stay connected during Hajj", url: "https://www.grameenphone.com/personal/plans-offers/offers/stay-connected-during-hajj", date: "2026" },
           { label: "TBS News – Banglalink Hajj roaming", url: "https://www.tbsnews.net/economy/corporates/banglalink-introduces-countrys-first-5g-hajj-roaming-packs-1412971", date: "16 Apr 2026" },
         ],
+      },
+      {
+        id: "roaming-pk",
+        audience: ["pk"],
+        title: { en: "Roaming on your Pakistani SIM", ur: "پاکستانی سم پر رومنگ", bn: "পাকিস্তানি সিমে রোমিং" },
+        body: {
+          en: "Activate a Saudi bundle before you fly; pay-as-you-go roaming data is expensive or doesn't work on prepaid.\n• Jazz (prepaid): “Hajj Bundle 8GB” — Rs 6,500 incl. tax, 8 GB, 50 minutes, 60 days; dial *7626# or use the SIMOSA app. Multi-country data bundles covering Saudi: e.g. 1 GB / 7 days Rs 3,585, 3 GB / 30 days Rs 7,767.50. Postpaid: “Saudi Data Roaming 2 GB” Rs 2,749 / 30 days. If data doesn't work, set APN “jazz” and pick STC, Mobily or Zain manually. Helpline 0300 2000100.\n• Zong (prepaid Umrah offers): Mini Umrah Rs 1,500 (2 GB, 10 min); Super Umrah Rs 3,000 (5 GB, 20 min); Saudi Mega Rs 5,500 (10 GB + 2 GB WhatsApp, 60 min). Taxes apply on top. Dial 310 to check roaming status.\n• Ufone (postpaid): Hajj Roaming Bucket Rs 4,600 for 7,000 MB / 40 days, or KSA bucket Rs 999 for 1 GB / 30 days; dial *506#.\n• Telenor: check the My Telenor app for the current Umrah/Saudi bundle — we couldn't verify today's offer.",
+          ur: "روانگی سے پہلے سعودی بنڈل فعال کریں؛ بغیر بنڈل رومنگ ڈیٹا بہت مہنگا ہے یا پری پیڈ پر کام نہیں کرتا۔\n• جاز (پری پیڈ): ”حج بنڈل 8GB“ — 6,500 روپے بشمول ٹیکس، 8 جی بی، 50 منٹ، 60 دن؛ *7626# ڈائل کریں یا SIMOSA ایپ۔ سعودی سمیت کئی ملکوں کے ڈیٹا بنڈل: مثلاً 1 جی بی / 7 دن 3,585 روپے، 3 جی بی / 30 دن 7,767.50 روپے۔ پوسٹ پیڈ: ”سعودی ڈیٹا رومنگ 2 جی بی“ 2,749 روپے / 30 دن۔ ڈیٹا نہ چلے تو APN ”jazz“ رکھیں اور STC، موبائلی یا زین دستی طور پر منتخب کریں۔ ہیلپ لائن 0300 2000100۔\n• زونگ (پری پیڈ عمرہ آفرز): منی عمرہ 1,500 روپے (2 جی بی، 10 منٹ)؛ سپر عمرہ 3,000 روپے (5 جی بی، 20 منٹ)؛ سعودی میگا 5,500 روپے (10 جی بی + 2 جی بی واٹس ایپ، 60 منٹ)۔ ٹیکس الگ۔ رومنگ اسٹیٹس کے لیے 310 ڈائل کریں۔\n• یوفون (پوسٹ پیڈ): حج رومنگ بکٹ 4,600 روپے میں 7,000 ایم بی / 40 دن، یا KSA بکٹ 999 روپے میں 1 جی بی / 30 دن؛ *506# ڈائل کریں۔\n• ٹیلی نار: موجودہ عمرہ/سعودی بنڈل My Telenor ایپ میں دیکھیں — آج کی آفر ہم تصدیق نہیں کر سکے۔",
+        },
+        warn: {
+          en: "Some of these were launched for the Hajj season and may change — confirm in the operator's app before you buy.",
+          ur: "ان میں سے کچھ حج سیزن کے لیے تھے اور بدل سکتے ہیں — خریدنے سے پہلے آپریٹر کی ایپ میں تصدیق کریں۔",
+        },
+        sources: [
+          { label: "Jazz – Hajj Bundle 8GB", url: "https://jazz.com.pk/prepaid/hajj-bundle-8gb", date: "2026" },
+          { label: "Jazz – data roaming bundles", url: "https://jazz.com.pk/new-data-roaming-bundles", date: "2026" },
+          { label: "Jazz – Saudi Data Roaming 2 GB (postpaid)", url: "https://jazz.com.pk/postpaid/saudi-data-roaming-package-2-gb" },
+          { label: "Zong – IR bundles", url: "https://www.zong.com.pk/onlineshop/ir-bundles", date: "2026" },
+          { label: "Ufone – postpaid data roaming", url: "https://www.ufone.com/postpaid-data-roaming/" },
+        ],
+      },
+      {
+        id: "roaming-in",
+        audience: ["in"],
+        title: { en: "Roaming on your Indian SIM", ur: "بھارتی سم پر رومنگ", bn: "ভারতীয় সিমে রোমিং" },
+        body: {
+          en: "Buy an international roaming pack before you leave — it starts on first use in Saudi Arabia.\n• Jio: Saudi packs in MyJio from about ₹891 (7 days) to ₹2,891 (30 days); exact data/minutes vary between reports — check MyJio. Jio support while roaming: +91 70188 99999.\n• Airtel (prepaid, from Airtel's Saudi travel page): ₹998 / 5 days / 4 GB / 150 min; ₹1,298 / 10 days / 6 GB / 200 min; ₹2,998 / 30 days / 10 GB / 300 min. Postpaid packs from ₹2,999 / 10 days.\n• Vi (Gulf packs incl. Saudi, launched for Hajj 2025): prepaid ₹1,199 / 20 days / 2 GB / 150 min, ₹2,388 / 40 days / 4 GB / 300 min — check the Vi app for current packs.",
+          ur: "روانگی سے پہلے انٹرنیشنل رومنگ پیک خریدیں — سعودی عرب میں پہلے استعمال پر شروع ہوتا ہے۔\n• جیو: MyJio میں سعودی پیک تقریباً ₹891 (7 دن) سے ₹2,891 (30 دن) تک؛ ڈیٹا/منٹ کی تفصیل مختلف رپورٹس میں الگ ہے — MyJio میں دیکھیں۔ رومنگ میں جیو سپورٹ: +91 70188 99999۔\n• ایئرٹیل (پری پیڈ، ایئرٹیل کے سعودی سفری صفحے سے): ₹998 / 5 دن / 4 جی بی / 150 منٹ؛ ₹1,298 / 10 دن / 6 جی بی / 200 منٹ؛ ₹2,998 / 30 دن / 10 جی بی / 300 منٹ۔ پوسٹ پیڈ پیک ₹2,999 / 10 دن سے۔\n• Vi (سعودی سمیت خلیجی پیک، حج 2025 کے لیے): پری پیڈ ₹1,199 / 20 دن / 2 جی بی / 150 منٹ، ₹2,388 / 40 دن / 4 جی بی / 300 منٹ — موجودہ پیک Vi ایپ میں دیکھیں۔",
+        },
+        warn: { en: "Prices are indicative — verify in MyJio, Airtel Thanks or the Vi app.", ur: "قیمتیں اندازاً ہیں — MyJio، Airtel Thanks یا Vi ایپ میں تصدیق کریں۔" },
+        sources: [
+          { label: "Jio – Saudi Arabia roaming", url: "https://www.jio.com/international-roaming-plans/saudi-arabia/" },
+          { label: "Airtel – travelling to Saudi Arabia", url: "https://www.airtel.in/blog/ir/things-to-know-before-travelling-to-saudi-arabia/", date: "May 2026" },
+          { label: "TelecomTalk – Vi Gulf packs", url: "https://telecomtalk.info/vodafone-idea-international-roaming-packs-hajj-saudiarabia/993852/", date: "May 2025" },
+        ],
+      },
+      {
+        id: "roaming-intl",
+        audience: ["intl"],
+        title: { en: "Roaming from your home country", bn: "নিজ দেশের সিমে রোমিং", ur: "اپنے ملک کی سم پر رومنگ" },
+        body: {
+          en: "Ask your home operator for a Saudi Arabia (or Hajj/Umrah) roaming pack before you fly, and keep data roaming off until the pack is active — pay-as-you-go roaming is usually very expensive. Keep your home SIM working to receive bank OTPs; for daily use a Saudi SIM or eSIM is normally far cheaper.",
+          bn: "যাওয়ার আগে নিজের অপারেটরের কাছে সৌদি (বা হজ/উমরাহ) রোমিং প্যাক নিন; প্যাক চালু না হওয়া পর্যন্ত ডেটা রোমিং বন্ধ রাখুন — প্যাক ছাড়া রোমিং সাধারণত খুব ব্যয়বহুল। ব্যাংকের ওটিপির জন্য দেশের সিম চালু রাখুন; প্রতিদিনের ব্যবহারে সৌদি সিম বা ই-সিম সাধারণত অনেক সস্তা।",
+          ur: "روانگی سے پہلے اپنے آپریٹر سے سعودی (یا حج/عمرہ) رومنگ پیک لیں، اور پیک فعال ہونے تک ڈیٹا رومنگ بند رکھیں — بغیر پیک رومنگ عموماً بہت مہنگی ہوتی ہے۔ بینک OTP کے لیے اپنی سم چالو رکھیں؛ روزمرہ استعمال کے لیے سعودی سم یا ای سم عموماً بہت سستی ہے۔",
+        },
+        sources: [{ label: "stc – Sawa Visitor", url: "https://www.stc.com.sa/content/stc/sa/en/personal/mobile/packages/sawa-ziyara.html" }],
       },
       {
         id: "net-tips",
@@ -131,15 +227,29 @@ export const TRAVEL_GUIDE: GuideSection[] = [
     items: [
       {
         id: "visa-umrah",
-        title: { bn: "উমরাহ ভিসা (বাংলাদেশি পাসপোর্ট)", en: "Umrah visa (Bangladeshi passport)" },
+        title: { bn: "উমরাহ ভিসা", en: "Umrah visa", ur: "عمرہ ویزا" },
         body: {
-          bn: "বাংলাদেশ সৌদি ট্যুরিস্ট ই-ভিসার তালিকায় নেই, তাই সাধারণত নুসুকের অনুমোদিত প্যাকেজ বা লাইসেন্সপ্রাপ্ত এজেন্সির মাধ্যমে উমরাহ ভিসা নিতে হয়।\n• জুলাই ২০২৬ থেকে মাল্টিপল-এন্ট্রি উমরাহ ভিসা: মেয়াদ ৩৬৫ দিন, সব সফর মিলিয়ে মোট ৯০ দিন থাকা যায়; প্রতিটি সফরের জন্য নুসুকে অনুমোদিত প্রতিষ্ঠানের প্যাকেজ ও আসার আগে উমরাহ পারমিট লাগে।\n• ১ জিলকদ থেকে ১৩ জিলহজ পর্যন্ত (হজের সময়) উমরাহ ভিসা চালু হয় না।\n• যেকোনো বৈধ সৌদি ভিসাধারী (ট্যুরিস্ট, ভিজিট, কাজ ইত্যাদি) নুসুক পারমিট নিয়ে উমরাহ করতে পারেন।",
-          en: "Bangladesh is not on the Saudi tourist e-visa list, so Bangladeshi pilgrims normally get an Umrah visa through an approved Nusuk package or a licensed agency.\n• Since July 2026 there is a multiple-entry Umrah visa: valid 365 days, up to 90 days' stay in total across visits; each visit needs a package from an approved provider on Nusuk and an Umrah permit before arrival.\n• From 1 Dhu al-Qi'dah to 13 Dhu al-Hijjah (the Hajj period) the Umrah visa is not activated.\n• Holders of any valid Saudi visa (tourist, visit, work, etc.) may perform Umrah with a Nusuk permit.",
+          bn: "বাংলাদেশ, পাকিস্তান ও ভারত সৌদি ট্যুরিস্ট ই-ভিসার তালিকায় নেই, তাই এসব দেশের নাগরিকেরা সাধারণত নুসুকের অনুমোদিত প্যাকেজ বা লাইসেন্সপ্রাপ্ত এজেন্সির মাধ্যমে উমরাহ ভিসা নেন। আগস্ট ২০২৫ থেকে “Nusuk Umrah” (umrah.nusuk.sa) দিয়ে বিদেশ থেকে সরাসরি উমরাহ ভিসা ও প্যাকেজ নেওয়া যায়। তালিকাভুক্ত দেশের নাগরিকেরা ট্যুরিস্ট ই-ভিসাতেও উমরাহ করতে পারেন (হজ নয়)।\n• জুলাই ২০২৬ থেকে মাল্টিপল-এন্ট্রি উমরাহ ভিসা: মেয়াদ ৩৬৫ দিন, সব সফর মিলিয়ে মোট ৯০ দিন থাকা যায়; প্রতিটি সফরের জন্য নুসুকে অনুমোদিত প্রতিষ্ঠানের প্যাকেজ ও আসার আগে উমরাহ পারমিট লাগে।\n• ১ জিলকদ থেকে ১৩ জিলহজ পর্যন্ত (হজের সময়) উমরাহ ভিসা চালু হয় না।\n• যেকোনো বৈধ সৌদি ভিসাধারী (ট্যুরিস্ট, ভিজিট, কাজ ইত্যাদি) নুসুক পারমিট নিয়ে উমরাহ করতে পারেন।",
+          en: "Bangladesh, Pakistan and India are not on the Saudi tourist e-visa list, so their citizens normally get an Umrah visa through an approved Nusuk package or a licensed agency. Since August 2025, “Nusuk Umrah” (umrah.nusuk.sa) lets pilgrims abroad apply for the Umrah visa and packages directly. Citizens of listed countries can also perform Umrah (not Hajj) on the tourist e-visa.\n• Since July 2026 there is a multiple-entry Umrah visa: valid 365 days, up to 90 days' stay in total across visits; each visit needs a package from an approved provider on Nusuk and an Umrah permit before arrival.\n• From 1 Dhu al-Qi'dah to 13 Dhu al-Hijjah (the Hajj period) the Umrah visa is not activated.\n• Holders of any valid Saudi visa (tourist, visit, work, etc.) may perform Umrah with a Nusuk permit.",
         },
         sources: [
           { label: "Visit Saudi – e-visa eligible countries", url: "https://visa.visitsaudi.com/" },
+          { label: "Ministry of Hajj and Umrah – Nusuk Umrah", url: "https://haj.gov.sa/en/Media-Center/Ministry-News/Ministry-of-Hajj-and-Umrah-launches-Nusuk-Umrah-service-to-enable-pilgrims-from-outside-the-Kingdom", date: "Aug 2025" },
           { label: "SPA – multiple-entry Umrah visa", url: "https://www.spa.gov.sa/en/N2637600", date: "20 Jul 2026" },
           { label: "Arab News – Umrah on any visa", url: "https://www.arabnews.pk/node/2617968", date: "6 Oct 2025" },
+        ],
+      },
+      {
+        id: "visa-pk-operators",
+        audience: ["pk"],
+        title: { en: "Pakistan: use an approved Umrah operator", ur: "پاکستان: منظور شدہ عمرہ آپریٹر سے بکنگ کریں" },
+        body: {
+          en: "Pakistan's Ministry of Religious Affairs publishes the list of Umrah tour operators whose contracts are attested (113 operators in the 15 Sep 2025 list, updated from time to time). Check the operator on the list before booking, pay by bank transfer to the operator's account, and keep the receipt and contract.",
+          ur: "وزارتِ مذہبی امور ان عمرہ ٹور آپریٹرز کی فہرست جاری کرتی ہے جن کے معاہدے تصدیق شدہ ہیں (15 ستمبر 2025 کی فہرست میں 113 آپریٹر، وقتاً فوقتاً اپ ڈیٹ)۔ بکنگ سے پہلے فہرست میں آپریٹر چیک کریں، ادائیگی بینک ٹرانسفر سے آپریٹر کے اکاؤنٹ میں کریں، اور رسید و معاہدہ سنبھال کر رکھیں۔",
+        },
+        sources: [
+          { label: "MoRA – approved Umrah operators (PDF)", url: "https://www.mora.gov.pk/SiteImage/Misc/files/Web%20list%2015-9-25(1).pdf", date: "15 Sep 2025" },
+          { label: "Radio Pakistan – MoRA list", url: "https://www.radio.gov.pk/16-09-2025/mora-releases-list-of-113-approved-umrah-tour-operators", date: "16 Sep 2025" },
         ],
       },
       {
@@ -293,10 +403,24 @@ export const TRAVEL_GUIDE: GuideSection[] = [
         id: "vaccine",
         title: { bn: "মেনিনজাইটিস টিকা — বাধ্যতামূলক", en: "Meningitis vaccine — required" },
         body: {
-          bn: "সৌদি স্বাস্থ্য মন্ত্রণালয়ের ১৪৪৭ হিজরির নিয়ম অনুযায়ী সব উমরাহযাত্রীর মেনিনজোকক্কাল (ACYW) টিকা লাগে — পৌঁছানোর অন্তত ১০ দিন আগে দেওয়া। কনজুগেট টিকা ৫ বছর, পলিস্যাকারাইড টিকা ৩ বছর বৈধ; সার্টিফিকেটে ধরন না লেখা থাকলে ৩ বছর ধরা হয়।\n• বাংলাদেশিদের জন্য পোলিও বা ইয়েলো ফিভার টিকার শর্ত নেই।\n• কোভিড-১৯ ও মৌসুমি ফ্লুর টিকা সবার জন্য সুপারিশকৃত।",
-          en: "Under the Saudi Ministry of Health's 1447 AH rules every Umrah traveller needs a meningococcal (ACYW) vaccine — given at least 10 days before arrival. Conjugate vaccine is valid 5 years, polysaccharide 3 years; if the certificate doesn't state the type, it counts as 3 years.\n• There is no polio or yellow fever requirement for travellers from Bangladesh.\n• COVID-19 and seasonal flu vaccines are recommended for everyone.",
+          bn: "সৌদি স্বাস্থ্য মন্ত্রণালয়ের ১৪৪৭ হিজরির নিয়ম অনুযায়ী সব উমরাহযাত্রীর মেনিনজোকক্কাল (ACYW) টিকা লাগে — পৌঁছানোর অন্তত ১০ দিন আগে দেওয়া। কনজুগেট টিকা ৫ বছর, পলিস্যাকারাইড টিকা ৩ বছর বৈধ; সার্টিফিকেটে ধরন না লেখা থাকলে ৩ বছর ধরা হয়।\n• পোলিও টিকা শুধু কিছু দেশের যাত্রীদের লাগে (যেমন পাকিস্তান, আফগানিস্তান); বাংলাদেশ ও ভারতের যাত্রীদের পোলিও বা ইয়েলো ফিভারের শর্ত নেই।\n• কোভিড-১৯ ও মৌসুমি ফ্লুর টিকা সবার জন্য সুপারিশকৃত।",
+          en: "Under the Saudi Ministry of Health's 1447 AH rules every Umrah traveller needs a meningococcal (ACYW) vaccine — given at least 10 days before arrival. Conjugate vaccine is valid 5 years, polysaccharide 3 years; if the certificate doesn't state the type, it counts as 3 years.\n• Polio vaccination is required only for travellers from certain countries (e.g. Pakistan, Afghanistan); there is no polio or yellow fever requirement for travellers from Bangladesh or India.\n• COVID-19 and seasonal flu vaccines are recommended for everyone.",
         },
         sources: [{ label: "Saudi MoH – Health requirements for Umrah 1447H (PDF)", url: "https://www.moh.gov.sa/en/HealthAwareness/Pilgrims-Health/Documents/Health-Regulations-Umrah-EN.pdf", date: "2026" }],
+      },
+      {
+        id: "polio-pk",
+        audience: ["pk"],
+        title: { en: "Pakistan: polio vaccine is required", ur: "پاکستان: پولیو ویکسین لازمی ہے" },
+        body: {
+          en: "Under the Saudi Ministry of Health's Umrah rules, every traveller from Pakistan needs at least one dose of polio vaccine (bOPV or IPV) before travel, whatever their age or past vaccinations — OPV within the last 6 months or IPV within the last 12 months, and at least 4 weeks before arrival. Reports say airlines check for a polio certificate and passengers without one may be offloaded — carry the certificate with your meningitis certificate.",
+          ur: "سعودی وزارتِ صحت کے عمرہ قواعد کے مطابق پاکستان سے آنے والے ہر مسافر کو سفر سے پہلے پولیو ویکسین (bOPV یا IPV) کی کم از کم ایک خوراک لازمی ہے، عمر یا پچھلی ویکسین سے قطع نظر — OPV پچھلے 6 ماہ میں یا IPV پچھلے 12 ماہ میں، اور آمد سے کم از کم 4 ہفتے پہلے۔ اطلاعات کے مطابق ایئرلائنز پولیو سرٹیفکیٹ چیک کرتی ہیں اور اس کے بغیر مسافر کو جہاز سے اتارا جا سکتا ہے — گردن توڑ بخار کے سرٹیفکیٹ کے ساتھ یہ بھی ساتھ رکھیں۔",
+        },
+        warn: { en: "Don't travel without the polio certificate.", ur: "پولیو سرٹیفکیٹ کے بغیر سفر نہ کریں۔" },
+        sources: [
+          { label: "Saudi MoH – Umrah health requirements (PDF)", url: "https://www.moh.gov.sa/en/HealthAwareness/Pilgrims-Health/Documents/Health-Regulations-Umrah-EN.pdf", date: "1447H / 2026" },
+          { label: "Radio Pakistan – polio for Umrah pilgrims", url: "https://www.radio.gov.pk/10-02-2025/polio-vaccination-mandatory-for-umrah-pilgrims-from-pakistan", date: "Feb 2025" },
+        ],
       },
       {
         id: "medicines",
@@ -356,6 +480,7 @@ export const TRAVEL_GUIDE: GuideSection[] = [
       },
       {
         id: "bangladesh",
+        audience: ["bd"],
         title: { bn: "বাংলাদেশ দূতাবাস ও হজ অফিস", en: "Bangladesh Embassy & Hajj office" },
         body: {
           bn: "• বাংলাদেশ দূতাবাস, রিয়াদ: +৯৬৬-১১-৪১৯-৫৩০০; ওয়েবসাইট bangladeshembassy.org.sa\n• জেদ্দার কনস্যুলেট জেনারেলের তথ্য অফিসিয়াল সাইট jeddah.mofa.gov.bd-তে দেখুন।\n• বাংলাদেশ হজ কল সেন্টার: দেশে ১৬১৩৬, বিদেশ থেকে +৮৮০৯৬০২৬৬৬৭০৭। মক্কা-মদিনার হজ অফিসের নম্বরগুলো শুধু হজ মৌসুমে চালু থাকে।",
@@ -365,6 +490,43 @@ export const TRAVEL_GUIDE: GuideSection[] = [
           { label: "MoFA Bangladesh – Embassy Riyadh", url: "https://mofa.portal.gov.bd/site/page/20776e42-7e06-40ce-a091-05c76d38f9f3" },
           { label: "Bangladesh Hajj portal – contact", url: "https://www.hajj.gov.bd/contact" },
         ],
+      },
+      {
+        id: "pakistan-missions",
+        audience: ["pk"],
+        title: { en: "Pakistan Embassy & Consulate", ur: "پاکستانی سفارت خانہ و قونصل خانہ" },
+        body: {
+          en: "• Embassy of Pakistan, Riyadh (Diplomatic Quarter): +966-11-4887272, UAN 920051444; info-parepriyadh@mofa.gov.pk\n• Consulate General of Pakistan, Jeddah (Mushrefah): main line 012-6691046; Community Welfare 012-2610574 / 012-6611661; Sun–Thu 08:00–16:00.\n• Complaints about Umrah/Hajj services: Ministry of Religious Affairs complaint system cms.mora.gov.pk.",
+          ur: "• سفارت خانہ پاکستان، ریاض (ڈپلومیٹک کوارٹر): +966-11-4887272، یو اے این 920051444؛ info-parepriyadh@mofa.gov.pk\n• قونصل خانہ پاکستان، جدہ (مشرفہ): مین لائن 012-6691046؛ کمیونٹی ویلفیئر 012-2610574 / 012-6611661؛ اتوار تا جمعرات 08:00–16:00۔\n• عمرہ/حج خدمات کی شکایت: وزارتِ مذہبی امور کا نظام cms.mora.gov.pk۔",
+        },
+        sources: [
+          { label: "Embassy of Pakistan, Riyadh", url: "https://pakistaninksa.com/contact-us/" },
+          { label: "Consulate General of Pakistan, Jeddah", url: "https://parepjeddah.org/contact/", date: "Aug 2026" },
+        ],
+      },
+      {
+        id: "india-missions",
+        audience: ["in"],
+        title: { en: "Indian Embassy & Consulate", ur: "بھارتی سفارت خانہ و قونصل خانہ" },
+        body: {
+          en: "• Embassy of India, Riyadh: +966-11-4884144; 24×7 emergency +966-11-4884697; toll-free 800 247 1234 (Indians in distress only); emergency email cw.riyadh@mea.gov.in.\n• Consulate General of India, Jeddah (Tahlia Street): +966-12-6603779, +966-12-2614093; conscw.jeddah@mea.gov.in.\n• Indian Haj Pilgrims' Offices in Makkah/Madinah operate in the Haj season.",
+          ur: "• سفارت خانہ ہند، ریاض: +966-11-4884144؛ 24 گھنٹے ایمرجنسی +966-11-4884697؛ ٹول فری 800 247 1234 (صرف مشکل میں پھنسے بھارتیوں کے لیے)؛ ایمرجنسی ای میل cw.riyadh@mea.gov.in۔\n• قونصل خانہ ہند، جدہ (تحلیہ اسٹریٹ): +966-12-6603779، +966-12-2614093؛ conscw.jeddah@mea.gov.in۔\n• مکہ/مدینہ میں بھارتی حج دفاتر حج سیزن میں کام کرتے ہیں۔",
+        },
+        sources: [
+          { label: "Embassy of India, Riyadh – contact numbers (PDF)", url: "https://www.eoiriyadh.gov.in/content/Indian-Embassy-Contact-Numbers-Emails.pdf" },
+          { label: "Haj Committee of India – CGI Jeddah", url: "https://hajcommittee.gov.in/cgi-jeddah" },
+        ],
+      },
+      {
+        id: "intl-missions",
+        audience: ["intl"],
+        title: { en: "Your embassy or consulate", bn: "আপনার দেশের দূতাবাস", ur: "اپنے ملک کا سفارت خانہ" },
+        body: {
+          en: "Save your country's embassy (Riyadh) and consulate (Jeddah) numbers before you travel, and register with your foreign ministry's travel service if it has one. Keep photos of your passport, visa and Nusuk permit on your phone and a paper copy in your bag.",
+          bn: "যাওয়ার আগে নিজের দেশের রিয়াদ দূতাবাস ও জেদ্দা কনস্যুলেটের নম্বর সেভ করুন। পাসপোর্ট, ভিসা ও নুসুক পারমিটের ছবি ফোনে আর কাগজের কপি ব্যাগে রাখুন।",
+          ur: "سفر سے پہلے اپنے ملک کے ریاض سفارت خانے اور جدہ قونصل خانے کے نمبر محفوظ کریں۔ پاسپورٹ، ویزا اور نسک پرمٹ کی تصاویر فون میں اور کاغذی نقل بیگ میں رکھیں۔",
+        },
+        sources: [{ label: "Visit Saudi", url: "https://visa.visitsaudi.com/" }],
       },
     ],
   },
@@ -457,8 +619,9 @@ export const TRAVEL_GUIDE: GuideSection[] = [
         id: "plugs-time",
         title: { bn: "প্লাগ, বিদ্যুৎ ও সময়", en: "Plugs, power & time" },
         body: {
-          bn: "• প্লাগ টাইপ G (তিন পিনের ব্রিটিশ), ২৩০ ভোল্ট — বাংলাদেশের দুই পিনের চার্জারের জন্য অ্যাডাপ্টার নিন।\n• সৌদি সময় বাংলাদেশের চেয়ে ৩ ঘণ্টা পিছিয়ে (UTC+3), ডেলাইট সেভিং নেই।",
-          en: "• Plug type G (British 3-pin), 230 V — bring an adapter for two-pin Bangladeshi chargers.\n• Saudi time is 3 hours behind Bangladesh (UTC+3), with no daylight saving.",
+          bn: "• প্লাগ টাইপ G (তিন পিনের ব্রিটিশ), ২৩০ ভোল্ট — দুই পিনের চার্জারের জন্য অ্যাডাপ্টার নিন।\n• সৌদি সময় UTC+3, ডেলাইট সেভিং নেই: বাংলাদেশের চেয়ে ৩ ঘণ্টা, ভারতের চেয়ে আড়াই ঘণ্টা, পাকিস্তানের চেয়ে ২ ঘণ্টা পিছিয়ে।",
+          en: "• Plug type G (British 3-pin), 230 V — bring an adapter for two-pin chargers.\n• Saudi time is UTC+3 with no daylight saving: 3 hours behind Bangladesh, 2½ hours behind India, 2 hours behind Pakistan.",
+          ur: "• پلگ ٹائپ G (برطانوی تین پن)، 230 وولٹ — دو پن چارجر کے لیے اڈاپٹر ساتھ رکھیں۔\n• سعودی وقت UTC+3، ڈے لائٹ سیونگ نہیں: پاکستان سے 2 گھنٹے، بھارت سے ڈھائی گھنٹے اور بنگلہ دیش سے 3 گھنٹے پیچھے۔",
         },
         sources: [{ label: "World Standards – Saudi Arabia", url: "https://www.worldstandards.eu/electricity/plug-voltage-by-country/saudi-arabia/", date: "Jul 2025" }],
       },
@@ -481,18 +644,6 @@ export const TRAVEL_GUIDE: GuideSection[] = [
         sources: [
           { label: "Wikipedia – Mecca climate", url: "https://en.wikipedia.org/wiki/Mecca" },
           { label: "Wikipedia – Medina climate", url: "https://en.wikipedia.org/wiki/Medina" },
-        ],
-      },
-      {
-        id: "apps",
-        title: { bn: "দরকারি অ্যাপ", en: "Useful apps" },
-        body: {
-          bn: "• নুসুক — উমরাহ পারমিট, রওজার পারমিট, প্যাকেজ।\n• HHR Train — হারামাইন ট্রেনের টিকিট।\n• Makkah Bus ও মদিনা বাস অ্যাপ — রুট ও টিকিট।\n• Uber / Careem — ট্যাক্সি।\n• Tanaqol — হারামে গল্ফ কার্ট বুকিং।\n• Tawakkalna — বাধ্যতামূলক নয়, তবে নুসুক পারমিট ও ডিজিটাল পরিচয় দেখায়।",
-          en: "• Nusuk — Umrah permit, Rawdah permit, packages.\n• HHR Train — Haramain train tickets.\n• Makkah Bus and Madinah Bus apps — routes and tickets.\n• Uber / Careem — taxis.\n• Tanaqol — golf cart booking at the Haram.\n• Tawakkalna — not required, but shows Nusuk permits and a digital ID.",
-        },
-        sources: [
-          { label: "Nusuk (official)", url: "https://www.nusuk.sa/" },
-          { label: "Wego – Tawakkalna", url: "https://blog.wego.com/tawakkalna-app-saudi-arabia/", date: "May 2026" },
         ],
       },
     ],
