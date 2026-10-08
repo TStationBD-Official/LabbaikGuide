@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
-import { ChevronRight, ExternalLink } from "lucide-react";
 import { useI18n } from "@/components/providers/i18n-provider";
 import { useMounted } from "@/hooks/use-hydrated";
 import { useOnline } from "@/hooks/use-online";
@@ -127,32 +126,7 @@ export function AdBanner({ className }: { className?: string }) {
 
   return (
     <aside aria-label={t("ads.label")} className={cn("mx-auto w-full max-w-3xl", className)}>
-      <div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
-        <span className="rounded-full border border-border bg-card px-2 py-0.5 font-medium uppercase tracking-wide">{t("ads.label")}</span>
-        <span className="min-w-0 flex-1 truncate" dir="ltr">
-          {hostOf(current.ad.url)}
-        </span>
-        {deck.length > 1 ? (
-          <button
-            type="button"
-            onClick={advance}
-            className="inline-flex min-h-9 items-center gap-0.5 rounded-lg px-2 hover:bg-muted hover:text-foreground"
-          >
-            {t("ads.next")}
-            <ChevronRight className="size-3.5 rtl:rotate-180" aria-hidden />
-          </button>
-        ) : null}
-        <a
-          href={current.ad.url}
-          target="_blank"
-          rel="noopener noreferrer sponsored"
-          className="inline-flex min-h-9 items-center gap-1 rounded-lg px-2 hover:bg-muted hover:text-foreground"
-        >
-          <ExternalLink className="size-3.5" aria-hidden />
-          <span className="sr-only sm:not-sr-only">{t("ads.open")}</span>
-        </a>
-      </div>
-      <div ref={box} className="relative h-60 overflow-hidden rounded-2xl border border-border bg-card shadow-soft sm:h-72">
+      <div ref={box} className="relative h-28 overflow-hidden rounded-2xl border border-border bg-card shadow-soft sm:h-32">
         {!frames.some((f) => f.loaded) ? <div aria-hidden className="skeleton absolute inset-0" /> : null}
         {frames.map((f, i) => (
           <iframe
@@ -180,6 +154,9 @@ export function AdBanner({ className }: { className?: string }) {
             )}
           />
         ))}
+        <span className="pointer-events-none absolute start-2 top-2 z-10 rounded-full bg-black/55 px-2 py-0.5 text-[10px] font-medium text-white backdrop-blur-sm">
+          {t("ads.label")}
+        </span>
         {deck.length > 1 && current.loaded ? (
           <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-1 bg-black/10">
             <div
