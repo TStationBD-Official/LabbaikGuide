@@ -126,7 +126,7 @@ export function AdBanner({ className }: { className?: string }) {
 
   return (
     <aside aria-label={t("ads.label")} className={cn("mx-auto w-full max-w-3xl", className)}>
-      <div ref={box} className="relative h-20 overflow-hidden rounded-xl border border-border bg-card shadow-soft sm:h-24">
+      <div ref={box} className="relative h-[50px] overflow-hidden rounded-lg border border-border bg-card shadow-soft sm:h-[60px]">
         {!frames.some((f) => f.loaded) ? <div aria-hidden className="skeleton absolute inset-0" /> : null}
         {frames.map((f, i) => (
           <iframe
@@ -154,7 +154,7 @@ export function AdBanner({ className }: { className?: string }) {
             )}
           />
         ))}
-        <span className="pointer-events-none absolute start-2 top-2 z-10 rounded-full bg-black/55 px-2 py-0.5 text-[10px] font-medium text-white backdrop-blur-sm">
+        <span className="pointer-events-none absolute start-1.5 top-1.5 z-10 rounded-full bg-black/55 px-1.5 py-px text-[9px] font-medium text-white backdrop-blur-sm">
           {t("ads.label")}
         </span>
         {deck.length > 1 && current.loaded ? (
