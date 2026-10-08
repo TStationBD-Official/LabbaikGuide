@@ -126,7 +126,7 @@ export function AdBanner({ className }: { className?: string }) {
 
   return (
     <aside aria-label={t("ads.label")} className={cn("mx-auto w-full max-w-3xl", className)}>
-      <div ref={box} className="relative h-28 overflow-hidden rounded-2xl border border-border bg-card shadow-soft sm:h-32">
+      <div ref={box} className="relative h-20 overflow-hidden rounded-xl border border-border bg-card shadow-soft sm:h-24">
         {!frames.some((f) => f.loaded) ? <div aria-hidden className="skeleton absolute inset-0" /> : null}
         {frames.map((f, i) => (
           <iframe
