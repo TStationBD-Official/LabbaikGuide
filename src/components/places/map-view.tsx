@@ -31,6 +31,19 @@ export type MapViewHandle = {
   centerOn: (p: LatLon, zoom?: number) => void;
 };
 
+/** A point drawn as a map layer (gate number in a circle, facility dot…). */
+export type MapPoi = { id: string; lat: number; lon: number; kind: string; num?: number; muted?: boolean };
+
+/** Dot colour per kind. */
+const POI_COLORS: [string, string][] = [
+  ["gate", "#b8891f"],
+  ["toilets", "#2f7cf6"],
+  ["water", "#0ea5a4"],
+  ["zamzam", "#0d9488"],
+  ["medical", "#dc2626"],
+  ["landmark", "#0f5c45"],
+];
+
 export type MapViewProps = {
   target: (LatLon & { label: string }) | null;
   user: Fix | null;
@@ -45,6 +58,14 @@ export type MapViewProps = {
   dark: boolean;
   labels: { map: string; you: string; offline: string; loading: string };
   className?: string;
+  /** Extra points (gates, facilities, landmarks); tap → onPoiClick. */
+  pois?: MapPoi[];
+  selectedPoi?: string | null;
+  onPoiClick?: (id: string) => void;
+  /** Where the user has walked ([lon, lat]). */
+  trail?: [number, number][];
+  /** Target marker style: the hotel pin, or a flag for a chosen gate/place. */
+  targetIcon?: "hotel" | "flag";
 };
 
 function hotelPinEl(label: string) {
@@ -60,6 +81,19 @@ function hotelPinEl(label: string) {
       <g transform="translate(10.5 9.5)" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
         <path d="M2 18V4.5A1.5 1.5 0 0 1 3.5 3h12A1.5 1.5 0 0 1 17 4.5V18"/><path d="M0.5 18h18"/><path d="M7.5 18v-3.5h4V18"/><path d="M6 7h.01M9.5 7h.01M13 7h.01M6 10.5h.01M9.5 10.5h.01M13 10.5h.01"/>
       </g>
+    </svg></span>`;
+  return el;
+}
+
+function flagPinEl(label: string) {
+  const el = document.createElement("div");
+  el.className = "hc-pin";
+  el.setAttribute("role", "img");
+  el.setAttribute("aria-label", label);
+  el.innerHTML = `<span class="hc-pin-inner">
+    <svg viewBox="0 0 40 52" width="36" height="47" aria-hidden="true">
+      <path d="M20 2C10.6 2 3 9.5 3 18.8 3 31.4 20 50 20 50s17-18.6 17-31.2C37 9.5 29.4 2 20 2z" fill="#b8891f" stroke="#fff" stroke-width="2.5"/>
+      <path d="M15 28V10m0 1h11l-3 4 3 4H15" fill="#fff" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>
     </svg></span>`;
   return el;
 }
@@ -144,6 +178,17 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
           m.addLayer({ id: "hc-acc-fill", type: "fill", source: "hc-acc", paint: { "fill-color": "#2f7cf6", "fill-opacity": 0.14 } });
           m.addLayer({ id: "hc-acc-line", type: "line", source: "hc-acc", paint: { "line-color": "#2f7cf6", "line-opacity": 0.45, "line-width": 1 } });
         }
+        if (!m.getSource("hc-trail")) {
+          // Where the user walked: soft dotted line under everything else.
+          m.addSource("hc-trail", { type: "geojson", data: EMPTY });
+          m.addLayer({
+            id: "hc-trail",
+            type: "line",
+            source: "hc-trail",
+            layout: { "line-cap": "round", "line-join": "round" },
+            paint: { "line-color": "#7c3aed", "line-width": 4, "line-opacity": 0.75, "line-dasharray": [0.2, 1.6] },
+          });
+        }
         if (!m.getSource("hc-route")) {
           // Real walking route: white casing + solid line, drawn under the markers.
           m.addSource("hc-route", { type: "geojson", data: EMPTY });
@@ -172,6 +217,51 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
             layout: { "line-cap": "round" },
             paint: { "line-color": "#c9a227", "line-width": 3, "line-dasharray": [0.6, 1.8], "line-opacity": 0.95 },
           });
+        }
+        if (!m.getSource("hc-pois")) {
+          m.addSource("hc-pois", { type: "geojson", data: EMPTY });
+          const color: unknown[] = ["match", ["get", "kind"]];
+          POI_COLORS.forEach(([k, c]) => color.push(k, c));
+          color.push("#64748b");
+          m.addLayer({
+            id: "hc-pois",
+            type: "circle",
+            source: "hc-pois",
+            paint: {
+              // Zoom must be the outermost expression; size per kind/selection inside each stop.
+              "circle-radius": [
+                "interpolate",
+                ["linear"],
+                ["zoom"],
+                14,
+                ["case", ["get", "sel"], 9, ["==", ["get", "kind"], "gate"], 5, 3.5],
+                17,
+                ["case", ["get", "sel"], 14, ["==", ["get", "kind"], "gate"], 11, 7],
+              ],
+              "circle-color": ["case", ["get", "muted"], "#8a8f98", color as never],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-width": ["case", ["get", "sel"], 3, 1.5],
+              "circle-opacity": 0.95,
+            },
+          });
+          // Gate numbers (only when the style provides fonts).
+          if (m.getStyle().glyphs) {
+            m.addLayer({
+              id: "hc-poi-num",
+              type: "symbol",
+              source: "hc-pois",
+              minzoom: 15.5,
+              filter: ["has", "num"],
+              layout: { "text-field": ["to-string", ["get", "num"]], "text-size": 10, "text-allow-overlap": true, "text-font": ["Noto Sans Bold"] },
+              paint: { "text-color": "#ffffff" },
+            });
+          }
+          m.on("click", "hc-pois", (e) => {
+            const id = e.features?.[0]?.properties?.id;
+            if (typeof id === "string") latest.current.onPoiClick?.(id);
+          });
+          m.on("mouseenter", "hc-pois", () => (m.getCanvas().style.cursor = "pointer"));
+          m.on("mouseleave", "hc-pois", () => (m.getCanvas().style.cursor = ""));
         }
         setState("ready");
         setStyleTick((x) => x + 1);
@@ -228,7 +318,7 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
       return;
     }
     if (!targetMarker.current) {
-      targetMarker.current = new ml.Marker({ element: hotelPinEl(props.target?.label ?? ""), anchor: "bottom" }).setLngLat([pos.lon, pos.lat]).addTo(m);
+      targetMarker.current = new ml.Marker({ element: (props.targetIcon === "flag" ? flagPinEl : hotelPinEl)(props.target?.label ?? ""), anchor: "bottom" }).setLngLat([pos.lon, pos.lat]).addTo(m);
     }
     const mk = targetMarker.current;
     mk.setLngLat([pos.lon, pos.lat]);
@@ -243,7 +333,7 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
     return () => {
       mk.off("dragend", onDragEnd);
     };
-  }, [props.pick, props.target, state, styleTick]);
+  }, [props.pick, props.target, props.targetIcon, state, styleTick]);
 
   // ── user marker, accuracy halo, line to target ────────────────────────────
   useEffect(() => {
@@ -296,6 +386,30 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
     src?.setData(r && r.length > 1 ? { type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: r } } : EMPTY);
     drawGuide();
   }, [props.route, props.pick, props.target, state, styleTick]);
+
+  // Points of interest.
+  useEffect(() => {
+    const m = map.current;
+    if (!m || state !== "ready") return;
+    const src = m.getSource("hc-pois") as GeoJSONSource | undefined;
+    src?.setData({
+      type: "FeatureCollection",
+      features: (props.pois ?? []).map((p) => ({
+        type: "Feature",
+        properties: { id: p.id, kind: p.kind, muted: Boolean(p.muted), sel: p.id === props.selectedPoi, ...(p.num !== undefined ? { num: p.num } : {}) },
+        geometry: { type: "Point", coordinates: [p.lon, p.lat] },
+      })),
+    });
+  }, [props.pois, props.selectedPoi, state, styleTick]);
+
+  // Walked trail.
+  useEffect(() => {
+    const m = map.current;
+    if (!m || state !== "ready") return;
+    const src = m.getSource("hc-trail") as GeoJSONSource | undefined;
+    const t = props.trail;
+    src?.setData(t && t.length > 1 ? { type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: t } } : EMPTY);
+  }, [props.trail, state, styleTick]);
 
   // Heading cone on the user dot.
   useEffect(() => {

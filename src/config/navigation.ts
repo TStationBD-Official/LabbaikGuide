@@ -14,6 +14,7 @@ import {
   Footprints,
   Landmark,
   Hotel,
+  Map,
   type LucideIcon,
 } from "lucide-react";
 import type { TKey } from "@/i18n";
@@ -43,6 +44,7 @@ export const PRIMARY_NAV: NavItem[] = [
 ];
 
 export const SECONDARY_NAV: NavItem[] = [
+  { href: "/haram-map", labelKey: "nav.haramMap", shortKey: "nav.short.haramMap", icon: Map, match: starts("/haram-map") },
   { href: "/hotel", labelKey: "nav.hotel", shortKey: "nav.short.hotel", icon: Hotel, match: starts("/hotel") },
   { href: "/duas", labelKey: "nav.duas", icon: HandHeart, match: starts("/duas") },
   { href: "/prayer", labelKey: "nav.prayer", shortKey: "nav.short.prayer", icon: Clock, match: starts("/prayer") },

@@ -1,0 +1,43 @@
+import { describe, expect, it } from "vitest";
+import { buildQuery, classify, numberIn, parseOverpass } from "@/server/haram-map/service";
+
+const node = (id: number, tags: Record<string, string>, lat = 21.4225, lon = 39.8262) => ({ type: "node", id, lat, lon, tags });
+
+describe("haram map: OpenStreetMap parsing", () => {
+  it("reads gate numbers from ref or names, including Arabic digits", () => {
+    expect(numberIn("Gate 79")).toBe(79);
+    expect(numberIn("باب ٧٩")).toBe(79);
+    expect(numberIn("King Fahd")).toBeUndefined();
+  });
+
+  it("classifies gates, facilities and landmarks; ignores hotel doors", () => {
+    expect(classify(node(1, { entrance: "main", name: "باب الملك فهد", "name:en": "King Fahd Gate", ref: "79" }), false)).toMatchObject({ kind: "gate", num: 79, role: "main" });
+    expect(classify(node(2, { entrance: "emergency" }), true)).toMatchObject({ kind: "gate", restricted: true, onMosque: true });
+    expect(classify(node(3, { entrance: "yes", name: "Hilton lobby" }), false)).toBeNull();
+    expect(classify(node(4, { amenity: "toilets", female: "yes" }), false)).toMatchObject({ kind: "toilets", gender: "female" });
+    expect(classify(node(5, { amenity: "drinking_water", name: "Zamzam" }), false)).toMatchObject({ kind: "zamzam" });
+    expect(classify(node(6, { name: "الكعبة المشرفة", "name:en": "Kaaba" }), false)).toMatchObject({ kind: "landmark", landmark: "kaaba" });
+    expect(classify(node(7, { name: "Al-Baqi Cemetery", landuse: "cemetery" }), false)).toMatchObject({ landmark: "baqi" });
+  });
+
+  it("marks doors on the mosque outline and removes duplicates", () => {
+    const json = {
+      elements: [
+        { type: "node", id: 10 },
+        { type: "count", id: 0, tags: { total: "0" } },
+        node(10, { entrance: "yes", ref: "1" }),
+        node(11, { name: "Gate 1", entrance: "yes", ref: "1" }, 21.42251, 39.82621),
+        node(12, { amenity: "toilets" }),
+      ],
+    };
+    const pois = parseOverpass(json, "makkah");
+    expect(pois.filter((p) => p.kind === "gate")).toHaveLength(1);
+    expect(pois.find((p) => p.kind === "gate")).toMatchObject({ onMosque: true, num: 1 });
+    expect(pois.some((p) => p.kind === "toilets")).toBe(true);
+  });
+
+  it("queries around the right mosque", () => {
+    expect(buildQuery("makkah")).toContain("21.422487,39.826206");
+    expect(buildQuery("madinah")).toContain("24.467206,39.611133");
+  });
+});

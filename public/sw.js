@@ -33,7 +33,7 @@ const TILE_HOSTS = ["tiles.openfreemap.org", "tile.openstreetmap.org"];
 
 const CORE_PAGES = [
   "/", "/quran", "/quran/surah/1", "/zikr", "/manasik", "/umrah", "/hajj", "/tawaf", "/sai",
-  "/duas", "/prayer", "/qibla", "/hotel", "/search", "/settings", "/sources", "/privacy", "/about",
+  "/duas", "/prayer", "/qibla", "/hotel", "/search", "/settings", "/sources", "/privacy", "/about", "/haram-map",
 ];
 const CORE_ASSETS = [
   "/vendor/maplibre-gl-csp-worker.js",
