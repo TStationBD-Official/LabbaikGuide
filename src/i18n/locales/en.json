@@ -873,5 +873,11 @@
     "counterTitle": "Reset this counter?",
     "counterMsg": "The count for “{name}” goes back to zero. You can undo it right after.",
     "counterOk": "Reset"
+  },
+  "ads": {
+    "label": "Sponsored",
+    "open": "Open",
+    "next": "Next",
+    "frameTitle": "Sponsored website"
   }
 }

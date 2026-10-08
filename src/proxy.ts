@@ -19,6 +19,8 @@ export function proxy(request: NextRequest) {
     "media-src 'self' https://verses.quran.com https://*.quranicaudio.com",
     // Map data for "My Hotel": OpenFreeMap vector tiles (OSM raster as fallback).
     "connect-src 'self' https://tiles.openfreemap.org https://tile.openstreetmap.org",
+    // Sponsored banner: third-party sites in a sandboxed frame.
+    "frame-src https:",
     "worker-src 'self'",
     "manifest-src 'self'",
     "object-src 'none'",

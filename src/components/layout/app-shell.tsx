@@ -14,6 +14,7 @@ import { useOnline } from "@/hooks/use-online";
 import { Sheet } from "@/components/ui/sheet";
 import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { AdBanner } from "./ad-banner";
 import { Logo, LogoMark } from "./logo";
 import { AccentSelector, LanguageSelector, LocationSwitcher } from "./selectors";
 import { InstallPrompt } from "./install-prompt";
@@ -362,6 +363,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             className="mx-auto w-full max-w-5xl flex-1 px-4 pb-28 pt-5 outline-none sm:px-6 md:pb-12 md:pt-7 lg:px-8 xl:max-w-6xl 2xl:max-w-7xl"
           >
             {children}
+            <AdBanner className="mt-10" />
           </main>
         </div>
       </div>

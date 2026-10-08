@@ -5,6 +5,14 @@ import "server-only";
  * `server-only` makes the build fail if a client component imports this file.
  */
 export const SERVER_CONFIG = {
+  ads: {
+    /** JSON feed of banner links: { links: [{ id, type, value }] }. */
+    feedUrl: process.env.ADS_FEED_URL ?? "https://ad-links.vercel.app/api/ads",
+    /** How long the feed and each link's frame check are reused. */
+    feedTtlMs: 5 * 60 * 1000,
+    frameCheckTtlMs: 60 * 60 * 1000,
+    timeoutMs: 5000,
+  },
   quran: {
     /** Quran Foundation (authenticated) — used when credentials are present. */
     qfClientId: process.env.QF_CLIENT_ID ?? "",
