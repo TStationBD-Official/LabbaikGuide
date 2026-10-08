@@ -544,5 +544,3 @@ html[lang="ur"] :where(p, span, label, a, button, li, legend, h1, h2, h3, h4, dt
 @media (prefers-reduced-motion: reduce) { .hc-user-pulse, .hc-pin-pick .hc-pin-inner { animation: none; } }
 .maplibregl-ctrl-attrib, .maplibregl-ctrl-scale { font-family: var(--font-latin); }
 
-/* Sponsored banner: time left before the next site */
-@keyframes ad-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }

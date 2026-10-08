@@ -115,7 +115,7 @@ export function AdBanner({ className }: { className?: string }) {
   const active = inView && pageVisible;
 
   // Exactly 7 s per site. Time spent off screen / in a background tab is not counted,
-  // so the timer and the gold progress line resume where they stopped.
+  // so the timer resumes where it stopped.
   const advanceRef = useRef(advance);
   useEffect(() => {
     advanceRef.current = advance;
@@ -170,15 +170,6 @@ export function AdBanner({ className }: { className?: string }) {
         <span className="pointer-events-none absolute start-1.5 top-1.5 z-10 rounded-full bg-black/55 px-1.5 py-px text-[9px] font-medium text-white backdrop-blur-sm">
           {t("ads.label")}
         </span>
-        {deck.length > 1 ? (
-          <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-1 bg-black/10">
-            <div
-              key={current.key}
-              className="h-full origin-left bg-gold rtl:origin-right"
-              style={{ animation: `ad-progress ${ROTATE_MS}ms linear forwards`, animationPlayState: active ? "running" : "paused" }}
-            />
-          </div>
-        ) : null}
       </div>
     </aside>
   );
