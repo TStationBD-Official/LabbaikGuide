@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { BookOpen, ChevronLeft, ChevronRight, Info, Pause, Play, RotateCcw } from "lucide-react";
+import { BookOpen, ChevronLeft, ChevronRight, Info, Pause, Play, RotateCcw, Volume2, VolumeX } from "lucide-react";
 import { useI18n } from "@/components/providers/i18n-provider";
 import { Card } from "@/components/ui/card";
 import { SegmentedControl } from "@/components/ui/segmented";
 import { JanazahScene } from "@/components/janazah/janazah-scene";
+import { arabicVoice, JanazahSound, type ClipKey } from "@/components/janazah/janazah-sound";
 import { gt, type GText } from "@/data/guides/travel";
 import {
   DUROOD,
@@ -58,6 +59,24 @@ function textsFor(step: JStep, method: Method, deceased: Deceased): { texts: JTe
   if (step.takbir === 4) return { texts: [SALAM] };
   return { texts: [] };
 }
+
+type SoundEvent = { id: string; at: number; key: ClipKey; text: string; recite?: boolean };
+const TAKBIR_AR = "اللَّهُ أَكْبَرُ";
+
+/** What is heard during a step: the imam's takbir and salam, and (for learning) the recitations. */
+function soundEvents(step: JStep, method: Method, deceased: Deceased): SoundEvent[] {
+  if (step.takbir === 0) return [];
+  const ev: SoundEvent[] = [{ id: "takbir", at: 700, key: "takbir", text: TAKBIR_AR }];
+  if (step.takbir < 4) {
+    for (const x of textsFor(step, method, deceased).texts) ev.push({ id: x.id, at: 2300, key: x.id as ClipKey, text: x.arabic, recite: true });
+  } else {
+    ev.push({ id: "salam-1", at: 4700, key: "salam", text: SALAM.arabic });
+    if (method === "hanafi") ev.push({ id: "salam-2", at: 6900, key: "salam", text: SALAM.arabic });
+  }
+  return ev;
+}
+
+const SOUND_KEY = "hc_janazah_sound";
 
 function Refs({ refs }: { refs: JRef[] }) {
   const { locale } = useI18n();
@@ -115,10 +134,66 @@ export function JanazahPage() {
   const step = STEPS[index];
   const last = index === STEPS.length - 1;
 
+  // ---- sound ----
+  const [sound, setSound] = useState(true);
+  const [noVoice, setNoVoice] = useState(false);
+  const [fatihaError, setFatihaError] = useState(false);
+  const engine = useRef<JanazahSound | null>(null);
+  /** While a clip plays the animation holds its pose. */
+  const busy = useRef(false);
+  const fired = useRef(new Set<string>());
+  const current = useRef<string | null>(null);
+
+  useEffect(() => {
+    try {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- restore the saved choice after mount
+      if (localStorage.getItem(SOUND_KEY) === "off") setSound(false);
+    } catch {
+      /* storage unavailable */
+    }
+    let alive = true;
+    void arabicVoice().then((v) => alive && setNoVoice(!v));
+    return () => {
+      alive = false;
+      engine.current?.stop();
+    };
+  }, []);
+
+  /** Stops whatever is playing; the interrupted clip plays again from its start on resume. */
+  const silence = () => {
+    engine.current?.stop();
+    busy.current = false;
+    if (current.current) fired.current.delete(current.current);
+    current.current = null;
+  };
+
+  const events = useMemo(() => (sound ? soundEvents(step, method, deceased) : []), [sound, step, method, deceased]);
+
+  useEffect(() => {
+    if (!playing || !sound || busy.current) return;
+    const ev = events.find((e) => e.at <= elapsed && !fired.current.has(e.id));
+    if (!ev) return;
+    fired.current.add(ev.id);
+    busy.current = true;
+    current.current = ev.id;
+    const lastRecite = !!ev.recite && !events.some((e) => e.recite && !fired.current.has(e.id));
+    const stepMs = step.ms;
+    engine.current ??= new JanazahSound();
+    void engine.current.play(ev.key, ev.text).then((ok) => {
+      if (current.current !== ev.id) return; // stopped meanwhile
+      busy.current = false;
+      current.current = null;
+      if (!ok && ev.key === "fatiha") setFatihaError(true);
+      if (!ok && ev.key !== "fatiha") setNoVoice(true);
+      // Re-render so the next clip starts; after the recitation, move on to the end of the step.
+      setElapsed((e) => (lastRecite ? Math.max(e + 1, stepMs - 1200) : e + 1));
+    });
+  }, [elapsed, playing, sound, events, step.ms]);
+
   useEffect(() => {
     if (!playing) return;
     const id = window.setInterval(() => {
-      setElapsed((e) => e + TICK);
+      setElapsed((e) => (busy.current ? e : e + TICK));
     }, TICK);
     return () => window.clearInterval(id);
   }, [playing]);
@@ -128,6 +203,7 @@ export function JanazahPage() {
   useEffect(() => {
     if (!playing || !finished) return;
     const id = window.setTimeout(() => {
+      fired.current.clear();
       if (last) setPlaying(false);
       else {
         setIndex((i) => i + 1);
@@ -138,6 +214,8 @@ export function JanazahPage() {
   }, [playing, finished, last]);
 
   const go = (i: number) => {
+    silence();
+    fired.current.clear();
     setIndex(Math.max(0, Math.min(STEPS.length - 1, i)));
     setElapsed(0);
   };
@@ -160,6 +238,25 @@ export function JanazahPage() {
             label={`${gt(step.title, locale)} — ${t("janazah.sceneLabel")}`}
             youLabel={t("janazah.you")}
           />
+          <button
+            type="button"
+            onClick={() => {
+              const next = !sound;
+              if (!next) silence();
+              setSound(next);
+              try {
+                localStorage.setItem(SOUND_KEY, next ? "on" : "off");
+              } catch {
+                /* storage unavailable */
+              }
+            }}
+            aria-pressed={sound}
+            aria-label={t("janazah.sound")}
+            title={t("janazah.sound")}
+            className="absolute start-2 top-2 grid size-9 place-items-center rounded-full bg-black/45 text-white backdrop-blur-sm hover:bg-black/60"
+          >
+            {sound ? <Volume2 className="size-4" aria-hidden /> : <VolumeX className="size-4" aria-hidden />}
+          </button>
           {/* takbir counter */}
           <div className="absolute end-2 top-2 flex items-center gap-1 rounded-full bg-black/45 px-2 py-1 backdrop-blur-sm" aria-hidden>
             {[1, 2, 3, 4].map((n) => (
@@ -190,8 +287,12 @@ export function JanazahPage() {
             <button
               type="button"
               onClick={() => {
-                if (!playing && last && finished) go(0);
-                setPlaying((p) => !p);
+                if (playing) silence();
+                else {
+                  if (sound) (engine.current ??= new JanazahSound()).unlock();
+                  if (last && finished) go(0);
+                }
+                setPlaying(!playing);
               }}
               className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-soft"
             >
@@ -202,6 +303,7 @@ export function JanazahPage() {
               type="button"
               onClick={() => {
                 go(0);
+                if (sound) (engine.current ??= new JanazahSound()).unlock();
                 setPlaying(true);
               }}
               aria-label={t("janazah.replay")}
@@ -216,6 +318,14 @@ export function JanazahPage() {
           </button>
         </div>
       </Card>
+
+      {sound ? (
+        <div className="-mt-3 space-y-1 px-1 text-xs text-muted-foreground">
+          <p>{t("janazah.soundNote")}</p>
+          {noVoice ? <p className="text-warning">{t("janazah.noVoice")}</p> : null}
+          {fatihaError ? <p className="text-warning">{t("janazah.fatihaAudioError")}</p> : null}
+        </div>
+      ) : null}
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">

@@ -1029,6 +1029,10 @@
     "rulings": "Rulings & virtues",
     "inHaramain": "In Masjid al-Haram & Masjid an-Nabawi",
     "artNote": "About the illustration: out of respect and following the scholars' guidance on images, every figure is shown from behind without a face, and the deceased is never depicted — only a covered bier. There is no music.",
-    "you": "You"
+    "you": "You",
+    "sound": "Sound on/off",
+    "soundNote": "Sound: al-Fatiha is recited by Mishary Alafasy (Quran.com); the takbir, Durood, duas and salam use your device's Arabic voice. In the real prayer only the imam's takbirs and salam are said aloud — everything else is said quietly.",
+    "noVoice": "This device has no Arabic voice, so only al-Fatiha can be heard. Install an Arabic text-to-speech voice in your phone's settings to hear the rest.",
+    "fatihaAudioError": "The al-Fatiha recitation couldn't be loaded right now."
   }
 }
