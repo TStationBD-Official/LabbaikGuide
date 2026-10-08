@@ -135,7 +135,7 @@ export function AdBanner({ className }: { className?: string }) {
             title={`${t("ads.frameTitle")}: ${hostOf(f.ad.url)}`}
             // Scripts and links work inside the frame, but it can never take over or redirect this app.
             sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
-            allow=""
+            allow="autoplay 'none'; fullscreen 'none'"
             referrerPolicy="strict-origin-when-cross-origin"
             loading="eager"
             tabIndex={i === frames.length - 1 ? 0 : -1}
@@ -155,7 +155,7 @@ export function AdBanner({ className }: { className?: string }) {
           />
         ))}
         {/* Light dim so bright sites sit calmly in the app; the site stays clearly visible and clickable. */}
-        <div aria-hidden className="pointer-events-none absolute inset-0 bg-black/20 dark:bg-black/30" />
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-black/30" />
         <span className="pointer-events-none absolute start-1.5 top-1.5 z-10 rounded-full bg-black/55 px-1.5 py-px text-[9px] font-medium text-white backdrop-blur-sm">
           {t("ads.label")}
         </span>
