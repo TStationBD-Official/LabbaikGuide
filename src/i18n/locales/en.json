@@ -879,6 +879,8 @@
     "frameTitle": "Sponsored website"
   },
   "about": {
+    "whatsappAction": "Message us on WhatsApp",
+    "callAction": "Call us",
     "title": "About us",
     "subtitle": "Who builds Labbaik Guide, and our other apps",
     "contact": "Contact",

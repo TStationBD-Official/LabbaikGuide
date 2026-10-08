@@ -879,6 +879,8 @@
     "frameTitle": "موقع إعلاني"
   },
   "about": {
+    "whatsappAction": "راسلنا على واتساب",
+    "callAction": "اتصل بنا",
     "title": "من نحن",
     "subtitle": "من يطوّر دليل لبيك، وتطبيقاتنا الأخرى",
     "contact": "التواصل",

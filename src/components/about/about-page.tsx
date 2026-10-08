@@ -57,9 +57,7 @@ function ContactRow({ href, icon, label, value }: { href?: string | null; icon: 
       <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">{icon}</span>
       <span className="min-w-0 flex-1">
         <span className="block text-xs text-muted-foreground">{label}</span>
-        <span className="block truncate text-sm font-medium" dir="ltr">
-          {value}
-        </span>
+        <span className="block truncate text-sm font-medium">{value}</span>
       </span>
       {href ? <ChevronRight className="size-4 shrink-0 text-muted-foreground rtl:rotate-180" aria-hidden /> : null}
     </>
@@ -127,8 +125,14 @@ export function AboutPage({ initial }: { initial: AboutData | null }) {
   const contacts = [
     c.websiteUrl && { href: c.websiteUrl, icon: <Globe className="size-4" />, label: t("about.website"), value: hostOf(c.websiteUrl) },
     c.playStoreUrl && { href: c.playStoreUrl, icon: <PlayIcon />, label: t("about.playStore"), value: t("about.allOurApps") },
-    c.whatsappNumber && { href: waLink(c.whatsappNumber) ?? telLink(c.whatsappNumber), icon: <MessageCircle className="size-4" />, label: t("about.whatsapp"), value: c.whatsappNumber },
-    c.contactNumber && { href: telLink(c.contactNumber), icon: <Phone className="size-4" />, label: t("about.phone"), value: c.contactNumber },
+    c.whatsappNumber && {
+      // Without a country code WhatsApp cannot open the chat, so the row offers a call instead.
+      href: waLink(c.whatsappNumber) ?? telLink(c.whatsappNumber),
+      icon: <MessageCircle className="size-4" />,
+      label: t("about.whatsapp"),
+      value: waLink(c.whatsappNumber) ? t("about.whatsappAction") : t("about.callAction"),
+    },
+    c.contactNumber && { href: telLink(c.contactNumber), icon: <Phone className="size-4" />, label: t("about.phone"), value: t("about.callAction") },
     c.supportEmail && { href: `mailto:${c.supportEmail}`, icon: <Mail className="size-4" />, label: t("about.supportEmail"), value: c.supportEmail },
     c.freelanceEmail && { href: `mailto:${c.freelanceEmail}`, icon: <Briefcase className="size-4" />, label: t("about.freelanceEmail"), value: c.freelanceEmail },
     c.location && { href: null, icon: <MapPin className="size-4" />, label: t("about.location"), value: c.location },
