@@ -877,5 +877,33 @@
   "ads": {
     "label": "إعلان",
     "frameTitle": "موقع إعلاني"
+  },
+  "about": {
+    "title": "من نحن",
+    "subtitle": "من يطوّر دليل لبيك، وتطبيقاتنا الأخرى",
+    "contact": "التواصل",
+    "website": "الموقع",
+    "playStore": "Google Play",
+    "allOurApps": "جميع تطبيقاتنا",
+    "whatsapp": "واتساب",
+    "phone": "الهاتف",
+    "supportEmail": "بريد الدعم",
+    "freelanceEmail": "المشاريع والعمل الحر",
+    "location": "الموقع الجغرافي",
+    "apps": "تطبيقاتنا",
+    "featured": "مميّز",
+    "version": "الإصدار {v}",
+    "noApps": "لا توجد تطبيقات منشورة بعد.",
+    "unavailable": "معلومات «من نحن» غير متاحة مؤقتًا.",
+    "showingSaved": "تعذّر التحديث — تُعرض آخر معلومات محفوظة.",
+    "appGone": "هذا التطبيق غير متاح حاليًا.",
+    "getOnPlay": "احصل عليه من Google Play",
+    "download": "تنزيل لـ {os}",
+    "github": "الشيفرة المصدرية",
+    "screenshots": "لقطات الشاشة",
+    "description": "عن التطبيق",
+    "releaseNotes": "ما الجديد",
+    "privacy": "سياسة الخصوصية",
+    "terms": "الشروط"
   }
 }

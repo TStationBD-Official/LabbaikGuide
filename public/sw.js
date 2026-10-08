@@ -5,6 +5,8 @@
  *  - Quran API (/api/quran/*): stale-while-revalidate (Quran text never changes).
  *  - Live data (/api/haramain, /api/time): network-only — never served stale as "live".
  *    (Imam/Muezzin photos under /api/haramain/photo are static images: cache-first.)
+ *  - About us (/api/about): network-first → last saved copy offline (panel data can change anytime).
+ *    Its images (/api/about/image): cache-first — every new upload gets a new URL.
  *  - Page navigations: network-first → cached copy → /offline.html.
  *
  * Precaching: every app page (and the JS/CSS each page needs) is cached on
@@ -12,7 +14,7 @@
  * its build id changes). Reader pages for all 114 surahs + 30 juz are cached
  * when the user downloads the Quran for offline use ("precache-pages").
  */
-const VERSION = "v4";
+const VERSION = "v5";
 const STATIC = `hc-static-${VERSION}`;
 const PAGES = `hc-pages-${VERSION}`;
 const API = `hc-api-${VERSION}`;
@@ -24,11 +26,14 @@ const TILES = "hc-tiles";
 const QCF = "hc-qcf";
 const MAX_QCF_ENTRIES = 1300;
 const MAX_TILE_ENTRIES = 4000;
+/** About-page images (a new URL per upload, so never stale): kept across versions, capped. */
+const ABOUT_IMG = "hc-about-img";
+const MAX_ABOUT_IMG_ENTRIES = 150;
 const TILE_HOSTS = ["tiles.openfreemap.org", "tile.openstreetmap.org"];
 
 const CORE_PAGES = [
   "/", "/quran", "/quran/surah/1", "/zikr", "/manasik", "/umrah", "/hajj", "/tawaf", "/sai",
-  "/duas", "/prayer", "/qibla", "/hotel", "/search", "/settings", "/sources", "/privacy",
+  "/duas", "/prayer", "/qibla", "/hotel", "/search", "/settings", "/sources", "/privacy", "/about",
 ];
 const CORE_ASSETS = [
   "/vendor/maplibre-gl-csp-worker.js",
@@ -127,7 +132,7 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches
       .keys()
-      .then((keys) => Promise.all(keys.filter((k) => k.startsWith("hc-") && k !== TILES && k !== QCF && !k.endsWith(VERSION)).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.filter((k) => k.startsWith("hc-") && k !== TILES && k !== QCF && k !== ABOUT_IMG && !k.endsWith(VERSION)).map((k) => caches.delete(k))))
       .then(() => self.clients.claim()),
   );
 });
@@ -242,6 +247,32 @@ async function staleWhileRevalidate(req) {
   );
 }
 
+async function networkFirstApi(req) {
+  const cache = await caches.open(API);
+  try {
+    const res = await fetch(req);
+    if (res.ok) cache.put(req, res.clone());
+    return res;
+  } catch {
+    return (
+      (await cache.match(req)) ||
+      new Response(JSON.stringify({ error: "offline" }), { status: 503, headers: { "content-type": "application/json" } })
+    );
+  }
+}
+
+async function aboutImage(req) {
+  const cache = await caches.open(ABOUT_IMG);
+  const cached = await cache.match(req);
+  if (cached) return cached;
+  const res = await fetch(req);
+  if (res.ok) {
+    await cache.put(req, res.clone());
+    trim(ABOUT_IMG, MAX_ABOUT_IMG_ENTRIES);
+  }
+  return res;
+}
+
 async function networkFirstPage(req) {
   const cache = await caches.open(PAGES);
   const url = new URL(req.url);
@@ -272,6 +303,8 @@ self.addEventListener("fetch", (event) => {
   if (url.pathname === "/api/haramain/photo") return event.respondWith(cacheFirst(req));
   if (url.pathname.startsWith("/api/haramain") || url.pathname.startsWith("/api/time")) return; // network-only
   if (url.pathname.startsWith("/api/quran/")) return event.respondWith(staleWhileRevalidate(req));
+  if (url.pathname === "/api/about/image") return event.respondWith(aboutImage(req));
+  if (url.pathname === "/api/about") return event.respondWith(networkFirstApi(req));
   if (url.pathname.startsWith("/qcf/")) return event.respondWith(qcfFont(req));
   if (
     url.pathname.startsWith("/_next/static/") ||

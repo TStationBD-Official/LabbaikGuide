@@ -877,5 +877,33 @@
   "ads": {
     "label": "Sponsored",
     "frameTitle": "Sponsored website"
+  },
+  "about": {
+    "title": "About us",
+    "subtitle": "Who builds Labbaik Guide, and our other apps",
+    "contact": "Contact",
+    "website": "Website",
+    "playStore": "Google Play",
+    "allOurApps": "All our apps",
+    "whatsapp": "WhatsApp",
+    "phone": "Phone",
+    "supportEmail": "Support email",
+    "freelanceEmail": "Projects & freelance",
+    "location": "Location",
+    "apps": "Our apps",
+    "featured": "Featured",
+    "version": "v{v}",
+    "noApps": "No apps are published yet.",
+    "unavailable": "About information is temporarily unavailable.",
+    "showingSaved": "Could not refresh — showing the last saved information.",
+    "appGone": "This app is not available right now.",
+    "getOnPlay": "Get it on Google Play",
+    "download": "Download for {os}",
+    "github": "Source code",
+    "screenshots": "Screenshots",
+    "description": "About this app",
+    "releaseNotes": "What's new",
+    "privacy": "Privacy policy",
+    "terms": "Terms"
   }
 }

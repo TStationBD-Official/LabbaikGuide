@@ -184,6 +184,7 @@ export function SettingsPage() {
         <p className="text-sm">{t("settings.aboutText")}</p>
         <nav className="divide-y divide-border rounded-xl border border-border">
           {[
+            { href: "/about", label: t("about.title") },
             { href: "/sources", label: t("nav.sources") },
             { href: "/privacy", label: t("nav.privacy") },
           ].map((l) => (

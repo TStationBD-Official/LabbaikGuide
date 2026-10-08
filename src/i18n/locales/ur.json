@@ -877,5 +877,33 @@
   "ads": {
     "label": "اشتہار",
     "frameTitle": "اشتہاری ویب سائٹ"
+  },
+  "about": {
+    "title": "ہمارے بارے میں",
+    "subtitle": "لبیک گائیڈ کون بناتا ہے، اور ہماری دوسری ایپس",
+    "contact": "رابطہ",
+    "website": "ویب سائٹ",
+    "playStore": "Google Play",
+    "allOurApps": "ہماری تمام ایپس",
+    "whatsapp": "واٹس ایپ",
+    "phone": "فون",
+    "supportEmail": "سپورٹ ای میل",
+    "freelanceEmail": "پروجیکٹس اور فری لانس",
+    "location": "مقام",
+    "apps": "ہماری ایپس",
+    "featured": "نمایاں",
+    "version": "ورژن {v}",
+    "noApps": "ابھی کوئی ایپ شائع نہیں ہوئی۔",
+    "unavailable": "ہمارے بارے میں معلومات عارضی طور پر دستیاب نہیں۔",
+    "showingSaved": "تازہ معلومات نہیں مل سکیں — آخری محفوظ معلومات دکھائی جا رہی ہیں۔",
+    "appGone": "یہ ایپ اس وقت دستیاب نہیں۔",
+    "getOnPlay": "Google Play سے حاصل کریں",
+    "download": "{os} کے لیے ڈاؤن لوڈ",
+    "github": "سورس کوڈ",
+    "screenshots": "اسکرین شاٹس",
+    "description": "ایپ کے بارے میں",
+    "releaseNotes": "نیا کیا ہے",
+    "privacy": "پرائیویسی پالیسی",
+    "terms": "شرائط"
   }
 }

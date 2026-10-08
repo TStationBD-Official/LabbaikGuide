@@ -5,6 +5,15 @@ import "server-only";
  * `server-only` makes the build fail if a client component imports this file.
  */
 export const SERVER_CONFIG = {
+  about: {
+    /** TPanel public API (company profile + published apps). */
+    apiBase: process.env.ABOUT_API_BASE ?? "https://tpanel-web.vercel.app",
+    /** Data is re-checked at most this often; edits in the panel show up within this window. */
+    revalidateSeconds: 300,
+    timeoutMs: 8000,
+    /** Optional: lets the panel push changes instantly via POST /api/about/revalidate. */
+    revalidateSecret: process.env.ABOUT_REVALIDATE_SECRET ?? "",
+  },
   ads: {
     /** JSON feed of banner links: { links: [{ id, type, value }] }. */
     feedUrl: process.env.ADS_FEED_URL ?? "https://ad-links.vercel.app/api/ads",
