@@ -1,6 +1,6 @@
 "use client";
 
-import { SkyBackdrop, SkyBody, Skyline, skyPhase, skylineOpacity } from "./sky-backdrop";
+import { SkyBackdrop, SkyBody, Skyline, skyAt, skylineOpacity } from "./sky-backdrop";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { Fragment, useMemo, useState } from "react";
@@ -118,7 +118,7 @@ export function NextPrayerCard({ data, strip = true, stripClassName }: { data: D
   // The whole card turns red for the sun-fixed windows. After Fajr/Asr the window only starts once the
   // person has prayed, so there the card keeps its colour and just shows the banner.
   const redCard = Boolean(forbidden && !forbidden.afterPrayer);
-  const sky = skyPhase(days.today, now, Boolean(night?.inLastThird));
+  const sky = skyAt(days.today, now, night?.lastThird ?? null);
 
   const isFriday = info.nextIsTomorrow ? days.tomorrow.isFriday : days.today.isFriday;
   const nextName = t(prayerLabelKey(info.next.name, isFriday));
@@ -143,19 +143,19 @@ export function NextPrayerCard({ data, strip = true, stripClassName }: { data: D
       aria-label={t("prayer.nextPrayer")}
       className="relative isolate overflow-hidden rounded-3xl text-white shadow-soft ring-1 ring-black/10"
       data-forbidden={redCard ? "true" : undefined}
-      // Normally a sky that follows the time of day at the selected city (dawn, morning, noon …);
+      // Normally a sky that follows the prayer times at the selected city (Fajr, Duha, Dhuhr, Asr, Maghrib, Isha, Tahajjud);
       // deep red while the sun is rising, at its zenith or setting (forbidden for voluntary prayer).
-      data-sky={redCard ? undefined : sky}
+      data-sky={redCard ? undefined : sky.waqt}
       style={redCard ? { background: "linear-gradient(145deg, #3d0a0d 0%, #6e1219 55%, #4a1208 100%)" } : { background: "#06142a" }}
     >
-      {redCard ? null : <SkyBackdrop phase={sky} />}
+      {redCard ? null : <SkyBackdrop sky={sky} />}
       <GeometricPattern className="pointer-events-none absolute inset-0 -z-10 text-white opacity-[0.06]" />
       {redCard ? <div aria-hidden className="pointer-events-none absolute -end-16 -top-20 -z-10 size-64 rounded-full bg-gold/20 blur-3xl" /> : null}
 
       <div className="relative p-5 sm:p-6">
         {redCard ? null : (
           <>
-            <SkyBody phase={sky} />
+            <SkyBody sky={sky} />
             <Skyline location={location} opacity={skylineOpacity(sky)} />
           </>
         )}
