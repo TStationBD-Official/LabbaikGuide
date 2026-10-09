@@ -14,7 +14,7 @@
  * its build id changes). Reader pages for all 114 surahs + 30 juz are cached
  * when the user downloads the Quran for offline use ("precache-pages").
  */
-const VERSION = "v7";
+const VERSION = "v8";
 const STATIC = `hc-static-${VERSION}`;
 const PAGES = `hc-pages-${VERSION}`;
 const API = `hc-api-${VERSION}`;
