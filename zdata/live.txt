@@ -1,0 +1,8 @@
+== from=21.4225,39.8262&to=21.2704,40.4085&mode=drive
+{'distance': 89913, 'duration': 4168, 'coordinates': 53, 'source': {'name': 'OSRM · FOSSGIS · © OpenStreetMap', 'url': 'https://routing.openstreetmap.de/about.html'}} alts 0
+== from=21.4225,39.8262&to=21.43339,39.82892
+{'distance': 1704, 'duration': 1365, 'coordinates': 62, 'source': {'name': 'OSRM · FOSSGIS · © OpenStreetMap', 'url': 'https://routing.openstreetmap.de/about.html'}} alts 0
+== from=24.4672,39.6111&to=24.43936,39.61726&mode=drive
+{'distance': 9096, 'duration': 599, 'coordinates': 21, 'source': {'name': 'OSRM · FOSSGIS · © OpenStreetMap', 'url': 'https://routing.openstreetmap.de/about.html'}} alts 0
+== from=24.4672,39.6111&to=23.771984,38.788554&mode=drive
+{'distance': 152485, 'duration': 6501, 'coordinates': 45, 'source': {'name': 'OSRM · FOSSGIS · © OpenStreetMap', 'url': 'https://routing.openstreetmap.de/about.html'}} alts 0
