@@ -1,0 +1,38 @@
+{
+ "eC4LfEVxvKg": [
+  200,
+  {
+   "title": "بث مباشر || قناة القرآن الكريم Makkah Live",
+   "author_name": "قناة القران الكريم",
+   "author_url": "https://www.youtube.com/@SaudiQuranTv",
+   "type": "video",
+   "height": 150,
+   "width": 200,
+   "version": "1.0",
+   "provider_name": "YouTube",
+   "provider_url": "https://www.youtube.com/",
+   "thumbnail_height": 360,
+   "thumbnail_width": 480,
+   "thumbnail_url": "https://i.ytimg.com/vi/eC4LfEVxvKg/hqdefault.jpg",
+   "html": "<iframe width=\"200\" height=\"150\" src=\"https://www.youtube.com/embed/eC4LfEVxvKg?feature=oembed\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen title=\"بث مباشر || قناة القرآن الكريم Makkah Live\"></iframe>"
+  }
+ ],
+ "Rs7St51oDDc": [
+  200,
+  {
+   "title": "بث مباشر | قناة السنة النبوية",
+   "author_name": "قناة السنة النبوية",
+   "author_url": "https://www.youtube.com/@SaudiSunnahTv",
+   "type": "video",
+   "height": 150,
+   "width": 200,
+   "version": "1.0",
+   "provider_name": "YouTube",
+   "provider_url": "https://www.youtube.com/",
+   "thumbnail_height": 360,
+   "thumbnail_width": 480,
+   "thumbnail_url": "https://i.ytimg.com/vi/Rs7St51oDDc/hqdefault.jpg",
+   "html": "<iframe width=\"200\" height=\"150\" src=\"https://www.youtube.com/embed/Rs7St51oDDc?feature=oembed\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen title=\"بث مباشر | قناة السنة النبوية\"></iframe>"
+  }
+ ]
+}
