@@ -1,0 +1,20 @@
+name: live-check
+on:
+  push:
+    branches: [tools/live-check]
+permissions:
+  contents: write
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          set +e; mkdir -p live-data
+          B=https://labbaikguide.vercel.app
+          curl -sS -m 40 "$B/api/places/search?q=hilton&loc=makkah&lang=en" -o live-data/hilton.json -w "%{http_code}\n" >> live-data/codes.txt
+          curl -sS -m 40 "$B/api/places/search?q=%D9%81%D9%86%D8%AF%D9%82&loc=makkah&lang=bn" -o live-data/arabic.json -w "%{http_code}\n" >> live-data/codes.txt
+          curl -sS -m 40 "$B/api/places/search?q=pullman&loc=madinah&lang=en" -o live-data/madinah.json -w "%{http_code}\n" >> live-data/codes.txt
+          curl -sS -m 60 "$B/api/haram-map?loc=makkah" -o live-data/haram.json -w "%{http_code}\n" >> live-data/codes.txt
+          git config user.name ci && git config user.email ci@users.noreply.github.com
+          git add live-data && git commit -m "live sample [skip ci]" && git push
