@@ -1,0 +1,16 @@
+name: ziyarah-data
+on:
+  push:
+    branches: [tools/ziyarah-data]
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          set +e; mkdir -p zdata
+          python3 tools/wiki_places.py 2> zdata/err.txt
+          git config user.name ci && git config user.email ci@users.noreply.github.com
+          git add zdata && git commit -m "ziyarah data [skip ci]" && git push
