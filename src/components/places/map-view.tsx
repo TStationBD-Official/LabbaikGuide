@@ -53,6 +53,8 @@ export type MapViewHandle = {
   /** Show both the user and the target. */
   fitBoth: () => void;
   centerOn: (p: LatLon, zoom?: number) => void;
+  /** Show all these points (and the user, if known). */
+  fitPoints: (pts: LatLon[], maxZoom?: number) => void;
 };
 
 /** A point drawn as a map layer (gate number in a circle, facility dot…). */
@@ -66,6 +68,7 @@ const POI_COLORS: [string, string][] = [
   ["zamzam", "#0d9488"],
   ["medical", "#dc2626"],
   ["landmark", "#0f5c45"],
+  ["site", "#b8891f"],
 ];
 
 export type MapViewProps = {
@@ -93,6 +96,10 @@ export type MapViewProps = {
   trail?: [number, number][];
   /** Target marker style: the hotel pin, or a flag for a chosen gate/place. */
   targetIcon?: "hotel" | "flag";
+  /** Fit the view to these points once the map is ready (and whenever the set changes). */
+  fitTo?: LatLon[];
+  /** Save map tiles around the target for offline use (default on; off for far-away targets). */
+  prefetch?: boolean;
 };
 
 function hotelPinEl(label: string) {
@@ -328,9 +335,9 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
                 ["linear"],
                 ["zoom"],
                 14,
-                ["case", ["get", "sel"], 9, ["==", ["get", "kind"], "gate"], 5, 3.5],
+                ["case", ["==", ["get", "kind"], "site"], ["case", ["get", "sel"], 15, 12], ["get", "sel"], 9, ["==", ["get", "kind"], "gate"], 5, 3.5],
                 17,
-                ["case", ["get", "sel"], 14, ["==", ["get", "kind"], "gate"], 11, 7],
+                ["case", ["==", ["get", "kind"], "site"], ["case", ["get", "sel"], 15, 12], ["get", "sel"], 14, ["==", ["get", "kind"], "gate"], 11, 7],
               ],
               "circle-color": ["case", ["get", "muted"], "#8a8f98", color as never],
               "circle-stroke-color": "#ffffff",
@@ -345,8 +352,17 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
               type: "symbol",
               source: "hc-pois",
               minzoom: 15.5,
-              filter: ["has", "num"],
+              filter: ["all", ["has", "num"], ["!=", ["get", "kind"], "site"]],
               layout: { "text-field": ["to-string", ["get", "num"]], "text-size": 10, "text-allow-overlap": true, "text-font": ["Noto Sans Bold"] },
+              paint: { "text-color": "#ffffff" },
+            });
+            // Numbered places (Ziyarah): numbers at every zoom, matching the list.
+            m.addLayer({
+              id: "hc-site-num",
+              type: "symbol",
+              source: "hc-pois",
+              filter: ["all", ["has", "num"], ["==", ["get", "kind"], "site"]],
+              layout: { "text-field": ["to-string", ["get", "num"]], "text-size": 12, "text-allow-overlap": true, "text-font": ["Noto Sans Bold"] },
               paint: { "text-color": "#ffffff" },
             });
           }
@@ -557,7 +573,7 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
   useEffect(() => {
     const m = map.current;
     const t = props.target;
-    if (!m || !t || state !== "ready" || !navigator.serviceWorker?.controller) return;
+    if (!m || !t || state !== "ready" || props.prefetch === false || !navigator.serviceWorker?.controller) return;
     const src = m.getSource("openmaptiles") as { tiles?: string[] } | undefined;
     const template = src?.tiles?.[0];
     if (!template) return;
@@ -566,7 +582,38 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
       template.replace("{z}", String(z)).replace("{x}", String(x)).replace("{y}", String(y)),
     );
     navigator.serviceWorker.controller.postMessage({ type: "cache-tiles", urls });
-  }, [props.target, props.initialCenter, state, styleTick]);
+  }, [props.target, props.initialCenter, props.prefetch, state, styleTick]);
+
+  /** Fit a set of points (plus the user) into view. */
+  const fitPts = (pts: LatLon[], maxZoom = 16, duration = 700) => {
+    const m = map.current;
+    const ml = lib.current;
+    if (!m || !ml || !pts.length) return;
+    const u = latest.current.user;
+    const all = u ? [...pts, u] : pts;
+    if (all.length === 1) return void m.easeTo({ center: [all[0].lon, all[0].lat], zoom: Math.min(maxZoom, 16), duration });
+    const b = new ml.LngLatBounds([all[0].lon, all[0].lat], [all[0].lon, all[0].lat]);
+    for (const p of all) b.extend([p.lon, p.lat]);
+    m.fitBounds(b, { padding: { top: 60, bottom: 40, left: 40, right: 60 }, maxZoom, duration });
+  };
+
+  // Fit to the given points when the map is ready, and when the set changes (not on every GPS fix).
+  const fitKey = (props.fitTo ?? []).map((p) => `${p.lat.toFixed(4)},${p.lon.toFixed(4)}`).join(";");
+  const fitted = useRef("");
+  useEffect(() => {
+    if (state !== "ready" || !fitKey || fitted.current === fitKey) return;
+    const first = fitted.current === "";
+    fitted.current = fitKey;
+    // Not including the user: the overview should show the places themselves.
+    const m = map.current;
+    const ml = lib.current;
+    const pts = latest.current.fitTo ?? [];
+    if (!m || !ml || !pts.length) return;
+    if (pts.length === 1) return void m.jumpTo({ center: [pts[0].lon, pts[0].lat], zoom: 15 });
+    const b = new ml.LngLatBounds([pts[0].lon, pts[0].lat], [pts[0].lon, pts[0].lat]);
+    for (const p of pts) b.extend([p.lon, p.lat]);
+    m.fitBounds(b, { padding: { top: 60, bottom: 40, left: 40, right: 60 }, maxZoom: 16, duration: first ? 0 : 600 });
+  }, [fitKey, state]);
 
   useImperativeHandle(ref, () => ({
     fitBoth: () => {
@@ -581,6 +628,7 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
         m.fitBounds(b, { padding: { top: 70, bottom: 50, left: 50, right: 60 }, maxZoom: 18, duration: 700 });
       }
     },
+    fitPoints: (pts, maxZoom) => fitPts(pts, maxZoom),
     centerOn: (p, zoom) => map.current?.easeTo({ center: [p.lon, p.lat], zoom: zoom ?? Math.max(map.current.getZoom(), 16), duration: 600 }),
   }));
 

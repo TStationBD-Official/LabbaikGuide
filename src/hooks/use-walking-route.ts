@@ -19,7 +19,7 @@ const NEAR_M = 25; // closer than this: no route needed
  * (> max(35 m, 1.2 × GPS accuracy)) — so a normal walk costs one request.
  * The last good route is kept when offline or when the router is unavailable.
  */
-export function useWalkingRoute(from: Fix | null, to: LatLon | null, enabled: boolean) {
+export function useWalkingRoute(from: Fix | null, to: LatLon | null, enabled: boolean, mode: "walk" | "drive" = "walk") {
   // The route is stored with the destination it was computed for.
   const [saved, setSaved] = useState<{ key: string; route: WalkRoute | null } | null>(null);
   const [status, setStatus] = useState<RouteStatus>("idle");
@@ -27,7 +27,7 @@ export function useWalkingRoute(from: Fix | null, to: LatLon | null, enabled: bo
   const blockedUntil = useRef(0);
   const inFlight = useRef<AbortController | null>(null);
 
-  const toKey = to ? `${to.lat.toFixed(5)},${to.lon.toFixed(5)}` : null;
+  const toKey = to ? `${mode}:${to.lat.toFixed(5)},${to.lon.toFixed(5)}` : null;
   const fetched = saved && saved.key === toKey ? saved.route : null;
   /** All walking paths found: the best one first, then real alternatives. */
   const routes: WalkPath[] = useMemo(() => (fetched ? [fetched, ...(fetched.alternatives ?? [])] : []), [fetched]);
@@ -41,7 +41,8 @@ export function useWalkingRoute(from: Fix | null, to: LatLon | null, enabled: bo
     if (!enabled || !from || !to || !toKey) return;
     const targetChanged = saved?.key !== toKey;
     if (distanceM(from, to) < NEAR_M) return;
-    const offRoute = progress ? progress.offRouteM > Math.max(35, from.accuracy * 1.2) : false;
+    // By car, roads are wider and GPS jumps more; only re-route when clearly off the road.
+    const offRoute = progress ? progress.offRouteM > Math.max(mode === "drive" ? 150 : 35, from.accuracy * 1.2) : false;
     const need = targetChanged || !route || offRoute;
     if (!need) return;
     const now = Date.now();
@@ -57,7 +58,7 @@ export function useWalkingRoute(from: Fix | null, to: LatLon | null, enabled: bo
     inFlight.current = ctrl;
     lastReq.current = now;
     queueMicrotask(() => setStatus(route && !targetChanged ? "rerouting" : "loading"));
-    const q = `from=${from.lat.toFixed(5)},${from.lon.toFixed(5)}&to=${to.lat.toFixed(5)},${to.lon.toFixed(5)}&alt=1`;
+    const q = `from=${from.lat.toFixed(5)},${from.lon.toFixed(5)}&to=${to.lat.toFixed(5)},${to.lon.toFixed(5)}&alt=1${mode === "drive" ? "&mode=drive" : ""}`;
     apiGet(`/api/route/walk?${q}`, WalkRouteSchema, { signal: ctrl.signal, timeoutMs: 15_000 })
       .then((r) => {
         setSaved({ key: toKey, route: r });
@@ -75,7 +76,7 @@ export function useWalkingRoute(from: Fix | null, to: LatLon | null, enabled: bo
       .finally(() => {
         if (inFlight.current === ctrl) inFlight.current = null;
       });
-  }, [enabled, from, to, toKey, route, progress, saved?.key]);
+  }, [enabled, from, to, toKey, route, progress, saved?.key, mode]);
 
   useEffect(() => () => inFlight.current?.abort(), []);
 

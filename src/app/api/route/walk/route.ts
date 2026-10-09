@@ -2,10 +2,11 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { isValidLatLon, distanceM } from "@/features/places/geo";
 import { clientKey, rateLimit } from "@/server/rate-limit";
-import { RoutingError, walkingRoute } from "@/server/routing/service";
+import { osrmRoute, RoutingError } from "@/server/routing/service";
 
 /**
- * GET /api/route/walk?from=lat,lon&to=lat,lon
+ * GET /api/route/walk?from=lat,lon&to=lat,lon[&mode=drive]
+ * mode=drive returns a car route (for Ziyarah trips, up to 600 km); default is on foot (up to 40 km).
  * Coordinates are used only to compute the route and are not stored or logged.
  */
 const Coord = z
@@ -19,7 +20,7 @@ const Coord = z
     }
     return { lat, lon };
   });
-const Query = z.object({ from: Coord, to: Coord });
+const Query = z.object({ from: Coord, to: Coord, mode: z.enum(["walk", "drive"]).default("walk") });
 
 export async function GET(req: Request) {
   // Stricter than other APIs: a burst of 6, then one route every 5 s per client.
@@ -28,11 +29,11 @@ export async function GET(req: Request) {
 
   const parsed = Query.safeParse(Object.fromEntries(new URL(req.url).searchParams));
   if (!parsed.success) return NextResponse.json({ error: "invalid_request" }, { status: 400 });
-  const { from, to } = parsed.data;
-  if (distanceM(from, to) > 40_000) return NextResponse.json({ error: "too_far" }, { status: 422 });
+  const { from, to, mode } = parsed.data;
+  if (distanceM(from, to) > (mode === "drive" ? 600_000 : 40_000)) return NextResponse.json({ error: "too_far" }, { status: 422 });
 
   try {
-    const route = await walkingRoute(from, to);
+    const route = await osrmRoute(from, to, mode);
     return NextResponse.json(route, { headers: { "Cache-Control": "public, max-age=300, s-maxage=86400, stale-while-revalidate=604800" } });
   } catch (e) {
     const status = e instanceof RoutingError ? e.status : 502;

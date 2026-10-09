@@ -19,3 +19,26 @@ describe("alternative walking paths", () => {
     expect(distinctPaths(best, [detour])).toHaveLength(0);
   });
 });
+
+describe("car routes", () => {
+  it("asks the car router and returns the road route", async () => {
+    const { vi } = await import("vitest");
+    const { osrmRoute } = await import("@/server/routing/service");
+    const calls: string[] = [];
+    const spy = vi.spyOn(globalThis, "fetch").mockImplementation(async (u) => {
+      calls.push(String(u));
+      return new Response(
+        JSON.stringify({ code: "Ok", routes: [{ distance: 91000, duration: 4200, geometry: { type: "LineString", coordinates: [[39.82, 21.42], [40.41, 21.27]] } }] }),
+        { status: 200, headers: { "content-type": "application/json" } },
+      );
+    });
+    try {
+      const r = await osrmRoute({ lat: 21.4225, lon: 39.8262 }, { lat: 21.2704, lon: 40.4085 }, "drive");
+      expect(calls[0]).toContain("/routed-car/route/v1/driving/");
+      expect(r.distance).toBe(91000);
+      expect(r.coordinates).toHaveLength(2);
+    } finally {
+      spy.mockRestore();
+    }
+  });
+});

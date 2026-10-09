@@ -7,8 +7,10 @@ import { usePrefs } from "@/components/providers/preferences-provider";
 import { SegmentedControl } from "@/components/ui/segmented";
 import { Button } from "@/components/ui/button";
 import { geolocationGranted, useLiveLocation } from "@/hooks/use-geolocation";
+import { useWalkingRoute } from "@/hooks/use-walking-route";
+import { ZiyarahOverviewMap, ZiyarahTripMap, type TripMode } from "@/components/ziyarah/ziyarah-map";
 import { LOCATIONS } from "@/config/locations";
-import { distanceM } from "@/features/places/geo";
+import { distanceM, walkingMinutes, type Fix } from "@/features/places/geo";
 import { gt } from "@/data/guides/travel";
 import { BUS, ETIQUETTE, estimateTrip, PLACES, TAXI, ZIYARAH_CHECKED, type ZPlace, type ZRef, type ZRegion } from "@/data/guides/ziyarah";
 import { cn } from "@/lib/utils";
@@ -138,7 +140,7 @@ export function ZiyarahPage() {
     [region, origin],
   );
 
-  if (opened) return <PlaceDetail place={opened} origin={origin} originLabel={originLabel} onBack={() => open(null)} onLocate={() => live.start()} />;
+  if (opened) return <PlaceDetail key={opened.id} place={opened} origin={origin} originLabel={originLabel} live={live} onBack={() => open(null)} />;
 
   return (
     <div className="space-y-5">
@@ -180,6 +182,14 @@ export function ZiyarahPage() {
         ) : null}
       </div>
 
+      <ZiyarahOverviewMap
+        items={list.map(({ p }, i) => ({ id: p.id, lat: p.lat, lon: p.lon, num: i + 1 }))}
+        user={fix}
+        center={LOCATION_POINT[base]}
+        onOpen={open}
+        onLocate={() => live.start()}
+      />
+
       <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {list.map(({ p, km }, i) => {
           const est = estimateTrip(km);
@@ -192,8 +202,8 @@ export function ZiyarahPage() {
               >
                 <div className="relative">
                   <Photo place={p} />
-                  <span className="absolute start-2.5 top-2.5 grid size-9 place-items-center rounded-full bg-black/45 text-lg backdrop-blur-sm" aria-hidden>
-                    {p.emoji}
+                  <span className="absolute start-2.5 top-2.5 grid size-9 place-items-center rounded-full bg-[#b8891f] text-sm font-bold text-white ring-2 ring-white shadow-soft" aria-hidden>
+                    {fmt.n(i + 1)}
                   </span>
                   <span className="absolute bottom-2.5 end-2.5 rounded-full bg-black/55 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm">
                     {fmt.km(km)}
@@ -201,6 +211,7 @@ export function ZiyarahPage() {
                 </div>
                 <div className="space-y-1.5 p-3.5">
                   <p className="font-semibold leading-snug" dir="auto">
+                    <span aria-hidden>{p.emoji} </span>
                     {gt(p.name, locale)}
                   </p>
                   <p lang="ar" dir="rtl" className="font-arabic text-sm text-primary">
@@ -254,21 +265,35 @@ function PlaceDetail({
   place,
   origin,
   originLabel,
+  live,
   onBack,
-  onLocate,
 }: {
   place: ZPlace;
   origin: { lat: number; lon: number; you: boolean };
   originLabel: string;
+  live: ReturnType<typeof useLiveLocation>;
   onBack: () => void;
-  onLocate: () => void;
 }) {
   const { t, locale } = useI18n();
   const fmt = useFmt();
   const km = distanceM(origin, place) / 1000;
-  const est = estimateTrip(km);
+  const canWalk = km <= 30;
+  const [modePick, setMode] = useState<TripMode>(km <= 3 ? "walk" : "drive");
+  const mode: TripMode = canWalk ? modePick : "drive";
+  const [tracking, setTracking] = useState(false);
+
+  // Road route from the user (live) or, with location off, from the Haram.
+  const fromKey = origin.you ? null : `${origin.lat},${origin.lon}`;
+  const haramFix: Fix | null = useMemo(() => (fromKey ? { lat: origin.lat, lon: origin.lon, accuracy: 0, time: 0 } : null), [fromKey]); // eslint-disable-line react-hooks/exhaustive-deps -- keyed by fromKey
+  const from = origin.you ? live.fix : haramFix;
+  const to = useMemo(() => ({ lat: place.lat, lon: place.lon }), [place.lat, place.lon]);
+  const route = useWalkingRoute(from, to, km <= 590, mode);
+  const r = route.route;
+
+  const est = estimateTrip(km, mode === "drive" && r ? { km: r.distance / 1000, min: r.duration / 60 } : null);
+  const walkMin = mode === "walk" && r ? walkingMinutes(r.distance) : est.walkMin;
   const city = place.region === "madinah" ? "madinah" : place.region === "makkah" ? "makkah" : null;
-  const directions = `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lon}&travelmode=${est.walkMin !== null ? "walking" : "driving"}`;
+  const directions = `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lon}&travelmode=${mode === "walk" ? "walking" : "driving"}`;
 
   return (
     <article className="space-y-5">
@@ -300,6 +325,22 @@ function PlaceDetail({
         ) : null}
       </div>
 
+      <ZiyarahTripMap
+        place={to}
+        label={gt(place.name, locale)}
+        originLabel={originLabel}
+        origin={origin}
+        user={live.fix}
+        live={live}
+        route={route}
+        mode={mode}
+        onMode={setMode}
+        canWalk={canWalk}
+        tracking={tracking}
+        onTracking={setTracking}
+        fmtKm={fmt.km}
+      />
+
       {/* distance & getting there */}
       <section className="hc-rise space-y-3 rounded-2xl border border-border bg-card p-4" style={{ animationDelay: "80ms" }} aria-labelledby="z-trip">
         <div className="flex items-baseline justify-between gap-2">
@@ -311,7 +352,7 @@ function PlaceDetail({
         <div className="grid grid-cols-3 gap-2 text-center">
           <div className="rounded-xl bg-muted/60 px-2 py-2">
             <p className="text-[11px] text-muted-foreground">{t("ziyarah.distance")}</p>
-            <p className="font-semibold">{fmt.km(km)}</p>
+            <p className="font-semibold">{fmt.km(r ? r.distance / 1000 : km)}</p>
           </div>
           <div className="rounded-xl bg-muted/60 px-2 py-2">
             <p className="text-[11px] text-muted-foreground">{t("ziyarah.byCar")}</p>
@@ -323,10 +364,10 @@ function PlaceDetail({
           </div>
         </div>
         <ul className="space-y-2 text-sm">
-          {est.walkMin !== null ? (
+          {walkMin !== null ? (
             <li className="flex gap-2">
               <Footprints className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
-              <span>{t("ziyarah.walkLine", { min: fmt.n(est.walkMin) })}</span>
+              <span>{t("ziyarah.walkLine", { min: fmt.n(walkMin) })}</span>
             </li>
           ) : null}
           {city ? (
@@ -362,7 +403,7 @@ function PlaceDetail({
             {t("ziyarah.directions")}
           </a>
           {!origin.you ? (
-            <Button variant="outline" onClick={onLocate}>
+            <Button variant="outline" onClick={() => live.start()}>
               <Crosshair className="size-4" aria-hidden />
               {t("ziyarah.useMyLocation")}
             </Button>

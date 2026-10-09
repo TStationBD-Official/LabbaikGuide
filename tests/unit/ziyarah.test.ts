@@ -52,3 +52,12 @@ describe("estimateTrip", () => {
     expect(estimateTrip(70).driveMin).toBeGreaterThan(55);
   });
 });
+
+describe("estimateTrip with a real road route", () => {
+  it("uses the road distance for the fare and adds traffic time near the Harams", () => {
+    const e = estimateTrip(2, { km: 3.5, min: 8 });
+    expect(e.roadKm).toBe(3.5);
+    expect(e.driveMin).toBe(12);
+    expect(e.taxi[0]).toBeGreaterThanOrEqual(TAXI.min);
+  });
+});

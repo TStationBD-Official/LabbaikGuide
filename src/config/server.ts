@@ -53,6 +53,8 @@ export const SERVER_CONFIG = {
   routing: {
     /** OSRM-compatible base URL serving a foot profile. Default: FOSSGIS public router (fair use ≤1 req/s). */
     osrmUrl: process.env.ROUTING_OSRM_URL ?? "https://routing.openstreetmap.de/routed-foot",
+    /** OSRM-compatible base URL serving a car profile (for trips to Ziyarah places). */
+    osrmCarUrl: process.env.ROUTING_OSRM_CAR_URL ?? "https://routing.openstreetmap.de/routed-car",
     sourceName: process.env.ROUTING_SOURCE_NAME ?? "OSRM · FOSSGIS · © OpenStreetMap",
     sourceUrl: process.env.ROUTING_SOURCE_URL ?? "https://routing.openstreetmap.de/about.html",
     timeoutMs: 8000,

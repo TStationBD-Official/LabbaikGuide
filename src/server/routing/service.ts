@@ -76,15 +76,26 @@ export function distinctPaths<T extends { distance: number; coordinates: [number
   return out;
 }
 
+export type RouteMode = "walk" | "drive";
+
 export async function walkingRoute(from: { lat: number; lon: number }, to: { lat: number; lon: number }): Promise<WalkRoute> {
-  const f = { lat: +from.lat.toFixed(4), lon: +from.lon.toFixed(4) };
+  return osrmRoute(from, to, "walk");
+}
+
+/** Route along real roads: on foot (full detail) or by car (simplified line for long trips). */
+export async function osrmRoute(from: { lat: number; lon: number }, to: { lat: number; lon: number }, mode: RouteMode): Promise<WalkRoute> {
+  const f = { lat: +from.lat.toFixed(mode === "drive" ? 3 : 4), lon: +from.lon.toFixed(mode === "drive" ? 3 : 4) };
   const t = { lat: +to.lat.toFixed(5), lon: +to.lon.toFixed(5) };
   const key = `${f.lon},${f.lat};${t.lon},${t.lat}`;
-  const hit = cache.get(key);
+  const cacheKey = `${mode}:${key}`;
+  const hit = cache.get(cacheKey);
   if (hit && Date.now() - hit.at < CACHE_TTL) return hit.route;
 
-  const { osrmUrl, sourceName, sourceUrl, timeoutMs } = SERVER_CONFIG.routing;
-  const url = `${osrmUrl.replace(/\/$/, "")}/route/v1/foot/${key}?overview=full&geometries=geojson&steps=false&alternatives=3`;
+  const { osrmUrl, osrmCarUrl, sourceName, sourceUrl, timeoutMs } = SERVER_CONFIG.routing;
+  const url =
+    mode === "drive"
+      ? `${osrmCarUrl.replace(/\/$/, "")}/route/v1/driving/${key}?overview=simplified&geometries=geojson&steps=false&alternatives=2`
+      : `${osrmUrl.replace(/\/$/, "")}/route/v1/foot/${key}?overview=full&geometries=geojson&steps=false&alternatives=3`;
 
   const raw = await throttled(async () => {
     let res: Response;
@@ -117,9 +128,9 @@ export async function walkingRoute(from: { lat: number; lon: number }, to: { lat
   const route: WalkRoute = {
     ...toPath(first),
     source: { name: sourceName, url: sourceUrl },
-    alternatives: distinctPaths(toPath(first), others.map(toPath)).slice(0, 3),
+    alternatives: (mode === "drive" ? others.map(toPath).filter((o) => o.distance < first.distance * 1.4) : distinctPaths(toPath(first), others.map(toPath))).slice(0, 3),
   };
-  cache.set(key, { at: Date.now(), route });
+  cache.set(cacheKey, { at: Date.now(), route });
   if (cache.size > CACHE_MAX) cache.delete(cache.keys().next().value!);
   return route;
 }

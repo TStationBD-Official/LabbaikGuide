@@ -64,6 +64,11 @@ export const ETIQUETTE: { text: GText; refs: ZRef[] }[] = [
   },
 ];
 
+/**
+ * Coordinates were checked against OpenStreetMap on 2026-10-09 (the feature itself: cave entrance,
+ * mosque or cemetery outline; Al-Balad → Naseef House; Badr → the martyrs' cemetery).
+ * Mina is a whole valley; its point is the Wikipedia coordinate for the area.
+ */
 export const PLACES: ZPlace[] = [
   // ───────────────────────────── Makkah ─────────────────────────────
   {
@@ -72,8 +77,8 @@ export const PLACES: ZPlace[] = [
     emoji: "⛰️",
     name: { en: "Jabal al-Nour & the Cave of Hira", bn: "জাবালে নূর ও হেরা গুহা", ur: "جبلِ نور اور غارِ حرا" },
     arabic: "جبل النور · غار حراء",
-    lat: 21.457581,
-    lon: 39.861369,
+    lat: 21.457371,
+    lon: 39.859196,
     short: { en: "Where the first revelation came down", bn: "যেখানে প্রথম ওহি নাজিল হয়", ur: "جہاں پہلی وحی نازل ہوئی" },
     about: {
       en: "Before prophethood, the Prophet ﷺ would retreat to the Cave of Hira near the top of this mountain to worship for nights at a time. There the angel Jibril brought the first verses of the Qur'an: “Read in the name of your Lord who created” (al-‘Alaq 96:1–5).",
@@ -100,8 +105,8 @@ export const PLACES: ZPlace[] = [
     emoji: "🕳️",
     name: { en: "Jabal Thawr & the Cave of Thawr", bn: "জাবালে সাওর ও সাওর গুহা", ur: "جبلِ ثور اور غارِ ثور" },
     arabic: "جبل ثور · غار ثور",
-    lat: 21.3775,
-    lon: 39.850833,
+    lat: 21.377119,
+    lon: 39.849816,
     short: { en: "The Hijrah hiding place of the Prophet ﷺ and Abu Bakr", bn: "হিজরতের সময় নবী ﷺ ও আবু বকরের আশ্রয়", ur: "ہجرت میں نبی ﷺ اور ابو بکرؓ کی پناہ گاہ" },
     about: {
       en: "On the Hijrah to Madinah, the Prophet ﷺ and Abu Bakr hid for three nights in a cave on this mountain south of Makkah while the Quraysh searched for them. The Qur'an recalls it: “…when he said to his companion, ‘Do not grieve; Allah is with us.’”",
@@ -124,8 +129,8 @@ export const PLACES: ZPlace[] = [
     emoji: "🪦",
     name: { en: "Jannat al-Mu'alla cemetery", bn: "জান্নাতুল মুআল্লা কবরস্থান", ur: "جنت المعلّیٰ قبرستان" },
     arabic: "مقبرة المعلاة",
-    lat: 21.436991,
-    lon: 39.829213,
+    lat: 21.435132,
+    lon: 39.828807,
     short: { en: "Makkah's historic cemetery, resting place of Khadijah", bn: "মক্কার ঐতিহাসিক কবরস্থান, খাদিজা (রা.)-র কবর", ur: "مکہ کا تاریخی قبرستان، حضرت خدیجہؓ کی آرام گاہ" },
     about: {
       en: "The old cemetery of Makkah, north of the Haram on the road to al-Hajun. Historians record that Khadijah bint Khuwaylid, the first wife of the Prophet ﷺ, is buried here, along with many of the Prophet's family and later scholars.",
@@ -228,8 +233,8 @@ export const PLACES: ZPlace[] = [
     emoji: "🏔️",
     name: { en: "Arafat, Jabal al-Rahmah & Masjid Namirah", bn: "আরাফাত, জাবালে রহমত ও মসজিদে নামিরা", ur: "عرفات، جبلِ رحمت اور مسجد نمرہ" },
     arabic: "عرفات · جبل الرحمة · مسجد نمرة",
-    lat: 21.354722,
-    lon: 39.983889,
+    lat: 21.3548,
+    lon: 39.984102,
     short: { en: "The standing of Arafah — the heart of Hajj", bn: "আরাফার অবস্থান — হজের মূল", ur: "وقوفِ عرفہ — حج کا رکنِ اعظم" },
     about: {
       en: "On the 9th of Dhul-Hijjah pilgrims stand at Arafat in dua until sunset — “Hajj is Arafah.” The Prophet ﷺ delivered his Farewell Sermon here, and Masjid Namirah stands near where he stayed. Climbing Jabal al-Rahmah is not part of Hajj.",
@@ -252,8 +257,8 @@ export const PLACES: ZPlace[] = [
     emoji: "🏛️",
     name: { en: "Two Holy Mosques Architecture Exhibition", bn: "দুই পবিত্র মসজিদের স্থাপত্য প্রদর্শনী", ur: "حرمین شریفین کی تعمیراتی نمائش" },
     arabic: "معرض عمارة الحرمين الشريفين",
-    lat: 21.434587,
-    lon: 39.754652,
+    lat: 21.433808,
+    lon: 39.754299,
     short: { en: "Old Kaaba door, Maqam cover and the history of both Harams", bn: "কাবার পুরোনো দরজা, মাকামের আবরণ ও দুই হারামের ইতিহাস", ur: "کعبہ کا پرانا دروازہ، مقام کا غلاف اور دونوں حرموں کی تاریخ" },
     about: {
       en: "A museum in Umm al-Joud, next to the Kiswa factory, opened in 2000. It shows original pieces from the two Harams — old Kaaba doors, a wooden Maqam Ibrahim cover, Zamzam well fittings, columns and manuscripts — and models of the expansions.",
@@ -303,8 +308,8 @@ export const PLACES: ZPlace[] = [
     emoji: "🧭",
     name: { en: "Masjid al-Qiblatayn", bn: "মসজিদে কিবলাতাইন", ur: "مسجد قبلتین" },
     arabic: "مسجد القبلتين",
-    lat: 24.484086,
-    lon: 39.578908,
+    lat: 24.484157,
+    lon: 39.578811,
     short: { en: "The mosque of the two qiblas", bn: "দুই কিবলার মসজিদ", ur: "دو قبلوں والی مسجد" },
     about: {
       en: "For sixteen or seventeen months after the Hijrah, Muslims prayed towards Jerusalem until Allah turned the qibla to the Ka'bah. This mosque of Banu Salimah is traditionally where a prayer was completed facing the new qibla, hence its name.",
@@ -364,8 +369,8 @@ export const PLACES: ZPlace[] = [
     emoji: "🛡️",
     name: { en: "The Seven Mosques (Khandaq)", bn: "সাত মসজিদ (খন্দক)", ur: "مساجدِ سبعہ (خندق)" },
     arabic: "المساجد السبعة",
-    lat: 24.476833,
-    lon: 39.595972,
+    lat: 24.4771,
+    lon: 39.595105,
     short: { en: "Where the trench was dug in the Battle of the Confederates", bn: "আহযাব যুদ্ধে যেখানে খন্দক খোঁড়া হয়েছিল", ur: "جنگِ احزاب میں جہاں خندق کھودی گئی" },
     about: {
       en: "Small mosques at the foot of Mount Sal', along the line of the trench dug in 5 AH when the Confederates besieged Madinah. The largest, Masjid al-Fath, stands where tradition places the Prophet's ﷺ tent and dua.",
@@ -465,8 +470,8 @@ export const PLACES: ZPlace[] = [
     emoji: "⚔️",
     name: { en: "Badr — the battlefield and martyrs' cemetery", bn: "বদর — যুদ্ধক্ষেত্র ও শহীদদের কবরস্থান", ur: "بدر — میدانِ جنگ اور شہدا کا قبرستان" },
     arabic: "بدر · مقبرة شهداء بدر",
-    lat: 23.7333,
-    lon: 38.7667,
+    lat: 23.771984,
+    lon: 38.788554,
     short: { en: "Yawm al-Furqan — the first great battle (2 AH)", bn: "ইয়াওমুল ফুরকান — প্রথম বড় যুদ্ধ (২ হিজরি)", ur: "یوم الفرقان — پہلا بڑا معرکہ (۲ ہجری)" },
     about: {
       en: "On 17 Ramadan 2 AH about 313 Muslims met a far larger Quraysh army at the wells of Badr and Allah granted victory: “Allah had already given you victory at Badr while you were few.” Fourteen martyrs are buried in a walled cemetery there.",
@@ -485,8 +490,8 @@ export const PLACES: ZPlace[] = [
     emoji: "🏰",
     name: { en: "Khaybar", bn: "খাইবার", ur: "خیبر" },
     arabic: "خيبر",
-    lat: 25.698611,
-    lon: 39.2925,
+    lat: 25.701105,
+    lon: 39.285976,
     short: { en: "The oasis and forts conquered in 7 AH", bn: "৭ হিজরিতে বিজিত মরূদ্যান ও দুর্গ", ur: "۷ ہجری میں فتح ہونے والا نخلستان اور قلعے" },
     about: {
       en: "An oasis of palm groves and forts about 150 km north of Madinah, conquered in 7 AH. The Prophet ﷺ said the banner would be given to a man who loves Allah and His Messenger, and gave it to Ali ibn Abi Talib.",
@@ -504,8 +509,8 @@ export const PLACES: ZPlace[] = [
     emoji: "🏘️",
     name: { en: "Al-Balad — historic Jeddah", bn: "আল-বালাদ — ঐতিহাসিক জেদ্দা", ur: "البلد — تاریخی جدہ" },
     arabic: "جدة التاريخية · البلد",
-    lat: 21.4833,
-    lon: 39.1833,
+    lat: 21.483964,
+    lon: 39.187668,
     short: { en: "The old port town of the pilgrims (UNESCO)", bn: "হাজিদের পুরোনো বন্দর শহর (ইউনেস্কো)", ur: "حاجیوں کا پرانا بندرگاہی شہر (یونیسکو)" },
     about: {
       en: "For centuries most pilgrims reached Makkah through Jeddah's port. Its old quarter, with coral-stone houses and wooden roshan balconies and the old Shafi'i mosque, is a UNESCO World Heritage site.",
@@ -538,6 +543,11 @@ export const BUS = {
 /** Roads wind: the drive is usually ~30% longer than the straight line (more in the mountains). */
 export const ROAD_FACTOR = 1.3;
 
+/** Free-flow road minutes (router) plus a traffic allowance: heavy near the Harams, light on highways. */
+export function withTraffic(roadKm: number, freeMin: number): number {
+  return Math.max(1, Math.round(freeMin * (roadKm < 15 ? 1.5 : roadKm < 40 ? 1.25 : 1.1)));
+}
+
 export type TripEstimate = {
   straightKm: number;
   roadKm: number;
@@ -546,12 +556,18 @@ export type TripEstimate = {
   taxi: [number, number];
 };
 
-/** Estimate a trip from a straight-line distance (km). */
-export function estimateTrip(straightKm: number): TripEstimate {
-  const roadKm = straightKm * ROAD_FACTOR;
+/**
+ * Estimate a trip from a straight-line distance (km). When a real road route is known
+ * (OpenStreetMap car route: km and free-flow minutes), its distance is used for the fare and
+ * its time gets a traffic allowance near the Harams.
+ */
+export function estimateTrip(straightKm: number, road?: { km: number; min: number } | null): TripEstimate {
+  const roadKm = road ? road.km : straightKm * ROAD_FACTOR;
   // City traffic near the Harams averages ~25 km/h; open highway ~85 km/h.
   const speed = roadKm < 15 ? 25 : roadKm < 40 ? 45 : 85;
-  const driveMin = Math.max(5, Math.round((roadKm / speed) * 60));
+  const driveMin = road
+    ? Math.max(5, withTraffic(roadKm, road.min))
+    : Math.max(5, Math.round((roadKm / speed) * 60));
   const meter = Math.max(TAXI.min, TAXI.start + TAXI.perKm * roadKm);
   // Upper end: traffic waiting time (≈ a fifth of the trip at SAR 0.9/min) and app surge.
   const high = Math.max(TAXI.min + 5, meter + 0.9 * driveMin * 0.2) * 1.25;
