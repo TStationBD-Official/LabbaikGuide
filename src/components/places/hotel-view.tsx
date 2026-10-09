@@ -227,6 +227,8 @@ export function HotelView() {
   };
 
   const [linkBusy, setLinkBusy] = useState(false);
+  /** Name of the place in a Google link we couldn't locate (to explain why). */
+  const [linkPlace, setLinkPlace] = useState<string | null>(null);
   const useLink = async () => {
     // Google Maps share links (maps.app.goo.gl/…) carry no coordinates: our server opens them.
     if (!parseCoordinates(link) && isShortMapLink(link)) {
@@ -239,6 +241,7 @@ export function HotelView() {
         const hit: SearchHit | null = d.coords
           ? { id: "link", name: title, detail: "", lat: d.coords.lat, lon: d.coords.lon, kind: "coords" }
           : (d.results ?? [])[0] ?? null;
+        setLinkPlace(!hit && title ? title : null);
         if (!r.ok || !hit) return setLinkError(true);
         pickSearchHit(hit.kind === "coords" && title ? { ...hit, kind: "hotel" } : hit);
         setLink("");
@@ -383,6 +386,7 @@ export function HotelView() {
           setLink={setLink}
           linkError={linkError}
           linkBusy={linkBusy}
+          linkPlace={linkPlace}
           onUseLink={useLink}
           onSave={saveDraft}
           onCancel={places.length ? () => (setDraft(null), setPicking(false)) : null}
@@ -772,6 +776,7 @@ function Editor({
   setLink,
   linkError,
   linkBusy,
+  linkPlace,
   onUseLink,
   onSave,
   onCancel,
@@ -791,6 +796,7 @@ function Editor({
   setLink: (s: string) => void;
   linkError: boolean;
   linkBusy: boolean;
+  linkPlace: string | null;
   onUseLink: () => void;
   onSave: () => void;
   onCancel: (() => void) | null;
@@ -860,7 +866,7 @@ function Editor({
                   {t("hotel.useLink")}
                 </Button>
               </div>
-              {linkError ? <p className="mt-1 text-xs text-danger">{t("hotel.invalidLink")}</p> : null}
+              {linkError ? <p className="mt-1 text-xs text-danger">{linkPlace ? t("placeSearch.linkNotFound", { name: linkPlace }) : t("hotel.invalidLink")}</p> : null}
             </div>
           </>
         )}

@@ -4,7 +4,7 @@ import { isLocationId } from "@/config/locations";
 import { isShortMapLink } from "@/features/places/geo";
 import { clientKey, rateLimit } from "@/server/rate-limit";
 import { resolveMapLink } from "@/server/places/resolve-link";
-import { searchPlaces } from "@/server/places/search";
+import { sameName, searchPlaces } from "@/server/places/search";
 
 /**
  * GET /api/places/resolve?url=https://maps.app.goo.gl/…&loc=makkah&lang=en
@@ -29,8 +29,8 @@ export async function GET(req: Request) {
     if (!r.coords && r.name) {
       // "Bader al Hadeth Hotel, 3263, Jarham، …, Makkah 24233, Saudi Arabia" → search the name part first.
       const short = r.name.split(/[,،]/)[0].trim();
-      results = await searchPlaces(short, loc as "makkah" | "madinah", lang).catch(() => []);
-      if (!results.length && short !== r.name) results = await searchPlaces(r.name.slice(0, 80), loc as "makkah" | "madinah", lang).catch(() => []);
+      // Only places that really carry that name — a similar-sounding hotel would send the user to the wrong door.
+      results = (await searchPlaces(short, loc as "makkah" | "madinah", lang).catch(() => [])).filter((h) => sameName(short, h.name));
     }
     return NextResponse.json({ coords: r.coords, name: r.name, results }, { headers: { "Cache-Control": "public, max-age=3600, s-maxage=86400" } });
   } catch {

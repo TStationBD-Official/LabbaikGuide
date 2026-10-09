@@ -27,3 +27,16 @@ describe("place search (Photon results)", () => {
     expect(kindOf("railway", "station")).toBe("transport");
   });
 });
+
+describe("matching a Google Maps place name", async () => {
+  const { sameName } = await import("@/server/places/search");
+  it("accepts the same place with spelling differences", () => {
+    expect(sameName("Bader al Hadeth Hotel", "Badr Al Hadeth Hotel")).toBe(true);
+    expect(sameName("Hilton Suites Jabal Omar Makkah", "Hilton Suites Jabal Omar")).toBe(true);
+    expect(sameName("فندق صفوة الميعاد", "صفوة الميعاد")).toBe(true);
+  });
+  it("rejects a different hotel with a similar word", () => {
+    expect(sameName("Bader al Hadeth Hotel", "Al Badar Palace Hotel")).toBe(false);
+    expect(sameName("Bader al Hadeth Hotel", "Al Fajer Al Badea Hotel 3")).toBe(false);
+  });
+});

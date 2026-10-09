@@ -1075,7 +1075,7 @@
     "linkOpening": "Opening your Google Maps link…",
     "linkError": "This link couldn't be read. Open it in Google Maps, tap the pin and copy the coordinates instead.",
     "linkFound": "From your Google Maps link: “{name}” — pick the right one.",
-    "linkNotFound": "The link is for “{name}”, which isn't on our map yet.",
+    "linkNotFound": "Google doesn't include the location of “{name}” in this link, and it isn't on our map yet. In Google Maps, long-press the hotel entrance to drop a pin and share that pin instead — or paste its numbers (like 21.41…, 39.82…).",
     "linkSearchName": "Search by name"
   },
   "mapStyle": {

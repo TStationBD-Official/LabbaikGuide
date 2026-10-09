@@ -141,9 +141,15 @@ export function placeNameFromMapUrl(url: string): string | null {
 }
 
 export function parseCoordinates(input: string): LatLon | null {
-  const s = input.trim();
+  let s = input.trim();
+  try {
+    s = decodeURIComponent(s.replace(/\+/g, " "));
+  } catch {
+    /* keep as typed */
+  }
   const patterns = [
     /!3d(-?\d{1,2}(?:\.\d+)?)!4d(-?\d{1,3}(?:\.\d+)?)/, // google place pin: ...!3d21.42!4d39.82 (more exact than @, the view centre)
+    /\/maps\/(?:search|place)\/(-?\d{1,2}\.\d+)\s*,\s*\+?(-?\d{1,3}\.\d+)/, // shared dropped pin: /maps/search/21.4185,+39.8262
     /@(-?\d{1,2}(?:\.\d+)?),\s*(-?\d{1,3}(?:\.\d+)?)/, // google .../@21.42,39.82,17z
     /[?&](?:q|ll|query|daddr|destination)=(-?\d{1,2}(?:\.\d+)?)(?:,|%2C)\s*(-?\d{1,3}(?:\.\d+)?)/i,
     /[?&]mlat=(-?\d{1,2}(?:\.\d+)?)&mlon=(-?\d{1,3}(?:\.\d+)?)/,

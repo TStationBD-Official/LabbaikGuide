@@ -107,3 +107,49 @@ export async function searchPlaces(q: string, loc: LocationId, lang: string, nea
   if (cache.size > 2000) cache.delete(cache.keys().next().value!);
   return hits;
 }
+
+const STOP = new Set(["hotel", "hotels", "suites", "suite", "apartments", "inn", "al", "el", "the", "of", "and", "makkah", "mecca", "madinah", "medina", "فندق", "فنادق", "مكة", "المدينة", "و"]);
+const words = (s: string) =>
+  s
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u064B-\u0652\u0670\u0300-\u036f]/g, "")
+    .replace(/[أإآ]/g, "ا")
+    .replace(/ة/g, "ه")
+    .replace(/^ال|(\s)ال/g, "$1")
+    .split(/[^\p{L}\p{N}]+/u)
+    .filter((w) => w.length > 1 && !STOP.has(w));
+function close(a: string, b: string): boolean {
+  if (a === b) return true;
+  if (Math.min(a.length, b.length) < 4 || Math.abs(a.length - b.length) > 1) return false;
+  // One edit apart (transliteration: Bader / Badar).
+  let i = 0;
+  let j = 0;
+  let edits = 0;
+  while (i < a.length && j < b.length) {
+    if (a[i] === b[j]) {
+      i++;
+      j++;
+      continue;
+    }
+    if (++edits > 1) return false;
+    if (a.length > b.length) i++;
+    else if (b.length > a.length) j++;
+    else {
+      i++;
+      j++;
+    }
+  }
+  return edits + (a.length - i) + (b.length - j) <= 1;
+}
+
+/**
+ * Is `candidate` the place called `wanted`? Every distinctive word of the wanted name must appear
+ * (allowing one-letter spelling differences). "Bader al Hadeth Hotel" ≠ "Al Badar Palace Hotel".
+ */
+export function sameName(wanted: string, candidate: string): boolean {
+  const w = words(wanted);
+  const c = words(candidate);
+  if (!w.length || !c.length) return false;
+  return w.every((x) => c.some((y) => close(x, y)));
+}

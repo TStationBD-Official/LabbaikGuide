@@ -22,3 +22,10 @@ describe("Google Maps links", () => {
     expect(parseCoordinates(url)).toEqual({ lat: 21.4185, lon: 39.8262 });
   });
 });
+
+describe("shared dropped pins", () => {
+  it("reads /maps/search/lat,+lon", () => {
+    expect(parseCoordinates("https://www.google.com/maps/search/21.418500,+39.826200?entry=tts")).toEqual({ lat: 21.4185, lon: 39.8262 });
+    expect(parseCoordinates("https://www.google.com/maps/search/21.4185%2C39.8262")).toEqual({ lat: 21.4185, lon: 39.8262 });
+  });
+});
