@@ -1,0 +1,668 @@
+{
+ "hira": {
+  "title": "Hira",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Hira",
+  "desc": "Topics referred to by the same term",
+  "coords": null,
+  "image": null,
+  "extract": "Hira may refer to:"
+ },
+ "nour": {
+  "title": "Jabal al-Nour",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Jabal_al-Nour",
+  "desc": "Holy mountain and peak in Saudi Arabia",
+  "coords": [
+   {
+    "lat": 21.45805556,
+    "lon": 39.86138889,
+    "primary": "",
+    "globe": "earth"
+   }
+  ],
+  "image": "Jabbal_An-Nour_(2024).jpg",
+  "extract": "Jabal al-Nour (Arabic: جَبَل ٱلنُّوْر, romanized: Jabal an-Nūr, lit. 'Mountain of the Light' or 'Hill of the Illumination') is a mountain near Mecca in the Hejaz region of Saudi Arabia. The mountain houses the grotto or cave of Hira (Arabic: غَار حِرَاء, romanized: Ghar-i-Hira, lit. 'Cave of Hira'). It is here where the Islamic prophet Muhammad is said to have received his first revelation of the Quran from the angel Jibra'il, which consists of the first five ayat of Surah Al-Alaq. The mountain itself is barely 640 m (2,100 ft) tall; nonetheless one to two hours are needed to make the strenuous hike to the cave. There are 1750 steps to the top which can take anywhere between half an hour and three hours. Jabal al-Nour is a major tourist destination for visitors and pilgrims.",
+  "img": {
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/57/Jabbal_An-Nour_%282024%29.jpg/960px-Jabbal_An-Nour_%282024%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Jabbal_An-Nour_(2024).jpg",
+   "w": 960,
+   "h": 720,
+   "artist": "<a href=\"//commons.wikimedia.org/wiki/User:Kaliper1\" class=\"mw-redirect\" title=\"User:Kaliper1\">Kaliper1</a>",
+   "license": "CC BY-SA 4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+   "credit": "<span class=\"int-own-work\" lang=\"en\">Own work</span>"
+  }
+ },
+ "thawr": {
+  "title": "Jabal Thawr",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Jabal_Thawr",
+  "desc": "Mountain in Saudi Arabia",
+  "coords": [
+   {
+    "lat": 21.3775,
+    "lon": 39.85083333,
+    "primary": "",
+    "globe": "earth"
+   }
+  ],
+  "image": "Jabele_thor_-_panoramio.jpg",
+  "extract": "Jabal Thawr (Arabic: جَبَل ثَوْر) is a mountain in Saudi Arabia, located in the lower part of Mecca to the south of the district of Misfalah. The height of the mountain is 750 m (2,460 ft).",
+  "img": {
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1a/Jabele_thor_-_panoramio.jpg/960px-Jabele_thor_-_panoramio.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Jabele_thor_-_panoramio.jpg",
+   "w": 960,
+   "h": 720,
+   "artist": "<a rel=\"nofollow\" class=\"external text\" href=\"https://web.archive.org/web/20161102201511/http://www.panoramio.com/user/6840946?with_photo_id=72571917\">Abdul Razzaq Phulpot…</a>",
+   "license": "CC BY-SA 3.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+   "credit": "<a rel=\"nofollow\" class=\"external free\" href=\"https://web.archive.org/web/20161102201509/http://www.panoramio.com/photo/72571917\">https://web.archive.org/web/20161102201509/http://www.panoramio.com/photo/72571917</a>"
+  }
+ },
+ "mualla": {
+  "title": "Jannat al-Mu'alla",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Jannat_al-Mu%27alla",
+  "desc": "Cemetery in Mecca, Saudi Arabia",
+  "coords": [
+   {
+    "lat": 21.436991,
+    "lon": 39.829213,
+    "primary": "",
+    "globe": "earth"
+   }
+  ],
+  "image": "Jannat_ul_Mualla_Cemetery.jpg",
+  "extract": "Jannat al-Mu'alla (Arabic: جَنَّة ٱلْمُعَلَّاة, romanized: Jannah al-Muʿallāh, lit. 'The Most Exalted Paradise'), also known as the \"Cemetery of Ma'la\" (Arabic: مَقْبَرَة ٱلْمَعْلَاة Maqbarah al-Maʿlāh) and Al-Ḥajūn (Arabic: ٱلْحَجُوْن), is a historic cemetery located to the north of Masjid al-Haram, and near the Mosque of the Jinn in Mecca, Saudi Arabia.\nIt is believed to be the burial place of several of the prophet Muhammad’s relatives and companions.",
+  "img": {
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/05/Jannat_ul_Mualla_Cemetery.jpg/960px-Jannat_ul_Mualla_Cemetery.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Jannat_ul_Mualla_Cemetery.jpg",
+   "w": 960,
+   "h": 540,
+   "artist": "<a href=\"//commons.wikimedia.org/wiki/User:Tubi719\" title=\"User:Tubi719\">Tubi719</a>",
+   "license": "CC BY-SA 4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+   "credit": "<span class=\"int-own-work\" lang=\"en\">Own work</span>. I took this photo when I went to Makkah. I myself created this work."
+  }
+ },
+ "mina": {
+  "title": "Mina, Saudi Arabia",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Mina,_Saudi_Arabia",
+  "desc": "Neighbourhood in Mecca, Saudi Arabia",
+  "coords": [
+   {
+    "lat": 21.41333333,
+    "lon": 39.89333333,
+    "primary": "",
+    "globe": "earth"
+   }
+  ],
+  "image": "Mina_Overview.JPG",
+  "extract": "Mina (Arabic: مِنَى, romanized: Minā), nicknamed the \"City of the Tents\", is a valley located 8 kilometres (5 miles) southeast of the city of Mecca, in the district of Masha'er, Province of Makkah in the Hejazi region of Saudi Arabia. Covering an area of approximately 20 km2 (7.7 sq mi), Mina incorporates the tents, the area of Jamarat, and the slaughterhouses just outside the tents.\nMina is most famous for its role in the Hajj (\"Pilgrimage\"). To accommodate the pilgrims who stay in Mina over multiple nights in the month of Dhu al-Hijjah, more than 100,000 air-conditioned tents have been built in the area, giving Mina the nickname \"City of Tents.\" With a capacity of up to 3 million people, Mina has been called the largest tent city in the world. The three Jamarat, located in the Mina valley, are the location of the Jamarat, performed between sunrise and sunset in the final days of the Hajj. The stone throwing ritual commemorates the Islamic prophet Ibrahim (Abraham)'s stoning of the Devil, who wanted to prevent him from carrying out the command of Allah to sacrifice his son, Isma'il (Ishmael).",
+  "img": {
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6a/Mina_Overview.JPG/960px-Mina_Overview.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Mina_Overview.JPG",
+   "w": 960,
+   "h": 720,
+   "artist": "Mubeen Rahman",
+   "license": "CC BY 3.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+   "credit": "<span class=\"int-own-work\" lang=\"en\">Own work</span>"
+  }
+ },
+ "arafat": {
+  "title": "Mount Arafat",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Mount_Arafat",
+  "desc": "Mountain and holy site in Saudi Arabia",
+  "coords": [
+   {
+    "lat": 21.35472222,
+    "lon": 39.98388889,
+    "primary": "",
+    "globe": "earth"
+   }
+  ],
+  "image": "Pilgrims_cover_Arafat's_roads,_plains_and_mountain_-_Flickr_-_Al_Jazeera_English.jpg",
+  "extract": "Mount Arafat (Arabic: جَبَل عَرَفَات, romanized: Jabal ʿArafāt, or جَبَل ٱلرَّحْمَة, Jabal ar-Raḥmah, 'Mountain of Mercy') is a granodiorite hill about 20 km (12 mi) southeast of Mecca, in the province of the same name in Saudi Arabia. It is approximately 70 m (230 ft) in height, with its highest point sitting at an elevation of 454 metres (1,490 ft).\nThe Islamic prophet Muhammad, before becoming a prophet, would break the tradition of his tribe, the Quraysh, by standing at Arafat with the other Arabs, much to the shock of his fellow Qurayshite Jubayr ibn Muṭʽim who highlighted that he was a part of the Hums and questioning what business he had there.\nAccording to Islamic traditions, the hill is the place where Muhammad stood and delivered the Farewell Sermon (Khuṭbat al-Wadāʿ) to his companions (Ṣaḥābah) who had accompanied him for the Hajj towards the end of his life. Some Muslims also believe that Mount Arafat is the place where Adam and Eve reunited on Earth after falling from Heaven, believing the mountain to be the place where they were forgiven, hence giving it the name Jabal ar-Raḥmah, meaning 'Mountain of Mercy'. A pillar is erected on top of the mountain to show where this event is believed to have taken place.",
+  "img": {
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/50/Pilgrims_cover_Arafat%27s_roads%2C_plains_and_mountain_-_Flickr_-_Al_Jazeera_English.jpg/960px-Pilgrims_cover_Arafat%27s_roads%2C_plains_and_mountain_-_Flickr_-_Al_Jazeera_English.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Pilgrims_cover_Arafat%27s_roads,_plains_and_mountain_-_Flickr_-_Al_Jazeera_English.jpg",
+   "w": 960,
+   "h": 641,
+   "artist": "<a rel=\"nofollow\" class=\"external text\" href=\"https://www.flickr.com/people/32834977@N03\">Al Jazeera English</a>",
+   "license": "CC BY-SA 2.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+   "credit": "<a rel=\"nofollow\" class=\"external text\" href=\"https://www.flickr.com/photos/aljazeeraenglish/4135889356/\">Pilgrims cover Arafat's roads, plains and mountain</a>"
+  }
+ },
+ "muzdalifah": {
+  "title": "Muzdalifah",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Muzdalifah",
+  "desc": "City in Mecca, Saudi Arabia",
+  "coords": [
+   {
+    "lat": 21.3925,
+    "lon": 39.93777778,
+    "primary": "",
+    "globe": "earth"
+   }
+  ],
+  "image": "Fajr_in_Muzdalifah.jpg",
+  "extract": "Muzdalifah (Arabic: مُزْدَلِفَة) is an open and level area near Mecca in the Hejazi region of Saudi Arabia that is associated with the Ḥajj (\"Pilgrimage\"). It lies just southeast of Mina, on the route between Mina and Arafat.\nIn Pre-Islamic times the Hums being the Quraysh, Banu Kinanah, Banu Khuza'a and Banu 'Amir would camp at Muzdalifah and refuse to go to Mount Arafat with the other Arabs.\nWith the coming of Islam, the Hums were reprimanded for this behaviour and told to depart with the other Arabs in Quran 2:199.",
+  "img": {
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/35/Fajr_in_Muzdalifah.jpg/960px-Fajr_in_Muzdalifah.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Fajr_in_Muzdalifah.jpg",
+   "w": 960,
+   "h": 640,
+   "artist": "<a href=\"//commons.wikimedia.org/w/index.php?title=User:Arisdp&amp;action=edit&amp;redlink=1\" class=\"new\" title=\"User:Arisdp (page does not exist)\">Arisdp</a>",
+   "license": "CC BY-SA 4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+   "credit": "<span class=\"int-own-work\" lang=\"en\">Own work</span>"
+  }
+ },
+ "jinn": {
+  "title": "Masjid al-Jinn",
+  "missing": true,
+  "url": "https://en.wikipedia.org/wiki/Masjid_al-Jinn",
+  "desc": null,
+  "coords": null,
+  "image": null,
+  "extract": null
+ },
+ "aisha": {
+  "title": "Masjid Aisha",
+  "missing": true,
+  "url": "https://en.wikipedia.org/wiki/Masjid_Aisha",
+  "desc": null,
+  "coords": null,
+  "image": null,
+  "extract": null
+ },
+ "jiranah": {
+  "title": "Al-Ji'ranah Mosque",
+  "missing": true,
+  "url": "https://en.wikipedia.org/wiki/Al-Ji%27ranah_Mosque",
+  "desc": null,
+  "coords": null,
+  "image": null,
+  "extract": null
+ },
+ "khayf": {
+  "title": "Al-Khayf Mosque",
+  "missing": true,
+  "url": "https://en.wikipedia.org/wiki/Al-Khayf_Mosque",
+  "desc": null,
+  "coords": null,
+  "image": null,
+  "extract": null
+ },
+ "namirah": {
+  "title": "Namirah Mosque",
+  "missing": true,
+  "url": "https://en.wikipedia.org/wiki/Namirah_Mosque",
+  "desc": null,
+  "coords": null,
+  "image": null,
+  "extract": null
+ },
+ "jamarat": {
+  "title": "Jamaraat Bridge",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Jamaraat_Bridge",
+  "desc": "Pedestrian bridge in Mina, Saudi Arabia, used by Muslims during the Hajj",
+  "coords": [
+   {
+    "lat": 21.42138889,
+    "lon": 39.87277778,
+    "primary": "",
+    "globe": "earth"
+   }
+  ],
+  "image": "Jamaraat_Bridge_2.jpg",
+  "extract": "The Jamaraat Bridge (Arabic: جسر الجمرات; transliterated: Jisr Al-Jamarat) is a pedestrian bridge in Mina, Saudi Arabia, near Makkah used by Muslims during the Hajj ritual Stoning of the Devil. The purpose of the bridge is to enable pilgrims to throw stones at the three jamrah pillars either from the ground level or from the bridge. Jamaraat is the plural of jamraah, the Arabic term for each of the pillars involved in the stoning ritual. It literally means a small piece of stone or a pebble.[1]\nThe bridge was built in 1963 and has been expanded several times since then. The pillars extend up through three openings in the bridge. Until 2006, the bridge had a single tier (i.e.",
+  "img": {
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/91/Jamaraat_Bridge_2.jpg/960px-Jamaraat_Bridge_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Jamaraat_Bridge_2.jpg",
+   "w": 960,
+   "h": 640,
+   "artist": "saudipics",
+   "license": "CC BY-SA 4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+   "credit": "<a rel=\"nofollow\" class=\"external free\" href=\"http://saudipics.com/images/preview/89\">http://saudipics.com/images/preview/89</a>"
+  }
+ },
+ "mashar": {
+  "title": "Al-Mash'ar al-Haram Mosque",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Al-Mash%27ar_al-Haram_Mosque",
+  "desc": "Mosque in Muzdalifah, Saudi Arabia",
+  "coords": [
+   {
+    "lat": 21.38611111,
+    "lon": 39.91222222,
+    "primary": "",
+    "globe": "earth"
+   }
+  ],
+  "image": "المشعر_الحرام.jpg",
+  "extract": "Al-Mash'ar al-Haram Mosque  (Arabic: مَسْجِد ٱلْمَشْعَر ٱلْحَرَام, romanized: Masjid Al-Mašʿar Al-Ḥarām), a historic mosque, is one of the most significant landmarks of the Hajj pilgrimage, located in Muzdalifah, western Saudi Arabia.",
+  "img": {
+   "thumb": "https://upload.wikimedia.org/wikipedia/commons/0/09/%D8%A7%D9%84%D9%85%D8%B4%D8%B9%D8%B1_%D8%A7%D9%84%D8%AD%D8%B1%D8%A7%D9%85.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "page": "https://commons.wikimedia.org/wiki/File:%D8%A7%D9%84%D9%85%D8%B4%D8%B9%D8%B1_%D8%A7%D9%84%D8%AD%D8%B1%D8%A7%D9%85.jpg",
+   "w": 960,
+   "h": 724,
+   "artist": "<a href=\"//commons.wikimedia.org/wiki/User:%D8%A7%D9%84%D8%B4%D9%8A%D8%AE_%D9%87%D9%8A%D8%AB%D9%85_%D8%A7%D9%84%D8%AF%D8%AE%D9%8A%D9%86\" title=\"User:الشيخ هيثم الدخين\">الشيخ هيثم الدخين</a>",
+   "license": "CC BY 4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+   "credit": "<span class=\"int-own-work\" lang=\"en\">Own work</span>"
+  }
+ },
+ "hiradistrict": {
+  "title": "Hira Cultural District",
+  "missing": true,
+  "url": "https://en.wikipedia.org/wiki/Hira_Cultural_District",
+  "desc": null,
+  "coords": null,
+  "image": null,
+  "extract": null
+ },
+ "exhibition": {
+  "title": "Exhibition of the Two Holy Mosques Architecture",
+  "missing": true,
+  "url": "https://en.wikipedia.org/wiki/Exhibition_of_the_Two_Holy_Mosques_Architecture",
+  "desc": null,
+  "coords": null,
+  "image": null,
+  "extract": null
+ },
+ "quba": {
+  "title": "Quba Mosque",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Quba_Mosque",
+  "desc": "Mosque in Medina, Saudi Arabia",
+  "coords": [
+   {
+    "lat": 24.43916667,
+    "lon": 39.61722222,
+    "primary": "",
+    "globe": "earth"
+   }
+  ],
+  "image": "Masjid_Quba_Mosque.jpg",
+  "extract": "The Quba Mosque is a mosque located in Medina in the Hejaz region of Saudi Arabia, first built in the lifetime of the Islamic prophet Muhammad in the 7th century. It is thought to be the first mosque in the world, established on the first day of Muhammad's emigration to Medina. Its first stone is said to have been laid by the prophet, and the structure completed by his companions. The mosque was subsequently modified across the centuries until the 1980s, when it was completely replaced by a new building that stands today.",
+  "img": {
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/af/Masjid_Quba_Mosque.jpg/960px-Masjid_Quba_Mosque.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Masjid_Quba_Mosque.jpg",
+   "w": 960,
+   "h": 821,
+   "artist": "<b><a href=\"https://en.wikipedia.org/wiki/User:Muhammad_Mahdi_Karim\" class=\"extiw\" title=\"w:User:Muhammad Mahdi Karim\">Muhammad Mahdi Karim</a></b>",
+   "license": "GFDL 1.2",
+   "licenseUrl": "http://www.gnu.org/licenses/old-licenses/fdl-1.2.html",
+   "credit": "<span class=\"int-own-work\" lang=\"en\">Own work</span>"
+  }
+ },
+ "qiblatayn": {
+  "title": "Masjid al-Qiblatayn",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Masjid_al-Qiblatayn",
+  "desc": "Mosque in Medina, Saudi Arabia",
+  "coords": [
+   {
+    "lat": 24.48408611,
+    "lon": 39.57890833,
+    "primary": "",
+    "globe": "earth"
+   }
+  ],
+  "image": "Masjid_al-Qiblatain.jpg",
+  "extract": "The Masjid al-Qiblatayn (Arabic: مسجد القبلتين, lit. 'Mosque of the Two Directions'), also spelt Masjid al-Qiblatain, is a historic mosque in Medina, Saudi Arabia, located approximately 5 km (3.1 mi) north-west of the Prophet's Mosque.\nThe mosque is believed by Muslims to be the place where the final Islamic prophet, Muhammad, received the command to change the Qibla (direction of prayer) from Jerusalem to Mecca. The mosque was built by Sawad ibn Ghanam ibn Ka'ab during the year 2 AH (623 CE) and is one of the two mosques in the world (the other being Mandhry Mosque in Mombasa, Kenya) to have contained two mihrabs (niches indicating the qibla) in different directions.",
+  "img": {
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bc/Masjid_al-Qiblatain.jpg/960px-Masjid_al-Qiblatain.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Masjid_al-Qiblatain.jpg",
+   "w": 960,
+   "h": 720,
+   "artist": "<a href=\"//commons.wikimedia.org/wiki/User:Aiman_titi\" title=\"User:Aiman titi\">Aiman titi</a>",
+   "license": "CC BY-SA 3.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+   "credit": "<span class=\"int-own-work\" lang=\"en\">Own work</span>"
+  }
+ },
+ "uhud": {
+  "title": "Mount Uhud",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Mount_Uhud",
+  "desc": "Mount in Medina, Saudi Arabia",
+  "coords": null,
+  "image": "Jabal-e-Uhud.jpg",
+  "extract": "Mount Uhud (Arabic: جَبَل أُحُد, romanized: Jabal Uḥud, Hejazi Arabic pronunciation: [dʒa.bal ʔʊ.ħʊd]) is a mountain north of Medina, in the Hejaz region of Saudi Arabia. It is 1,077 m (3,533 ft) high and 7.5 km (4.7 miles) long. It was the site of the second battle between the Islamic prophet Muhammad and the polytheists of his tribe of Quraysh. The Battle of Uhud was fought on 19 March, 625 CE, between a force from the small Muslim community of Medina and a force from Mecca, in north-western Arabia.",
+  "img": {
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e3/Jabal-e-Uhud.jpg/960px-Jabal-e-Uhud.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Jabal-e-Uhud.jpg",
+   "w": 960,
+   "h": 720,
+   "artist": "<a href=\"//commons.wikimedia.org/wiki/User:Bintladen\" class=\"mw-redirect\" title=\"User:Bintladen\">Bintladen</a>",
+   "license": "CC BY-SA 4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+   "credit": "<span class=\"int-own-work\" lang=\"en\">Own work</span>"
+  }
+ },
+ "shuhada": {
+  "title": "Sayyid al-Shuhada Mosque",
+  "missing": true,
+  "url": "https://en.wikipedia.org/wiki/Sayyid_al-Shuhada_Mosque",
+  "desc": null,
+  "coords": null,
+  "image": null,
+  "extract": null
+ },
+ "baqi": {
+  "title": "Al-Baqi Cemetery",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Al-Baqi_Cemetery",
+  "desc": "First Islamic cemetery of Medina, Saudi Arabia",
+  "coords": [
+   {
+    "lat": 24.4669,
+    "lon": 39.6164,
+    "primary": "",
+    "globe": "earth"
+   }
+  ],
+  "image": "Al-Baqi_Cemetery_2021.jpg",
+  "extract": "Al-Baqi Cemetery (Arabic: مَقْبَرَة ٱلْبَقِيع, Maqbarat al-Baqīʿ), also known as Jannat al-Baqi or Baqi al-Gharqad, is the oldest and first Islamic cemetery, located southeast of the Prophet's Mosque in Medina in the Hejaz region of Saudi Arabia. It contains the graves of numerous members of the Prophet Muhammad's family, his companions, and other prominent figures from early Islam. The cemetery is significant in both Sunni and Shia Islam as it contains the burial places of four of the Twelve Imams, and the graves of prominent figures revered in Sunni Islam.\nHistorically, al-Baqi contained numerous tombs, mausoleums, and domes. The structures above the graves in the cemetery were demolished in 1806 during the First Wahabi-Saudi control of Medina. The structures were subsequently rebuilt under Ottoman rule, however following the Saudi conquest of Hejaz, it was demolished again in 1926.",
+  "img": {
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/eb/Al-Baqi_Cemetery_2021.jpg/960px-Al-Baqi_Cemetery_2021.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Al-Baqi_Cemetery_2021.jpg",
+   "w": 960,
+   "h": 720,
+   "artist": "Saleh Al Hussain",
+   "license": "CC BY 4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+   "credit": "<span class=\"int-own-work\" lang=\"en\">Own work</span>"
+  }
+ },
+ "sevenmosques": {
+  "title": "Seven Mosques",
+  "missing": true,
+  "url": "https://en.wikipedia.org/wiki/Seven_Mosques",
+  "desc": null,
+  "coords": null,
+  "image": null,
+  "extract": null
+ },
+ "ghamama": {
+  "title": "Al-Ghamama Mosque",
+  "missing": true,
+  "url": "https://en.wikipedia.org/wiki/Al-Ghamama_Mosque",
+  "desc": null,
+  "coords": null,
+  "image": null,
+  "extract": null
+ },
+ "ijabah": {
+  "title": "Al-Ijabah Mosque",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Al-Ijabah_Mosque",
+  "desc": "Historical mosque in Medina, Saudi Arabia",
+  "coords": [
+   {
+    "lat": 24.472,
+    "lon": 39.61844444,
+    "primary": "",
+    "globe": "earth"
+   }
+  ],
+  "image": "Masjid_Ijabah_Imam_Khairul_Annas.JPG",
+  "extract": "The Al-Ijabah Mosque (Arabic: مَسْجِد ٱلْإِجَابَة, romanized: Masjid Al-Ijābah), also known as Bani Muawiyah Mosque (Arabic: مَسْجِد بَنِي مُعَاوِيَة, romanized: Masjid Banī Muʿāwiyah), or as Al-Mubahalah Mosque (Arabic: مَسْجِد ٱلْمُبَاهَلَة, romanized: Masjid Al-Mubāhalah), is a mosque in Medina, Saudi Arabia. The mosque was built during the time of the Islamic prophet Muhammad on a land owned by Muawiyah bin Malik bin 'Auf of the tribe of As-Sus.",
+  "img": {
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fa/Masjid_Ijabah_Imam_Khairul_Annas.JPG/960px-Masjid_Ijabah_Imam_Khairul_Annas.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Masjid_Ijabah_Imam_Khairul_Annas.JPG",
+   "w": 960,
+   "h": 640,
+   "artist": "<a href=\"//commons.wikimedia.org/wiki/User:Imam_Khairul_Annas\" title=\"User:Imam Khairul Annas\">Imam Khairul Annas</a>",
+   "license": "CC BY-SA 3.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+   "credit": "<span class=\"int-own-work\" lang=\"en\">Own work</span>"
+  }
+ },
+ "jumuah": {
+  "title": "Jumu'ah Mosque",
+  "missing": true,
+  "url": "https://en.wikipedia.org/wiki/Jumu%27ah_Mosque",
+  "desc": null,
+  "coords": null,
+  "image": null,
+  "extract": null
+ },
+ "ruma": {
+  "title": "Well of Rumah",
+  "missing": true,
+  "url": "https://en.wikipedia.org/wiki/Well_of_Rumah",
+  "desc": null,
+  "coords": null,
+  "image": null,
+  "extract": null
+ },
+ "darmadinah": {
+  "title": "Dar Al Madinah Museum",
+  "missing": true,
+  "url": "https://en.wikipedia.org/wiki/Dar_Al_Madinah_Museum",
+  "desc": null,
+  "coords": null,
+  "image": null,
+  "extract": null
+ },
+ "khandaq": {
+  "title": "Battle of the Trench",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Battle_of_the_Trench",
+  "desc": "Military campaign in early Muslim history, 627 CE",
+  "coords": [
+   {
+    "lat": 24.5,
+    "lon": 39.6,
+    "primary": "",
+    "globe": "earth"
+   }
+  ],
+  "image": "Battle_of_Trench_627_CE.png",
+  "extract": "The Battle of the Trench (Arabic: غزوة الخندق, romanized: Ghazwat al-Khandaq), also known as the Battle of Khandaq (Arabic: معركة الخندق, romanized: Ma’rakah al-Khandaq) and the Battle of the Confederates (Arabic: غزوة الاحزاب, romanized: Ghazwat al-Ahzab), was part of the conflict between the Muslims and the Quraysh. The Quraysh advanced towards the Muslims, who defended themselves in Medina by digging a trench around their settlement at the suggestion of Salman the Persian. The battle took place in 627 and lasted around two weeks, resulting in five to six casualties reported by the Muslim, and three casualties amongst the Quraysh.\nThe Quraysh launched an attack, but realized soon after that they had very limited military capability, being primarily merchants. This prompted negotiations with the Bedouins in order to get them to join the campaign. The Banu Nadir, whom Muhammad had previously expelled from Medina on account of an attempted assassination (crime against the state), were also part of this effort and offered the Bedouins half of their crops in Khaybar to persuade them to participate in attacking the Muslims.",
+  "img": {
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/45/Battle_of_Trench_627_CE.png/960px-Battle_of_Trench_627_CE.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Battle_of_Trench_627_CE.png",
+   "w": 960,
+   "h": 1201,
+   "artist": "<a href=\"//commons.wikimedia.org/wiki/User:DrZubairRashid\" title=\"User:DrZubairRashid\">DrZubairRashid</a>",
+   "license": "CC BY-SA 4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+   "credit": "<span class=\"int-own-work\" lang=\"en\">Own work</span>"
+  }
+ },
+ "taif": {
+  "title": "Taif",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Taif",
+  "desc": "City in Makkah Province, Saudi Arabia",
+  "coords": [
+   {
+    "lat": 21.27509444,
+    "lon": 40.40615556,
+    "primary": "",
+    "globe": "earth"
+   }
+  ],
+  "image": "الطائف_من_جبل_الهدى1.jpg",
+  "extract": "Taif (Arabic: اَلطَّائِفُ, romanized: Aṭ-Ṭāʾif, lit. 'The circulated or encircled', Hejazi Arabic pronunciation: [atˤˈ tˤaː(j)ɪf]) is a city and governorate in Mecca Province in Saudi Arabia. Located at an elevation of 1,879 m (6,165 ft) in the slopes of the Hijaz Mountains, which themselves are part of the Sarat Mountains, the city has a population of 563,282 people in 2022, making it one of the most populous cities in the kingdom.\nThere is a belief that Taif is indirectly referred to in Quran 43:31. The city was visited by the Islamic prophet Muhammad, sometime in the early 7th century, and was inhabited by the tribe of Banu Thaqif. It is believed that they did not like the idea of him entering the city.  It is still inhabited to this day by their descendants.",
+  "img": {
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3d/%D8%A7%D9%84%D8%B7%D8%A7%D8%A6%D9%81_%D9%85%D9%86_%D8%AC%D8%A8%D9%84_%D8%A7%D9%84%D9%87%D8%AF%D9%891.jpg/960px-%D8%A7%D9%84%D8%B7%D8%A7%D8%A6%D9%81_%D9%85%D9%86_%D8%AC%D8%A8%D9%84_%D8%A7%D9%84%D9%87%D8%AF%D9%891.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:%D8%A7%D9%84%D8%B7%D8%A7%D8%A6%D9%81_%D9%85%D9%86_%D8%AC%D8%A8%D9%84_%D8%A7%D9%84%D9%87%D8%AF%D9%891.jpg",
+   "w": 960,
+   "h": 406,
+   "artist": "<a href=\"//commons.wikimedia.org/wiki/User:%D8%B9%D8%A8%D8%A7%D8%AF_%D8%AF%D9%8A%D8%B1%D8%A7%D9%86%D9%8A%D8%A9\" title=\"User:عباد ديرانية\">عباد ديرانية</a>",
+   "license": "CC BY-SA 3.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+   "credit": "<span class=\"int-own-work\" lang=\"en\">Own work</span>"
+  }
+ },
+ "ibnabbas": {
+  "title": "Abdullah ibn Abbas Mosque",
+  "missing": true,
+  "url": "https://en.wikipedia.org/wiki/Abdullah_ibn_Abbas_Mosque",
+  "desc": null,
+  "coords": null,
+  "image": null,
+  "extract": null
+ },
+ "badr": {
+  "title": "Badr, Saudi Arabia",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Badr,_Saudi_Arabia",
+  "desc": "Governorate in Saudi Arabia",
+  "coords": [
+   {
+    "lat": 23.78,
+    "lon": 38.79055556,
+    "primary": "",
+    "globe": "earth"
+   }
+  ],
+  "image": "Badr_city.jpg",
+  "extract": "Badr (Arabic: بدر حنين, romanized: Badr Hunayn) is a governorate in Medina Province, Hejaz, Saudi Arabia. It is located about 130 km (81 mi) from the Islamic holy city of Medina.",
+  "img": {
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d4/Badr_city.jpg/960px-Badr_city.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Badr_city.jpg",
+   "w": 960,
+   "h": 720,
+   "artist": "<a href=\"//commons.wikimedia.org/wiki/User:Myrat\" title=\"User:Myrat\">Myrat</a>",
+   "license": "CC BY 4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+   "credit": "<span class=\"int-own-work\" lang=\"en\">Own work</span>"
+  }
+ },
+ "battlebadr": {
+  "title": "Battle of Badr",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Battle_of_Badr",
+  "desc": "First major battle in early Islam (624)",
+  "coords": [
+   {
+    "lat": 23.73333333,
+    "lon": 38.76666667,
+    "primary": "",
+    "globe": "earth"
+   }
+  ],
+  "image": "Siyer-i_Nebi_-_Imam_Ali_und_Hamza_bei_dem_vorgezogenen_Einzelkampf_in_Badr_gegen_die_Götzendiener.jpg",
+  "extract": "The Battle of Badr or  sometimes called The Raid of Badr (Arabic: غَزْوَةُ بَدْرٍ [ɣazwatu badr]; Ghazwatu Badr), also referred to as The Day of the Criterion (Arabic: يَوْمُ الْفُرْقَانْ, Arabic pronunciation: [jawm'ul fur'qaːn]; Yawm al-Furqan) in the Qur'an and by Muslims, was fought on 13 March 624 CE (17 Ramadan, 2 AH), near the city of Badr, Medina Province in present-day Saudi Arabia. Muhammad, commanding an army of his Sahaba, defeated an army of the Quraysh led by Amr ibn Hisham, better known among Muslims as Abu Jahl. The battle marked the beginning of the six-year war between Muhammad and his tribe.\nA few days before the battle, when he learnt of a Meccan caravan returning from the Levant led by Abu Sufyan ibn Harb, Muhammad gathered a small expeditionary force to raid it. Abu Sufyan, learning of the Muslim plan to ambush his caravan, changed course and took a longer route away from Muhammad's base at Medina and sent a messenger to Mecca, asking for help. Amr ibn Hisham commanded an army nearly one-thousand strong, approaching Badr and encamping at the dune al-'Udwatul Quswa.",
+  "img": {
+   "thumb": "https://upload.wikimedia.org/wikipedia/commons/4/4d/Siyer-i_Nebi_-_Imam_Ali_und_Hamza_bei_dem_vorgezogenen_Einzelkampf_in_Badr_gegen_die_G%C3%B6tzendiener.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "page": "https://commons.wikimedia.org/wiki/File:Siyer-i_Nebi_-_Imam_Ali_und_Hamza_bei_dem_vorgezogenen_Einzelkampf_in_Badr_gegen_die_G%C3%B6tzendiener.jpg",
+   "w": 960,
+   "h": 1442,
+   "artist": "Lütfi Abdullah",
+   "license": "Public domain",
+   "licenseUrl": null,
+   "credit": "<a rel=\"nofollow\" class=\"external free\" href=\"http://www.eslam.de/arab/bildergalerien/s/siyer_i_nebi_bildergalerie.htm\">http://www.eslam.de/arab/bildergalerien/s/siyer_i_nebi_bildergalerie.htm</a>"
+  }
+ },
+ "khaybar": {
+  "title": "Khaybar",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Khaybar",
+  "desc": "Oasis in Medina Province, Saudi Arabia",
+  "coords": [
+   {
+    "lat": 25.69861111,
+    "lon": 39.2925,
+    "primary": "",
+    "globe": "earth"
+   }
+  ],
+  "image": "Khaybar_-_deserted_houses.jpg",
+  "extract": "Khaybar (Arabic: [ˈxæjbɑr], خَيْبَر) was an oasis in Medina Province, Saudi Arabia, situated some 153 kilometres (95 mi) north of the city of Medina.",
+  "img": {
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ae/Khaybar_-_deserted_houses.jpg/960px-Khaybar_-_deserted_houses.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Khaybar_-_deserted_houses.jpg",
+   "w": 960,
+   "h": 640,
+   "artist": "<a href=\"//commons.wikimedia.org/wiki/User:Hardscarf\" title=\"User:Hardscarf\">Hardscarf</a>",
+   "license": "CC BY-SA 4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+   "credit": "<span class=\"int-own-work\" lang=\"en\">Own work</span>"
+  }
+ },
+ "hudaybiyyah": {
+  "title": "Al-Hudaybiyah",
+  "missing": true,
+  "url": "https://en.wikipedia.org/wiki/Al-Hudaybiyah",
+  "desc": null,
+  "coords": null,
+  "image": null,
+  "extract": null
+ },
+ "balad": {
+  "title": "Al-Balad, Jeddah",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Al-Balad,_Jeddah",
+  "desc": "Historical place in Jeddah, Saudi Arabia",
+  "coords": [
+   {
+    "lat": 21.48333333,
+    "lon": 39.18333333,
+    "primary": "",
+    "globe": "earth"
+   }
+  ],
+  "image": "Old_Jeddah_(Al_Balad)_architecture_3_Feb_2022.jpg",
+  "extract": "Al-Balad (Arabic: البلد, romanized: al-Balad, lit. 'the town'), also known as Jeddah Historic District (Arabic: جدة التاريخية), is the historical area of Jeddah, the second largest city of Saudi Arabia. Al-Balad can literally be translated to \"The Town\". Al-Balad is the historic center of the City of Jeddah.\nTraditional Hijazi houses are characterized by their wooden Roshan windows (Arabic: روشان), and wooden mushrabiyas.\nIn May 2019, Crown Prince Mohammed bin Salman announced a multi-billion dollar restoration of 56 historical building in Al-Balad. The first stage of the restoration is worth $13.3 million.",
+  "img": {
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/db/Old_Jeddah_%28Al_Balad%29_architecture_3_Feb_2022.jpg/960px-Old_Jeddah_%28Al_Balad%29_architecture_3_Feb_2022.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Old_Jeddah_(Al_Balad)_architecture_3_Feb_2022.jpg",
+   "w": 960,
+   "h": 640,
+   "artist": "Francisco Anzola",
+   "license": "CC BY 2.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+   "credit": "<a rel=\"nofollow\" class=\"external free\" href=\"https://www.flickr.com/photos/fran001/51860338721/\">https://www.flickr.com/photos/fran001/51860338721/</a>"
+  }
+ },
+ "addas": {
+  "title": "Taif",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Taif",
+  "desc": "City in Makkah Province, Saudi Arabia",
+  "coords": [
+   {
+    "lat": 21.27509444,
+    "lon": 40.40615556,
+    "primary": "",
+    "globe": "earth"
+   }
+  ],
+  "image": "الطائف_من_جبل_الهدى1.jpg",
+  "extract": "Taif (Arabic: اَلطَّائِفُ, romanized: Aṭ-Ṭāʾif, lit. 'The circulated or encircled', Hejazi Arabic pronunciation: [atˤˈ tˤaː(j)ɪf]) is a city and governorate in Mecca Province in Saudi Arabia. Located at an elevation of 1,879 m (6,165 ft) in the slopes of the Hijaz Mountains, which themselves are part of the Sarat Mountains, the city has a population of 563,282 people in 2022, making it one of the most populous cities in the kingdom.\nThere is a belief that Taif is indirectly referred to in Quran 43:31. The city was visited by the Islamic prophet Muhammad, sometime in the early 7th century, and was inhabited by the tribe of Banu Thaqif. It is believed that they did not like the idea of him entering the city.  It is still inhabited to this day by their descendants.",
+  "img": {
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3d/%D8%A7%D9%84%D8%B7%D8%A7%D8%A6%D9%81_%D9%85%D9%86_%D8%AC%D8%A8%D9%84_%D8%A7%D9%84%D9%87%D8%AF%D9%891.jpg/960px-%D8%A7%D9%84%D8%B7%D8%A7%D8%A6%D9%81_%D9%85%D9%86_%D8%AC%D8%A8%D9%84_%D8%A7%D9%84%D9%87%D8%AF%D9%891.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:%D8%A7%D9%84%D8%B7%D8%A7%D8%A6%D9%81_%D9%85%D9%86_%D8%AC%D8%A8%D9%84_%D8%A7%D9%84%D9%87%D8%AF%D9%891.jpg",
+   "w": 960,
+   "h": 406,
+   "artist": "<a href=\"//commons.wikimedia.org/wiki/User:%D8%B9%D8%A8%D8%A7%D8%AF_%D8%AF%D9%8A%D8%B1%D8%A7%D9%86%D9%8A%D8%A9\" title=\"User:عباد ديرانية\">عباد ديرانية</a>",
+   "license": "CC BY-SA 3.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+   "credit": "<span class=\"int-own-work\" lang=\"en\">Own work</span>"
+  }
+ },
+ "miqat": {
+  "title": "Dhu al-Hulayfah",
+  "missing": true,
+  "url": "https://en.wikipedia.org/wiki/Dhu_al-Hulayfah",
+  "desc": null,
+  "coords": null,
+  "image": null,
+  "extract": null
+ }
+}
