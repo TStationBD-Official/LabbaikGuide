@@ -384,7 +384,7 @@ export function HaramMapPage({ initialLoc }: { initialLoc?: LocationId }) {
             onPoiClick={select}
             trail={trail}
             dark={dark}
-            labels={{ map: t("haramMap.title"), you: t("hotel.you"), offline: t("hotel.offlineMap"), loading: t("hotel.mapLoading") }}
+            labels={{ map: t("haramMap.title"), you: t("hotel.you"), offline: t("hotel.offlineMap"), loading: t("hotel.mapLoading"), slow: t("hotel.mapSlow") }}
           />
           {/* floating controls */}
           <div className="pointer-events-none absolute inset-x-3 bottom-9 flex items-end justify-between gap-2">

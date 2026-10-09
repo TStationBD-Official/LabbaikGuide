@@ -315,7 +315,7 @@ export function HotelView() {
             pick={picking && draft?.pos ? { value: draft.pos, onChange: (p) => setDraft((x) => (x ? { ...x, pos: { ...p, accuracy: null, source: "map" } } : x)) } : null}
             initialCenter={haram}
             dark={dark}
-            labels={{ map: t("hotel.mapLabel"), you: t("hotel.you"), offline: t("hotel.offlineMap"), loading: t("hotel.mapLoading") }}
+            labels={{ map: t("hotel.mapLabel"), you: t("hotel.you"), offline: t("hotel.offlineMap"), loading: t("hotel.mapLoading"), slow: t("hotel.mapSlow") }}
           />
           <div className="absolute right-2.5 bottom-9 z-10 flex flex-col gap-2">
             <MapButton

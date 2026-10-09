@@ -660,7 +660,8 @@
     "routeUnavailable": "Road route unavailable right now — showing a straight line.",
     "straightIs": "straight line {d}",
     "routeSource": "Route:",
-    "fixMap": "Map wrong? Report it"
+    "fixMap": "Map wrong? Report it",
+    "mapSlow": "The map is taking longer than usual to load — it will appear when it's ready."
   },
   "zikrPlan": {
     "tabPlans": "After prayers",

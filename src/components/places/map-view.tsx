@@ -59,7 +59,7 @@ export type MapViewProps = {
   onAltRouteClick?: (index: number) => void;
   initialCenter: LatLon;
   dark: boolean;
-  labels: { map: string; you: string; offline: string; loading: string };
+  labels: { map: string; you: string; offline: string; loading: string; slow?: string };
   className?: string;
   /** Extra points (gates, facilities, landmarks); tap → onPoiClick. */
   pois?: MapPoi[];
@@ -122,7 +122,7 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
   const shown = useRef<LatLon | null>(null);
   const latest = useRef(props);
   latest.current = props;
-  const [state, setState] = useState<"loading" | "ready" | "offline">("loading");
+  const [state, setState] = useState<"loading" | "ready" | "offline" | "slow">("loading");
 
   /** Dashed guide lines; reads the latest props so it can run inside animation frames. */
   const drawGuide = () => {
@@ -149,6 +149,7 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
   useEffect(() => {
     let cancelled = false;
     let fellBack = false;
+    let loaded = false;
     let giveUp: ReturnType<typeof setTimeout> | undefined;
     (async () => {
       // CSP-friendly build: the worker is a same-origin file, not a blob.
@@ -326,14 +327,18 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
           m.on("mouseenter", "hc-pois", () => (m.getCanvas().style.cursor = "pointer"));
           m.on("mouseleave", "hc-pois", () => (m.getCanvas().style.cursor = ""));
         }
+        loaded = true;
+        clearTimeout(giveUp);
         setState("ready");
         setStyleTick((x) => x + 1);
       };
       m.on("style.load", onStyle);
       // Nothing at all after a while (offline with no cached map): say so instead of spinning forever.
+      // Only before the map has ever loaded — isStyleLoaded() is briefly false during normal updates,
+      // which used to cover a working map with the "offline" message on slower connections.
       giveUp = setTimeout(() => {
-        if (!m.isStyleLoaded()) setState("offline");
-      }, 12_000);
+        if (!loaded && !m.isStyleLoaded()) setState(navigator.onLine ? "slow" : "offline");
+      }, 15_000);
       m.on("error", (e) => {
         const msg = String((e as { error?: Error }).error?.message ?? "");
         // Style itself failed (vector service down / blocked): switch to OSM raster once.
@@ -545,7 +550,7 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
       <div ref={container} style={{ position: "absolute", inset: 0 }} role="application" aria-label={props.labels.map} />
       {state !== "ready" ? (
         <div className="pointer-events-none absolute inset-0 grid place-items-center bg-muted/60 p-4 text-center text-sm text-muted-foreground">
-          {state === "offline" ? props.labels.offline : props.labels.loading}
+          {state === "offline" ? props.labels.offline : state === "slow" ? (props.labels.slow ?? props.labels.loading) : props.labels.loading}
         </div>
       ) : null}
     </div>
