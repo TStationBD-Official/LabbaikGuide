@@ -2,6 +2,8 @@
  * Calendar helpers. All Haramain calculations use Asia/Riyadh regardless of the
  * device's own time zone. Hijri dates use the Umm al-Qura calendar from ICU.
  */
+import { withExtension } from "@/lib/preferences";
+
 export const HARAM_TZ = "Asia/Riyadh";
 
 export type YMD = { year: number; month: number; day: number };
@@ -50,7 +52,7 @@ export function hijriParts(d: YMD): { year: number; month: number; day: number }
 
 export function formatHijri(d: YMD, intlLocale: string): string {
   try {
-    const parts = new Intl.DateTimeFormat(`${intlLocale}-u-ca-islamic-umalqura`, {
+    const parts = new Intl.DateTimeFormat(withExtension(intlLocale, "ca", "islamic-umalqura"), {
       timeZone: "UTC",
       day: "numeric",
       month: "long",
@@ -69,7 +71,7 @@ export function formatHijri(d: YMD, intlLocale: string): string {
 }
 
 export function formatGregorian(d: YMD, intlLocale: string): string {
-  return new Intl.DateTimeFormat(`${intlLocale}-u-ca-gregory`, {
+  return new Intl.DateTimeFormat(withExtension(intlLocale, "ca", "gregory"), {
     timeZone: "UTC",
     weekday: "long",
     day: "numeric",

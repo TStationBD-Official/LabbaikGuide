@@ -164,7 +164,11 @@
     "notifDenied": "Notifications are blocked in your browser settings.",
     "notifUnsupported": "This browser does not support notifications.",
     "preview": "Preview",
-    "aboutText": "A privacy-first companion for pilgrims. Everything you save stays on this device."
+    "aboutText": "A privacy-first companion for pilgrims. Everything you save stays on this device.",
+    "timeFormat": "Time format",
+    "h12": "12-hour",
+    "h24": "24-hour",
+    "timeFormatDesc": "Used for prayer times, clocks and every time shown in the app, in any language."
   },
   "quran": {
     "title": "Al-Quran",

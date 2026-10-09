@@ -73,3 +73,19 @@ describe("Bangla font default", () => {
     expect(parsePreferences(serializePreferences({ ...DEFAULT_PREFERENCES, banglaFont: "hind" })).banglaFont).toBe("hind");
   });
 });
+
+describe("12/24-hour preference", () => {
+  it("travels with the locale and combines with calendars", async () => {
+    const { withHourCycle, withExtension, is24h, PreferencesSchema } = await import("@/lib/preferences");
+    const h24 = withHourCycle("bn-BD", "24");
+    const fmt = (l: string) => new Intl.DateTimeFormat(l, { hour: "numeric", minute: "2-digit", timeZone: "UTC" }).format(Date.UTC(2026, 0, 1, 15, 30));
+    expect(fmt(withHourCycle("en-GB", "12"))).toMatch(/3:30\s?pm/i);
+    expect(fmt(withHourCycle("en-GB", "24"))).toBe("15:30");
+    expect(is24h(h24)).toBe(true);
+    expect(is24h(withHourCycle("ar-SA", "12"))).toBe(false);
+    expect(withExtension(h24, "ca", "gregory")).toBe("bn-BD-u-hc-h23-ca-gregory");
+    expect(withExtension("bn-BD", "ca", "gregory")).toBe("bn-BD-u-ca-gregory");
+    expect(PreferencesSchema.parse({}).timeFormat).toBe("12");
+    expect(PreferencesSchema.parse({ timeFormat: "x" }).timeFormat).toBe("12");
+  });
+});

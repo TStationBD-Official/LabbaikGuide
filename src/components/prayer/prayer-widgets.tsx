@@ -1,6 +1,7 @@
 "use client";
 
 import { SkyBackdrop, SkyBody, skyAt } from "./sky-backdrop";
+import { is24h, withExtension } from "@/lib/preferences";
 import { HaramScene } from "./haram-scene";
 import { useTilt } from "@/hooks/use-tilt";
 import { motion } from "motion/react";
@@ -47,7 +48,7 @@ export function Countdown({ ms }: { ms: number }) {
 
 /** "4:57" without AM/PM — for the compact five-prayer strip. */
 function shortTime(d: Date, intlLocale: string) {
-  return new Intl.DateTimeFormat(intlLocale, { timeZone: "Asia/Riyadh", hour: "numeric", minute: "2-digit", hourCycle: "h12" })
+  return new Intl.DateTimeFormat(intlLocale, { timeZone: "Asia/Riyadh", hour: "numeric", minute: "2-digit", hourCycle: is24h(intlLocale) ? "h23" : "h12" })
     .formatToParts(d)
     .filter((p) => p.type !== "dayPeriod")
     .map((p) => p.value)
@@ -674,7 +675,7 @@ export function PersonAvatar({ person, size = "md" }: { person: PersonName; size
 
 function shortYmd(d: string, intlLocale: string) {
   const [y, m, dd] = d.split("-").map(Number);
-  return new Intl.DateTimeFormat(`${intlLocale}-u-ca-gregory`, { timeZone: "UTC", weekday: "short", day: "numeric", month: "short" }).format(
+  return new Intl.DateTimeFormat(withExtension(intlLocale, "ca", "gregory"), { timeZone: "UTC", weekday: "short", day: "numeric", month: "short" }).format(
     new Date(Date.UTC(y, m - 1, dd, 12)),
   );
 }
@@ -840,7 +841,7 @@ export function UpcomingStaff({ data }: { data: Data }) {
     return { y, m, d: dd };
   };
   const label = (d: string, short: boolean) =>
-    new Intl.DateTimeFormat(`${intlLocale}-u-ca-gregory`, {
+    new Intl.DateTimeFormat(withExtension(intlLocale, "ca", "gregory"), {
       timeZone: "UTC",
       weekday: short ? "short" : "long",
       day: "numeric",

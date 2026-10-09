@@ -18,6 +18,8 @@ import { clearAllLocalData } from "@/services/storage/idb-storage";
 import { HomeClockSettings } from "@/components/home/dual-clock";
 import { useNotificationStore, type NotificationMode } from "@/stores/notification-store";
 import { APP_CONFIG } from "@/config/app";
+import { INTL_LOCALE } from "@/i18n";
+import { withHourCycle } from "@/lib/preferences";
 import { OfflineSection } from "./offline-section";
 import { useConfirm } from "@/components/ui/confirm";
 
@@ -81,6 +83,30 @@ function Notifications() {
   );
 }
 
+/** 12- or 24-hour clock for every time in the app (any language); examples shown in the current language. */
+function TimeFormatSetting() {
+  const { t, locale } = useI18n();
+  const timeFormat = usePrefs((s) => s.timeFormat);
+  const setPrefs = usePrefs((s) => s.set);
+  const sample = (f: "12" | "24") =>
+    new Intl.DateTimeFormat(withHourCycle(INTL_LOCALE[locale], f), { hour: "numeric", minute: "2-digit", timeZone: "UTC" }).format(Date.UTC(2026, 0, 1, 15, 30));
+  return (
+    <div className="space-y-2">
+      <p className="text-sm font-medium">{t("settings.timeFormat")}</p>
+      <SegmentedControl<"12" | "24">
+        label={t("settings.timeFormat")}
+        value={timeFormat}
+        onChange={(v) => setPrefs({ timeFormat: v })}
+        options={[
+          { value: "12", label: `${t("settings.h12")} · ${sample("12")}` },
+          { value: "24", label: `${t("settings.h24")} · ${sample("24")}` },
+        ]}
+      />
+      <p className="text-xs text-muted-foreground">{t("settings.timeFormatDesc")}</p>
+    </div>
+  );
+}
+
 export function SettingsPage() {
   const { t } = useI18n();
   const confirmDialog = useConfirm();
@@ -113,6 +139,8 @@ export function SettingsPage() {
 
       <Section id="s-language" title={t("settings.language")}>
         <LanguageSelector />
+        <div className="gold-rule" aria-hidden />
+        <TimeFormatSetting />
       </Section>
 
       <Section id="s-fonts" title={t("settings.fonts")}>

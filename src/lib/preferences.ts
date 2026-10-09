@@ -85,6 +85,19 @@ export const scriptDef = (f: ArabicFont): ScriptDef => ARABIC_FONTS[f];
 /** The API text field a script needs (QCF codes are word-level; see the server). */
 export type QuranScriptField = QuranTextSource;
 
+/** Add the user's 12/24-hour choice to a BCP-47 locale as a Unicode extension (-u-hc-h12 / -u-hc-h23). */
+export function withHourCycle(intlLocale: string, timeFormat: "12" | "24"): string {
+  return `${intlLocale}-u-hc-${timeFormat === "24" ? "h23" : "h12"}`;
+}
+
+/** Add another Unicode extension key (e.g. a calendar) to a locale that may already have "-u-…". */
+export function withExtension(intlLocale: string, key: string, value: string): string {
+  return intlLocale.includes("-u-") ? `${intlLocale}-${key}-${value}` : `${intlLocale}-u-${key}-${value}`;
+}
+
+/** Is this locale (from `useI18n().intlLocale`) set to a 24-hour clock? */
+export const is24h = (intlLocale: string) => /-hc-h2[34]/.test(intlLocale);
+
 export const FONT_SCALES = [80, 90, 100, 110, 120, 130, 150] as const;
 
 export const PreferencesSchema = z.object({
@@ -105,6 +118,8 @@ export const PreferencesSchema = z.object({
     .enum(LOCATION_IDS as [LocationId, ...LocationId[]])
     .catch(APP_CONFIG.defaults.location),
   reducedMotion: z.boolean().catch(false),
+  /** Clock style everywhere in the app, in every language. */
+  timeFormat: z.enum(["12", "24"]).catch("12"),
   /** Large screens: navigation drawer collapsed to a rail. */
   navCollapsed: z.boolean().catch(false),
 });

@@ -12,7 +12,7 @@ import {
   type TKey,
   type TVars,
 } from "@/i18n";
-import { isRtl, type Locale } from "@/lib/preferences";
+import { isRtl, withHourCycle, type Locale } from "@/lib/preferences";
 import { usePrefs } from "./preferences-provider";
 
 type I18nValue = {
@@ -38,6 +38,7 @@ export function I18nProvider({
 }) {
   const [bundle, setBundle] = useState({ locale: initialLocale, messages: initialMessages });
   const setPrefs = usePrefs((s) => s.set);
+  const timeFormat = usePrefs((s) => s.timeFormat);
   const router = useRouter();
 
   const setLocale = useCallback(
@@ -53,7 +54,8 @@ export function I18nProvider({
   );
 
   const value = useMemo<I18nValue>(() => {
-    const intlLocale = INTL_LOCALE[bundle.locale];
+    // The 12/24-hour choice travels with the locale, so every time formatted with it follows the setting.
+    const intlLocale = withHourCycle(INTL_LOCALE[bundle.locale], timeFormat);
     const nf = new Intl.NumberFormat(intlLocale);
     const formatNumber = (n: number) => nf.format(n);
     return {
@@ -65,7 +67,7 @@ export function I18nProvider({
       formatNumber,
       setLocale,
     };
-  }, [bundle, setLocale]);
+  }, [bundle, setLocale, timeFormat]);
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
