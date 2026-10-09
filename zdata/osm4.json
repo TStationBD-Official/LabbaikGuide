@@ -1,0 +1,279 @@
+{
+ "arafat": [
+  {
+   "id": "n1236463804",
+   "lat": 21.3547998,
+   "lon": 39.9841015,
+   "name": "جبل الرحمة",
+   "en": "Jabal ar Rahmah",
+   "kind": {
+    "historic": "yes",
+    "natural": "peak"
+   }
+  },
+  {
+   "id": "w132325101",
+   "lat": 21.3527903,
+   "lon": 39.9836143,
+   "name": "مستشفى جبل الرحمة",
+   "en": "Jabal Al-Rahmah Hospital",
+   "kind": {
+    "amenity": "hospital",
+    "building": "yes"
+   }
+  },
+  {
+   "id": "w986845545",
+   "lat": 21.3542395,
+   "lon": 39.9815071,
+   "name": "مركز شرطة جبل الرحمة",
+   "en": "Jabal Al-Rahmah Police Station",
+   "kind": {
+    "amenity": "police"
+   }
+  }
+ ],
+ "qiblatayn": [
+  {
+   "id": "n6268471887",
+   "lat": 24.4846846,
+   "lon": 39.5785207,
+   "name": "الحافلة السياحية-مسجد القبلتين",
+   "en": "City Siightseeing - Al Quiblatain Mosque",
+   "kind": {
+    "highway": "bus_stop"
+   }
+  },
+  {
+   "id": "w66510042",
+   "lat": 24.485318,
+   "lon": 39.5765969,
+   "name": "حدیقة القبلتین",
+   "en": "Qiblatayn Garden",
+   "kind": {}
+  },
+  {
+   "id": "w66510098",
+   "lat": 24.4841569,
+   "lon": 39.5788111,
+   "name": "مسجد القبلتين",
+   "en": "Mosque Al-Qiblatayn - Mosque of the Two Qiblas",
+   "kind": {
+    "amenity": "place_of_worship",
+    "tourism": "yes",
+    "historic": "yes",
+    "building": "yes",
+    "religion": "muslim"
+   }
+  },
+  {
+   "id": "r19122137",
+   "lat": 24.4779615,
+   "lon": 39.5763315,
+   "name": "القبلتين",
+   "en": "Al Qiblatayn",
+   "kind": {}
+  }
+ ],
+ "badr": [
+  {
+   "id": "n1237968680",
+   "lat": 23.78,
+   "lon": 38.7907409,
+   "name": "بدر",
+   "en": "Badr Hunayn",
+   "kind": {
+    "place": "town"
+   }
+  },
+  {
+   "id": "n3148018114",
+   "lat": 23.7751855,
+   "lon": 38.7935112,
+   "name": "مسجد العريش",
+   "en": "Al-Arish Mosque",
+   "kind": {
+    "amenity": "place_of_worship",
+    "tourism": "attraction",
+    "historic": "yes",
+    "building": "mosque",
+    "religion": "muslim"
+   }
+  },
+  {
+   "id": "n4589696191",
+   "lat": 23.7816726,
+   "lon": 38.7871465,
+   "name": null,
+   "en": "Badr Mosque",
+   "kind": {
+    "amenity": "place_of_worship",
+    "religion": "muslim"
+   }
+  },
+  {
+   "id": "n11107371616",
+   "lat": 23.7720519,
+   "lon": 38.7900085,
+   "name": "أسماء شهداء غزوة بدر",
+   "en": null,
+   "kind": {
+    "tourism": "attraction",
+    "historic": "memorial",
+    "religion": "muslim"
+   }
+  },
+  {
+   "id": "n11107371617",
+   "lat": 23.7722721,
+   "lon": 38.7896401,
+   "name": "غزوة بدر",
+   "en": "Battle of Badr",
+   "kind": {
+    "historic": "battlefield",
+    "religion": "muslim"
+   }
+  },
+  {
+   "id": "n12228230420",
+   "lat": 23.7782971,
+   "lon": 38.7968357,
+   "name": "مركز بدر الوطنية",
+   "en": "markaz badr al wataniya",
+   "kind": {}
+  },
+  {
+   "id": "n12228230422",
+   "lat": 23.776813,
+   "lon": 38.7965962,
+   "name": "بدر الشهداء",
+   "en": null,
+   "kind": {
+    "amenity": "fuel"
+   }
+  },
+  {
+   "id": "n12228230430",
+   "lat": 23.7834553,
+   "lon": 38.7904785,
+   "name": "تموينات النكبر بدر",
+   "en": "tamwinath al nukbar badr",
+   "kind": {}
+  },
+  {
+   "id": "n12285963440",
+   "lat": 23.7854215,
+   "lon": 38.7800166,
+   "name": "مستشفى بدر",
+   "en": "badr hospital",
+   "kind": {
+    "amenity": "hospital"
+   }
+  },
+  {
+   "id": "n12285963442",
+   "lat": 23.7796306,
+   "lon": 38.7924476,
+   "name": "المحكمة المركزية في بدر",
+   "en": "central court in badr",
+   "kind": {
+    "amenity": "courthouse"
+   }
+  },
+  {
+   "id": "n13335254385",
+   "lat": 23.7955413,
+   "lon": 38.7854059,
+   "name": "مركز التنمية الاجتماعية ببدر",
+   "en": "Social Development Center",
+   "kind": {
+    "amenity": "social_facility"
+   }
+  },
+  {
+   "id": "n13697856094",
+   "lat": 23.7730921,
+   "lon": 38.7870596,
+   "name": "الشهداء",
+   "en": "Ash Shuhada",
+   "kind": {
+    "place": "neighbourhood"
+   }
+  },
+  {
+   "id": "w87175609",
+   "lat": 23.780086,
+   "lon": 38.7899842,
+   "name": "بدر",
+   "en": "Badr",
+   "kind": {
+    "landuse": "residential",
+    "place": "village"
+   }
+  },
+  {
+   "id": "w309465617",
+   "lat": 23.7719836,
+   "lon": 38.7885536,
+   "name": "مقبرة شهداء بدر",
+   "en": "Badr Martyrs’ Cemetery",
+   "kind": {
+    "historic": "yes",
+    "landuse": "cemetery",
+    "religion": "muslim"
+   }
+  },
+  {
+   "id": "r12429015",
+   "lat": 23.917046,
+   "lon": 38.8458011,
+   "name": "محافظة بدر",
+   "en": "Badr",
+   "kind": {
+    "place": "province"
+   }
+  },
+  {
+   "id": "r20397967",
+   "lat": 23.769262,
+   "lon": 38.785481,
+   "name": "الشهداء",
+   "en": "Ash Shuhada",
+   "kind": {}
+  }
+ ],
+ "balad": [
+  {
+   "id": "n2520141053",
+   "lat": 21.4839642,
+   "lon": 39.187668,
+   "name": "Naseef House",
+   "en": "Biet Nassif",
+   "kind": {
+    "tourism": "museum"
+   }
+  },
+  {
+   "id": "n4643173033",
+   "lat": 21.4867693,
+   "lon": 39.1913839,
+   "name": "محطة باب مكة",
+   "en": null,
+   "kind": {
+    "amenity": "fuel"
+   }
+  },
+  {
+   "id": "w1159257405",
+   "lat": 21.4852554,
+   "lon": 39.1927033,
+   "name": "باب مكة",
+   "en": "Bab Mekka",
+   "kind": {
+    "tourism": "attraction",
+    "historic": "city_gate",
+    "building": "yes"
+   }
+  }
+ ]
+}
