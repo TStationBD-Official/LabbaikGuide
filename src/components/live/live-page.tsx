@@ -67,6 +67,7 @@ export function Player({
 }) {
   const { t, locale } = useI18n();
   const reduce = useReducedMotion();
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
   const [playing, setPlaying] = useState<"video" | "channel" | null>(null);
   const [thumbOk, setThumbOk] = useState(true);
   const id = info?.videoId ?? null;
@@ -93,10 +94,21 @@ export function Player({
   const mode = playing ?? (autoStart && seen && !loading ? (id ? "video" : "channel") : null);
   const src =
     mode === "video" && id
-      ? `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1`
+      ? `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1&enablejsapi=1&origin=${encodeURIComponent(origin)}`
       : mode === "channel"
-        ? `https://www.youtube.com/embed/live_stream?channel=${channel.channelId}&autoplay=1&mute=1&playsinline=1`
+        ? `https://www.youtube.com/embed/live_stream?channel=${channel.channelId}&autoplay=1&mute=1&playsinline=1&enablejsapi=1&origin=${encodeURIComponent(origin)}`
         : null;
+  // Belt and braces for browsers that ignore autoplay=1 in iframes: once the player has loaded,
+  // tell it (through the documented postMessage API) to mute and play.
+  const kick = (frame: HTMLIFrameElement) => {
+    const send = (func: string) => frame.contentWindow?.postMessage(JSON.stringify({ event: "command", func, args: [] }), "*");
+    for (const ms of [300, 1200, 3000]) {
+      setTimeout(() => {
+        send("mute");
+        send("playVideo");
+      }, ms);
+    }
+  };
 
   return (
     <div ref={box} className={cn("relative aspect-video overflow-hidden bg-black shadow-soft ring-1 ring-border", compact ? "rounded-2xl" : "rounded-3xl")}>
@@ -104,6 +116,7 @@ export function Player({
         {src ? (
           <motion.iframe
             key={src}
+            onLoad={(e) => kick(e.currentTarget)}
             initial={reduce ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4 }}

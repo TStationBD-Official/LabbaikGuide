@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+const YT = '"https://www.youtube-nocookie.com" "https://www.youtube.com"';
+
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
@@ -8,7 +10,22 @@ const securityHeaders = [
   {
     key: "Permissions-Policy",
     // Geolocation and motion sensors only for our own origin (Qibla, My Hotel); everything else off.
-    value: "camera=(), microphone=(), payment=(), usb=(), geolocation=(self), accelerometer=(self), gyroscope=(self), magnetometer=(self), screen-wake-lock=(self), autoplay=(self)",
+    // The YouTube player (live from the Haramain) may auto-play (muted), go full screen and picture-in-picture.
+    value: [
+      "camera=()",
+      "microphone=()",
+      "payment=()",
+      "usb=()",
+      "geolocation=(self)",
+      "accelerometer=(self)",
+      "gyroscope=(self)",
+      "magnetometer=(self)",
+      "screen-wake-lock=(self)",
+      `autoplay=(self ${YT})`,
+      `fullscreen=(self ${YT})`,
+      `picture-in-picture=(self ${YT})`,
+      `encrypted-media=(self ${YT})`,
+    ].join(", "),
   },
 ];
 
