@@ -351,14 +351,7 @@ export function HaramMapPage({ initialLoc }: { initialLoc?: LocationId }) {
             labels={{ map: t("haramMap.title"), you: t("hotel.you"), offline: t("hotel.offlineMap"), loading: t("hotel.mapLoading"), slow: t("hotel.mapSlow"), styles: t("mapStyle.title"), styleNames: mapStyleNames }}
           />
           {/* floating controls */}
-          <div className="pointer-events-none absolute inset-x-3 bottom-9 flex items-end justify-between gap-2">
-            <Link
-              href="/walks"
-              className="pointer-events-auto inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap rounded-full bg-card/95 px-3.5 text-sm font-semibold shadow-lg ring-1 ring-border backdrop-blur"
-            >
-              <span aria-hidden>👣</span>
-              {t("walks.homeTitle")}
-            </Link>
+          <div className="pointer-events-none absolute inset-x-3 bottom-9 flex items-end justify-end gap-2">
             <button
               type="button"
               onClick={locate}
