@@ -10,10 +10,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
-          set +e; mkdir -p live-data
-          B=https://labbaikguide.vercel.app
-          curl -sS -m 40 "$B/api/places/resolve?url=https%3A%2F%2Fmaps.app.goo.gl%2FAY1kTJQ4VVsLQnKr5%3Fg_st%3Dac&loc=makkah&lang=en" -o live-data/resolve.json -w "%{http_code}\n" >> live-data/codes.txt
-          curl -sS -m 40 "$B/api/places/search?q=bader&loc=makkah&lang=en" -o live-data/bader.json -w "%{http_code}\n" >> live-data/codes.txt
-          curl -sS -m 40 "$B/api/places/search?q=%D8%A8%D8%AF%D8%B1&loc=makkah&lang=en" -o live-data/bader-ar.json -w "%{http_code}\n" >> live-data/codes.txt
+          set +e; mkdir -p live-data; : > live-data/redirects.txt
+          L="https://maps.app.goo.gl/AY1kTJQ4VVsLQnKr5?g_st=ac"
+          for UA in "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Mobile Safari/537.36" "curl/8"; do
+            echo "UA: $UA" >> live-data/redirects.txt
+            curl -sS -m 20 -o /dev/null -A "$UA" -w "%{http_code} %{redirect_url}\n" "$L" >> live-data/redirects.txt
+          done
           git config user.name ci && git config user.email ci@users.noreply.github.com
-          git add live-data && git commit -m "live sample [skip ci]" && git push
+          git add live-data && git commit -m "redirect sample [skip ci]" && git push
