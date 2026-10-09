@@ -38,6 +38,7 @@ import {
   directionsLinks,
   distanceM,
   parseCoordinates,
+  isShortMapLink,
   pointAhead,
   remainingPath,
   walkingMinutes,
@@ -119,7 +120,7 @@ type Draft = {
 const emptyDraft = (kind: PlaceKind = "hotel"): Draft => ({ id: null, kind, name: "", room: "", phone: "", note: "", pos: null });
 
 export function HotelView() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const mapStyleNames = useMapStyleNames();
   const confirmDialog = useConfirm();
   const hydrated = useStoreHydrated(usePlacesStore);
@@ -225,7 +226,29 @@ export function HotelView() {
     revealMap();
   };
 
-  const useLink = () => {
+  const [linkBusy, setLinkBusy] = useState(false);
+  const useLink = async () => {
+    // Google Maps share links (maps.app.goo.gl/…) carry no coordinates: our server opens them.
+    if (!parseCoordinates(link) && isShortMapLink(link)) {
+      setLinkBusy(true);
+      setLinkError(false);
+      try {
+        const r = await fetch(`/api/places/resolve?${new URLSearchParams({ url: link.trim(), loc: location, lang: locale })}`);
+        const d = (await r.json()) as { coords?: { lat: number; lon: number } | null; name?: string | null; results?: SearchHit[] };
+        const title = d.name?.split(/[,،]/)[0].trim() ?? "";
+        const hit: SearchHit | null = d.coords
+          ? { id: "link", name: title, detail: "", lat: d.coords.lat, lon: d.coords.lon, kind: "coords" }
+          : (d.results ?? [])[0] ?? null;
+        if (!r.ok || !hit) return setLinkError(true);
+        pickSearchHit(hit.kind === "coords" && title ? { ...hit, kind: "hotel" } : hit);
+        setLink("");
+      } catch {
+        setLinkError(true);
+      } finally {
+        setLinkBusy(false);
+      }
+      return;
+    }
     const p = parseCoordinates(link);
     if (!p) return setLinkError(true);
     setLinkError(false);
@@ -359,6 +382,7 @@ export function HotelView() {
           link={link}
           setLink={setLink}
           linkError={linkError}
+          linkBusy={linkBusy}
           onUseLink={useLink}
           onSave={saveDraft}
           onCancel={places.length ? () => (setDraft(null), setPicking(false)) : null}
@@ -747,6 +771,7 @@ function Editor({
   link,
   setLink,
   linkError,
+  linkBusy,
   onUseLink,
   onSave,
   onCancel,
@@ -765,6 +790,7 @@ function Editor({
   link: string;
   setLink: (s: string) => void;
   linkError: boolean;
+  linkBusy: boolean;
   onUseLink: () => void;
   onSave: () => void;
   onCancel: (() => void) | null;
@@ -829,7 +855,7 @@ function Editor({
                   dir="ltr"
                   className={cn(input, "min-w-0 flex-1 text-sm")}
                 />
-                <Button variant="outline" onClick={onUseLink} disabled={!link.trim()}>
+                <Button variant="outline" onClick={onUseLink} disabled={!link.trim() || linkBusy}>
                   <Link2 className="size-4" aria-hidden />
                   {t("hotel.useLink")}
                 </Button>

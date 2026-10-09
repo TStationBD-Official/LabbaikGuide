@@ -1070,7 +1070,13 @@
     "source": "Places from OpenStreetMap",
     "m": "m",
     "km": "km",
-    "picked": "Searched place"
+    "picked": "Searched place",
+    "fromLink": "From your Google Maps link",
+    "linkOpening": "Opening your Google Maps link…",
+    "linkError": "This link couldn't be read. Open it in Google Maps, tap the pin and copy the coordinates instead.",
+    "linkFound": "From your Google Maps link: “{name}” — pick the right one.",
+    "linkNotFound": "The link is for “{name}”, which isn't on our map yet.",
+    "linkSearchName": "Search by name"
   },
   "mapStyle": {
     "title": "Map style",

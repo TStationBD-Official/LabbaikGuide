@@ -1070,7 +1070,13 @@
     "source": "জায়গার তথ্য OpenStreetMap থেকে",
     "m": "মি",
     "km": "কিমি",
-    "picked": "খোঁজা জায়গা"
+    "picked": "খোঁজা জায়গা",
+    "fromLink": "আপনার Google Maps লিংক থেকে",
+    "linkOpening": "আপনার Google Maps লিংক খোলা হচ্ছে…",
+    "linkError": "এই লিংক পড়া যায়নি। Google Maps-এ খুলে পিনে চেপে স্থানাঙ্ক কপি করে দিন।",
+    "linkFound": "আপনার Google Maps লিংক থেকে: “{name}” — সঠিকটি বেছে নিন।",
+    "linkNotFound": "লিংকটি “{name}”-এর, যা এখনো আমাদের ম্যাপে নেই।",
+    "linkSearchName": "নাম দিয়ে খুঁজুন"
   },
   "mapStyle": {
     "title": "ম্যাপের ধরন",

@@ -4,7 +4,7 @@ import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 
 import { History, Loader2, Search, X } from "lucide-react";
 import { z } from "zod";
 import { useI18n } from "@/components/providers/i18n-provider";
-import { parseCoordinates, distanceM, type LatLon } from "@/features/places/geo";
+import { parseCoordinates, distanceM, isShortMapLink, type LatLon } from "@/features/places/geo";
 import type { LocationId } from "@/config/locations";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +20,7 @@ const HitSchema = z.object({
   kind: z.enum(["hotel", "mosque", "street", "food", "shop", "transport", "health", "place"]),
 });
 const ResSchema = z.object({ results: z.array(HitSchema) });
+const LinkSchema = z.object({ coords: z.object({ lat: z.number(), lon: z.number() }).nullable(), name: z.string().nullable(), results: z.array(HitSchema) });
 
 const ICON: Record<SearchKind, string> = {
   hotel: "🏨",
@@ -82,7 +83,7 @@ export function PlaceSearch({
   const id = useId();
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
-  const [res, setRes] = useState<{ key: string; hits: SearchHit[] } | null>(null);
+  const [res, setRes] = useState<{ key: string; hits: SearchHit[]; linkName?: string | null } | null>(null);
   const [failed, setFailed] = useState<string | null>(null);
   const [active, setActive] = useState(0);
   const [recent, setRecent] = useState<SearchHit[]>([]);
@@ -91,6 +92,8 @@ export function PlaceSearch({
 
   const query = q.trim();
   const coords = useMemo(() => parseCoordinates(query), [query]);
+  /** maps.app.goo.gl/… — opened by our server to find where it points. */
+  const shortLink = !coords && isShortMapLink(query);
 
   // OpenStreetMap results, debounced; older requests are cancelled.
   const wantRemote = query.length >= 2 && !coords;
@@ -99,11 +102,19 @@ export function PlaceSearch({
     if (!wantRemote) return;
     const ctrl = new AbortController();
     const timer = window.setTimeout(() => {
-      const params = new URLSearchParams({ q: query, loc, lang: locale });
-      if (nearKey) params.set("near", nearKey);
-      fetch(`/api/places/search?${params}`, { signal: ctrl.signal })
+      const params = new URLSearchParams(shortLink ? { url: query, loc, lang: locale } : { q: query, loc, lang: locale });
+      if (nearKey && !shortLink) params.set("near", nearKey);
+      fetch(shortLink ? `/api/places/resolve?${params}` : `/api/places/search?${params}`, { signal: ctrl.signal })
         .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
-        .then((d) => setRes({ key, hits: ResSchema.parse(d).results }))
+        .then((d) => {
+          if (!shortLink) return setRes({ key, hits: ResSchema.parse(d).results });
+          const r = LinkSchema.parse(d);
+          const title = r.name?.split(/[,،]/)[0].trim() || null;
+          const hits: SearchHit[] = r.coords
+            ? [{ id: `c${r.coords.lat},${r.coords.lon}`, name: title ?? `${r.coords.lat.toFixed(6)}, ${r.coords.lon.toFixed(6)}`, detail: t("placeSearch.fromLink"), lat: r.coords.lat, lon: r.coords.lon, kind: "coords" }]
+            : r.results;
+          setRes({ key, hits, linkName: title });
+        })
         .catch(() => {
           if (!ctrl.signal.aborted) setFailed(key);
         });
@@ -112,15 +123,16 @@ export function PlaceSearch({
       window.clearTimeout(timer);
       ctrl.abort();
     };
-  }, [wantRemote, key, query, loc, locale, nearKey]);
+  }, [wantRemote, shortLink, key, query, loc, locale, nearKey, t]);
   const remote = useMemo(() => (wantRemote && res?.key === key ? res.hits : []), [wantRemote, res, key]);
   const status: "idle" | "loading" | "error" = !wantRemote ? "idle" : failed === key ? "error" : res?.key === key ? "idle" : "loading";
 
+  const linkName = res?.key === key ? (res.linkName ?? null) : null;
   const localHits = useMemo(() => {
-    if (query.length < 1) return [];
+    if (query.length < 1 || shortLink) return [];
     const f = fold(query);
     return local.filter((h) => fold(`${h.name} ${h.detail}`).includes(f)).slice(0, 5);
-  }, [local, query]);
+  }, [local, query, shortLink]);
 
   const items: SearchHit[] = useMemo(() => {
     if (coords) return [{ id: `c${coords.lat},${coords.lon}`, name: `${coords.lat.toFixed(6)}, ${coords.lon.toFixed(6)}`, detail: t("placeSearch.coords"), lat: coords.lat, lon: coords.lon, kind: "coords" }];
@@ -158,7 +170,7 @@ export function PlaceSearch({
     } else if (e.key === "Escape") setOpen(false);
   };
 
-  const showList = open && (items.length > 0 || (query.length >= 2 && status !== "loading"));
+  const showList = open && (items.length > 0 || shortLink || (query.length >= 2 && status !== "loading"));
   const dist = (h: SearchHit) => (near ? distanceM(near, h) : null);
   const fmtD = (m: number) =>
     m < 1000 ? `${formatNumber(Math.round(m / 10) * 10)} ${t("placeSearch.m")}` : `${formatNumber(Math.round(m / 100) / 10)} ${t("placeSearch.km")}`;
@@ -238,7 +250,26 @@ export function PlaceSearch({
               );
             })}
           </ul>
-          {query.length >= 2 && !coords ? (
+          {shortLink ? (
+            <div className="border-t border-border px-4 py-2 text-[11px] text-muted-foreground">
+              {status === "loading" ? (
+                t("placeSearch.linkOpening")
+              ) : status === "error" ? (
+                t("placeSearch.linkError")
+              ) : !items.length && linkName ? (
+                <span>
+                  {t("placeSearch.linkNotFound", { name: linkName })}{" "}
+                  <button type="button" className="font-semibold text-primary underline" onClick={() => setQ(linkName)}>
+                    {t("placeSearch.linkSearchName")}
+                  </button>
+                </span>
+              ) : linkName ? (
+                t("placeSearch.linkFound", { name: linkName })
+              ) : (
+                t("placeSearch.linkError")
+              )}
+            </div>
+          ) : query.length >= 2 && !coords ? (
             <p className="border-t border-border px-4 py-2 text-[11px] text-muted-foreground">
               {status === "error" ? t("placeSearch.unavailable") : !items.length ? t("placeSearch.none") : t("placeSearch.source")}
             </p>

@@ -1070,7 +1070,13 @@
     "source": "الأماكن من OpenStreetMap",
     "m": "م",
     "km": "كم",
-    "picked": "مكان من البحث"
+    "picked": "مكان من البحث",
+    "fromLink": "من رابط خرائط Google",
+    "linkOpening": "جارٍ فتح رابط خرائط Google…",
+    "linkError": "تعذّرت قراءة الرابط. افتحه في خرائط Google واضغط على الدبوس وانسخ الإحداثيات.",
+    "linkFound": "من رابط خرائط Google: «{name}» — اختر الصحيح.",
+    "linkNotFound": "الرابط لمكان «{name}» وهو غير موجود في خريطتنا بعد.",
+    "linkSearchName": "ابحث بالاسم"
   },
   "mapStyle": {
     "title": "نمط الخريطة",

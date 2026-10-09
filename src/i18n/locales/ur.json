@@ -1070,7 +1070,13 @@
     "source": "مقامات OpenStreetMap سے",
     "m": "میٹر",
     "km": "کلومیٹر",
-    "picked": "تلاش شدہ جگہ"
+    "picked": "تلاش شدہ جگہ",
+    "fromLink": "آپ کے Google Maps لنک سے",
+    "linkOpening": "آپ کا Google Maps لنک کھولا جا رہا ہے…",
+    "linkError": "یہ لنک پڑھا نہیں جا سکا۔ Google Maps میں کھول کر پن پر ٹیپ کریں اور کوآرڈینیٹس کاپی کریں۔",
+    "linkFound": "آپ کے Google Maps لنک سے: “{name}” — صحیح والا منتخب کریں۔",
+    "linkNotFound": "یہ لنک “{name}” کا ہے، جو ابھی ہمارے نقشے پر نہیں۔",
+    "linkSearchName": "نام سے تلاش کریں"
   },
   "mapStyle": {
     "title": "نقشے کا انداز",

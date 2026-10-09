@@ -123,9 +123,27 @@ export function tilesForArea(points: LatLon[], padM: number, zMin: number, zMax:
 }
 
 /** Parse "lat, lon" or a maps URL containing coordinates (Google/Apple/OSM). */
+/** A Google Maps share link that needs to be opened to know where it points (maps.app.goo.gl/…, goo.gl/maps/…). */
+export function isShortMapLink(input: string): boolean {
+  return /^(https?:\/\/)?(maps\.app\.goo\.gl|goo\.gl\/maps|g\.co\/kgs)\/[\w-]+/i.test(input.trim());
+}
+
+/** The place name in a Google Maps place URL (".../maps/place/Bader+al+Hadeth+Hotel,+3263,.../data=..."). */
+export function placeNameFromMapUrl(url: string): string | null {
+  const m = url.match(/\/maps\/place\/([^/?#]+)/);
+  if (!m) return null;
+  try {
+    const name = decodeURIComponent(m[1].replace(/\+/g, " ")).trim();
+    return name && !/^-?\d/.test(name) ? name : null;
+  } catch {
+    return null;
+  }
+}
+
 export function parseCoordinates(input: string): LatLon | null {
   const s = input.trim();
   const patterns = [
+    /!3d(-?\d{1,2}(?:\.\d+)?)!4d(-?\d{1,3}(?:\.\d+)?)/, // google place pin: ...!3d21.42!4d39.82 (more exact than @, the view centre)
     /@(-?\d{1,2}(?:\.\d+)?),\s*(-?\d{1,3}(?:\.\d+)?)/, // google .../@21.42,39.82,17z
     /[?&](?:q|ll|query|daddr|destination)=(-?\d{1,2}(?:\.\d+)?)(?:,|%2C)\s*(-?\d{1,3}(?:\.\d+)?)/i,
     /[?&]mlat=(-?\d{1,2}(?:\.\d+)?)&mlon=(-?\d{1,3}(?:\.\d+)?)/,
