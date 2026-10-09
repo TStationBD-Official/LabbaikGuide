@@ -1,5 +1,7 @@
 import { AMAL_ITEMS, type AmalCounter, type AmalItem, type AmalKind } from "@/data/amal/items";
 import { HARAM_TZ, ymdInZone, ymdKey } from "@/features/prayer/calendar";
+import { calculatePrayerDay } from "@/features/prayer/times";
+import type { LocationId } from "@/config/locations";
 
 /** One day's record. `done` maps item id → time it was ticked; `auto` marks ticks that came from elsewhere in the app. */
 export type AmalDay = {
@@ -25,6 +27,41 @@ export function shiftKey(key: string, days: number): string {
   return d.toISOString().slice(0, 10);
 }
 export const isFridayKey = (key: string) => parseKey(key).getUTCDay() === 5;
+
+// ── time of day: a deed can't be ticked before its time has come ──
+const dayCache = new Map<string, ReturnType<typeof calculatePrayerDay>>();
+function prayerDayFor(key: string, location: LocationId) {
+  const k = `${location}|${key}`;
+  let d = dayCache.get(k);
+  if (!d) {
+    const [year, month, day] = key.split("-").map(Number);
+    d = calculatePrayerDay(location, { year, month, day });
+    if (dayCache.size > 64) dayCache.clear();
+    dayCache.set(k, d);
+  }
+  return d;
+}
+
+/** When the item becomes possible on that day (prayer/sunrise time + offset); null = any time of the day. */
+export function opensAt(i: AmalItem, key: string, location: LocationId): Date | null {
+  if (!i.opens) return null;
+  const p = prayerDayFor(key, location).prayers.find((x) => x.name === i.opens!.at);
+  return p ? new Date(p.adhan.getTime() + (i.opens.plusMin ?? 0) * 60_000) : null;
+}
+
+/** Past days are fully open, future days are closed, and today opens item by item. */
+export function isOpen(i: AmalItem, key: string, now: Date, location: LocationId): boolean {
+  const today = amalDayKey(now);
+  if (key < today) return true;
+  if (key > today) return false;
+  const at = opensAt(i, key, location);
+  return !at || now.getTime() >= at.getTime();
+}
+
+/** Fajr of that day (the night before it belongs to the previous day's Witr/Tahajjud). */
+export function fajrOf(key: string, location: LocationId): Date {
+  return prayerDayFor(key, location).prayers.find((x) => x.name === "fajr")!.adhan;
+}
 
 const SALAT_IDS = new Set(["fajr-sunnah", "dhuhr-sunnah-before", "asr-sunnah-before", "dhuhr-sunnah-after", "maghrib-sunnah-after", "isha-sunnah-after", "duha", "witr", "tahajjud", "jumuah-early"]);
 /** Prayer items (left out of the score on an excused day). */
@@ -62,9 +99,12 @@ export type DayScore = {
   excused: boolean;
 };
 
-export function scoreDay(key: string, day: AmalDay | undefined, s: AmalSettings, all: AmalItem[] = AMAL_ITEMS): DayScore {
+/** For today: only count deeds whose time has come (a later prayer can't be "missed" yet). */
+export type DueOpts = { now: Date; location: LocationId };
+
+export function scoreDay(key: string, day: AmalDay | undefined, s: AmalSettings, all: AmalItem[] = AMAL_ITEMS, due?: DueOpts): DayScore {
   const excused = Boolean(day?.excused);
-  const items = itemsFor(key, s, all).filter((i) => !(excused && isSalat(i)));
+  const items = itemsFor(key, s, all).filter((i) => !(excused && isSalat(i)) && (!due || isDone(i, day, s) || isOpen(i, key, due.now, due.location)));
   let doneWeight = 0;
   let totalWeight = 0;
   let doneItems = 0;
@@ -93,8 +133,8 @@ export function keysBetween(from: string, to: string): string[] {
 }
 
 /** Scores for a range; days before tracking started (or in the future) are `null`. */
-export function rangeScores(days: Record<string, AmalDay>, s: AmalSettings, from: string, to: string, today: string, firstDay: string | null): (DayScore | null)[] {
-  return keysBetween(from, to).map((k) => (k > today || !firstDay || k < firstDay ? null : scoreDay(k, days[k], s)));
+export function rangeScores(days: Record<string, AmalDay>, s: AmalSettings, from: string, to: string, today: string, firstDay: string | null, due?: DueOpts): (DayScore | null)[] {
+  return keysBetween(from, to).map((k) => (k > today || !firstDay || k < firstDay ? null : scoreDay(k, days[k], s, AMAL_ITEMS, due)));
 }
 
 export type RangeSummary = { days: number; avg: number; fardRate: number; perfect: number; best: DayScore | null; doneItems: number };
@@ -150,12 +190,13 @@ export function trackedKeys(from: string, to: string, today: string, firstDay: s
 
 export type KindStat = { kind: AmalKind; done: number; total: number };
 /** How often each kind of deed was done in a range (days with data only). */
-export function kindBreakdown(days: Record<string, AmalDay>, s: AmalSettings, keys: string[]): KindStat[] {
+export function kindBreakdown(days: Record<string, AmalDay>, s: AmalSettings, keys: string[], due?: DueOpts): KindStat[] {
   const map = new Map<AmalKind, KindStat>();
   for (const k of keys) {
     const d = days[k] ?? EMPTY_DAY;
     for (const i of itemsFor(k, s)) {
       if (d.excused && isSalat(i)) continue;
+      if (due && !isDone(i, d, s) && !isOpen(i, k, due.now, due.location)) continue;
       const st = map.get(i.kind) ?? { kind: i.kind, done: 0, total: 0 };
       st.total++;
       if (isDone(i, d, s)) st.done++;
@@ -167,12 +208,13 @@ export function kindBreakdown(days: Record<string, AmalDay>, s: AmalSettings, ke
 }
 
 export type ItemStat = { item: AmalItem; done: number; total: number };
-export function itemStats(days: Record<string, AmalDay>, s: AmalSettings, keys: string[]): ItemStat[] {
+export function itemStats(days: Record<string, AmalDay>, s: AmalSettings, keys: string[], due?: DueOpts): ItemStat[] {
   const map = new Map<string, ItemStat>();
   for (const k of keys) {
     const d = days[k] ?? EMPTY_DAY;
     for (const i of itemsFor(k, s)) {
       if (d.excused && isSalat(i)) continue;
+      if (due && !isDone(i, d, s) && !isOpen(i, k, due.now, due.location)) continue;
       const st = map.get(i.id) ?? { item: i, done: 0, total: 0 };
       st.total++;
       if (isDone(i, d, s)) st.done++;
@@ -220,4 +262,36 @@ export function recommend(days: Record<string, AmalDay>, s: AmalSettings, today:
     else out.push({ type: "consistency", streak });
   }
   return out.slice(0, max);
+}
+
+export type TrendValue = { key: string; all: number | null; fard: number | null };
+/**
+ * Points for the progress graph: one per day, or one per calendar month (average of its tracked days).
+ * `null` where nothing was tracked (before the first day, or in the future).
+ */
+export function trendPoints(
+  days: Record<string, AmalDay>,
+  s: AmalSettings,
+  from: string,
+  to: string,
+  today: string,
+  firstDay: string | null,
+  group: "day" | "month",
+  due?: DueOpts,
+): TrendValue[] {
+  const keys = keysBetween(from, to);
+  const scores = rangeScores(days, s, from, to, today, firstDay, due);
+  const fardOf = (x: DayScore) => (x.fardTotal ? x.fardDone / x.fardTotal : null);
+  if (group === "day") return scores.map((x, i) => ({ key: keys[i], all: x ? x.pct : null, fard: x ? fardOf(x) : null }));
+  const months = new Map<string, DayScore[]>();
+  keys.forEach((k, i) => {
+    const m = k.slice(0, 7);
+    if (!months.has(m)) months.set(m, []);
+    const x = scores[i];
+    if (x) months.get(m)!.push(x);
+  });
+  return [...months.entries()].map(([m, xs]) => {
+    const f = xs.map(fardOf).filter((v): v is number => v !== null);
+    return { key: m, all: xs.length ? xs.reduce((a, x) => a + x.pct, 0) / xs.length : null, fard: f.length ? f.reduce((a, v) => a + v, 0) / f.length : null };
+  });
 }

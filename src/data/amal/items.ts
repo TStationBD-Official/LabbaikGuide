@@ -43,7 +43,11 @@ export type AmalItem = {
   href?: string;
   /** Off by default (user can switch on). */
   optional?: boolean;
+  /** When it becomes possible to do on its day (prayer time, plus minutes). No value = any time of the day. */
+  opens?: AmalOpens;
 };
+
+export type AmalOpens = { at: "fajr" | "sunrise" | "dhuhr" | "asr" | "maghrib" | "isha"; plusMin?: number };
 
 const bukhari = (n: number): AmalRef => ({ label: `Sahih al-Bukhari ${n}`, url: `https://sunnah.com/bukhari:${n}` });
 const muslim = (n: number): AmalRef => ({ label: `Sahih Muslim ${n}`, url: `https://sunnah.com/muslim:${n}` });
@@ -73,6 +77,7 @@ function prayerItems(p: AmalPrayer): AmalItem[] {
     {
       id: `${p}-answer`,
       slot: p,
+      opens: { at: p },
       kind: "dua",
       weight: 2,
       title: { en: `Answer the ${name.en} adhan`, bn: `${name.bn}-এর আজানের জবাব`, ur: `${name.ur} کی اذان کا جواب` },
@@ -89,6 +94,7 @@ function prayerItems(p: AmalPrayer): AmalItem[] {
     {
       id: `${p}-adhan-dua`,
       slot: p,
+      opens: { at: p },
       kind: "dua",
       weight: 2,
       title: { en: `Dua after the ${name.en} adhan`, bn: `${name.bn}-এর আজানের পরের দোয়া`, ur: `${name.ur} کی اذان کے بعد کی دعا` },
@@ -108,6 +114,7 @@ function prayerItems(p: AmalPrayer): AmalItem[] {
     items.push({
       id: "fajr-sunnah",
       slot: p,
+      opens: { at: p },
       kind: "sunnah",
       weight: 4,
       title: { en: "2 sunnah before Fajr", bn: "ফজরের আগে ২ রাকাত সুন্নাত", ur: "فجر سے پہلے ۲ سنتیں" },
@@ -123,6 +130,7 @@ function prayerItems(p: AmalPrayer): AmalItem[] {
     items.push({
       id: "dhuhr-sunnah-before",
       slot: p,
+      opens: { at: p },
       kind: "sunnah",
       weight: 4,
       notFriday: true,
@@ -139,6 +147,7 @@ function prayerItems(p: AmalPrayer): AmalItem[] {
     items.push({
       id: "asr-sunnah-before",
       slot: p,
+      opens: { at: p },
       kind: "nafl",
       weight: 2,
       title: { en: "4 rak'ahs before Asr", bn: "আসরের আগে ৪ রাকাত", ur: "عصر سے پہلے ۴ رکعتیں" },
@@ -154,6 +163,7 @@ function prayerItems(p: AmalPrayer): AmalItem[] {
   items.push({
     id: `${p}-fard`,
     slot: p,
+    opens: { at: p },
     kind: "fard",
     weight: 10,
     title: { en: `${name.en} — fard`, bn: `${name.bn} — ফরজ`, ur: `${name.ur} — فرض` },
@@ -170,6 +180,7 @@ function prayerItems(p: AmalPrayer): AmalItem[] {
     items.push({
       id: `${p}-sunnah-after`,
       slot: p,
+      opens: { at: p },
       kind: "sunnah",
       weight: 4,
       title: { en: `2 sunnah after ${name.en}`, bn: `${name.bn}-এর পরে ২ রাকাত সুন্নাত`, ur: `${name.ur} کے بعد ۲ سنتیں` },
@@ -185,6 +196,7 @@ function prayerItems(p: AmalPrayer): AmalItem[] {
   items.push({
     id: `${p}-adhkar`,
     slot: p,
+    opens: { at: p },
     kind: "adhkar",
     weight: 3,
     title: { en: `Adhkar after ${name.en}`, bn: `${name.bn}-এর পরের জিকির`, ur: `${name.ur} کے بعد کے اذکار` },
@@ -208,6 +220,7 @@ function prayerItems(p: AmalPrayer): AmalItem[] {
 const OTHER: AmalItem[] = [
   {
     id: "morning-adhkar",
+    opens: { at: "fajr" },
     slot: "morning",
     kind: "adhkar",
     weight: 3,
@@ -223,6 +236,7 @@ const OTHER: AmalItem[] = [
   },
   {
     id: "yasin",
+    opens: { at: "fajr" },
     slot: "morning",
     kind: "quran",
     weight: 2,
@@ -240,6 +254,7 @@ const OTHER: AmalItem[] = [
   },
   {
     id: "duha",
+    opens: { at: "sunrise", plusMin: 15 },
     slot: "morning",
     kind: "nafl",
     weight: 2,
@@ -254,6 +269,7 @@ const OTHER: AmalItem[] = [
   },
   {
     id: "evening-adhkar",
+    opens: { at: "asr" },
     slot: "asr",
     kind: "adhkar",
     weight: 3,
@@ -269,6 +285,7 @@ const OTHER: AmalItem[] = [
   },
   {
     id: "mulk",
+    opens: { at: "maghrib" },
     slot: "isha",
     kind: "quran",
     weight: 3,
@@ -285,6 +302,7 @@ const OTHER: AmalItem[] = [
   },
   {
     id: "sajdah",
+    opens: { at: "maghrib" },
     slot: "isha",
     kind: "quran",
     weight: 2,
@@ -302,6 +320,7 @@ const OTHER: AmalItem[] = [
   },
   {
     id: "baqarah-end",
+    opens: { at: "maghrib" },
     slot: "isha",
     kind: "quran",
     weight: 2,
@@ -318,6 +337,7 @@ const OTHER: AmalItem[] = [
   },
   {
     id: "witr",
+    opens: { at: "isha" },
     slot: "night",
     kind: "sunnah",
     weight: 5,
@@ -332,6 +352,7 @@ const OTHER: AmalItem[] = [
   },
   {
     id: "sleep-adhkar",
+    opens: { at: "maghrib" },
     slot: "night",
     kind: "adhkar",
     weight: 2,
@@ -346,6 +367,7 @@ const OTHER: AmalItem[] = [
   },
   {
     id: "tahajjud",
+    opens: { at: "isha" },
     slot: "night",
     kind: "nafl",
     weight: 3,
@@ -412,6 +434,7 @@ const OTHER: AmalItem[] = [
   // ── Friday ──
   {
     id: "jumuah-ghusl",
+    opens: { at: "fajr" },
     slot: "morning",
     kind: "sunnah",
     weight: 2,
@@ -440,6 +463,7 @@ const OTHER: AmalItem[] = [
   },
   {
     id: "jumuah-early",
+    opens: { at: "sunrise" },
     slot: "dhuhr",
     kind: "sunnah",
     weight: 2,
@@ -455,6 +479,7 @@ const OTHER: AmalItem[] = [
   },
   {
     id: "friday-hour",
+    opens: { at: "asr" },
     slot: "asr",
     kind: "dua",
     weight: 2,

@@ -4,7 +4,8 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { idbJSONStorage } from "@/services/storage/idb-storage";
 import { AMAL_BY_ID, SURAH_ITEMS, type AmalCounter } from "@/data/amal/items";
-import { amalDayKey, isFridayKey, type AmalDay } from "@/features/amal/logic";
+import { amalDayKey, isFridayKey, isOpen, type AmalDay } from "@/features/amal/logic";
+import type { LocationId } from "@/config/locations";
 
 /**
  * Daily deeds tracker. Kept only on this device (IndexedDB), one record per Haramain (Riyadh) day.
@@ -16,6 +17,9 @@ type AmalState = {
   firstDay: string | null;
   enabled: Record<string, boolean>;
   goals: Record<string, number>;
+  /** City whose prayer times decide when each deed opens (kept in sync with the app setting). */
+  location: LocationId;
+  setLocation: (l: LocationId) => void;
   toggle: (day: string, id: string, now?: number) => void;
   markAuto: (day: string, id: string, now?: number) => void;
   addCount: (day: string, counter: AmalCounter, n?: number) => void;
@@ -47,7 +51,13 @@ export const useAmalStore = create<AmalState>()(
       firstDay: null,
       enabled: {},
       goals: {},
-      toggle: (day, id, now = Date.now()) =>
+      location: "makkah",
+      setLocation: (location) => set({ location }),
+      toggle: (day, id, now = Date.now()) => {
+        const item = AMAL_BY_ID.get(id);
+        const wasDone = Boolean(get().days[day]?.done[id]);
+        // A deed whose time hasn't come (later prayer, a future day) can't be ticked yet.
+        if (!item || (!wasDone && !isOpen(item, day, new Date(now), get().location))) return;
         set((s) =>
           withDay(s, day, (d) => {
             const done = { ...d.done };
@@ -58,9 +68,11 @@ export const useAmalStore = create<AmalState>()(
             } else done[id] = now;
             return { ...d, done, auto };
           }),
-        ),
+        );
+      },
       markAuto: (day, id, now = Date.now()) => {
-        if (!AMAL_BY_ID.has(id) || get().days[day]?.done[id]) return;
+        const item = AMAL_BY_ID.get(id);
+        if (!item || get().days[day]?.done[id] || !isOpen(item, day, new Date(now), get().location)) return;
         set((s) => withDay(s, day, (d) => ({ ...d, done: { ...d.done, [id]: now }, auto: { ...(d.auto ?? {}), [id]: 1 } })));
       },
       addCount: (day, counter, n = 1) =>
@@ -79,6 +91,6 @@ export const useAmalStore = create<AmalState>()(
       },
       clearAll: () => set({ days: {}, firstDay: null }),
     }),
-    { name: "hc-amal", storage: idbJSONStorage, version: 1, partialize: (s) => ({ days: s.days, firstDay: s.firstDay, enabled: s.enabled, goals: s.goals }) },
+    { name: "hc-amal", storage: idbJSONStorage, version: 1, partialize: (s) => ({ days: s.days, firstDay: s.firstDay, enabled: s.enabled, goals: s.goals, location: s.location }) },
   ),
 );

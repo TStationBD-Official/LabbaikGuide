@@ -11,7 +11,7 @@ import { SegmentedControl } from "@/components/ui/segmented";
 import { Toggle } from "@/components/ui/toggle";
 import { useToast } from "@/components/ui/toast";
 import { useConfirm } from "@/components/ui/confirm";
-import { usePrayerData } from "@/hooks/use-prayer";
+import { useClock, usePrayerData } from "@/hooks/use-prayer";
 import { useStoreHydrated } from "@/hooks/use-hydrated";
 import { gt } from "@/data/guides/travel";
 import { AMAL_ITEMS, SLOTS, type AmalItem, type AmalSlot } from "@/data/amal/items";
@@ -33,13 +33,17 @@ import {
   summarize,
   trackedKeys,
   isSalat,
+  isOpen,
+  opensAt,
+  fajrOf,
+  trendPoints,
   type Recommendation,
 } from "@/features/amal/logic";
 import { useAmalSync } from "@/features/amal/sync";
 import { formatHijri, formatTime } from "@/features/prayer/calendar";
 import { useAmalStore } from "@/stores/amal-store";
 import { cn } from "@/lib/utils";
-import { BarChart, HBars, MonthHeatmap } from "./amal-charts";
+import { HBars, MonthHeatmap, TrendChart, TrendTable, type TrendPoint } from "./amal-charts";
 import { AmalRing, Bar, CheckButton, Confetti, currentSlot, itemText, KIND_STYLE, SLOT_EMOJI, useAmalSettings, useAmalToday, usePct } from "./amal-ui";
 
 type Tab = "today" | "progress" | "settings";
@@ -115,11 +119,24 @@ function TodayView({ day, today, onDay }: { day: string; today: string; onDay: (
   const isToday = day === today;
   const fri = isFridayKey(day);
 
-  const score = scoreDay(day, rec, s);
+  const minute = prayer.now ? Math.floor(prayer.now.getTime() / 60_000) : 0;
+  const due = useMemo(() => (minute ? { now: new Date(minute * 60_000), location } : undefined), [minute, location]);
+  const score = scoreDay(day, rec, s, undefined, due);
   const items = itemsFor(day, s);
   const streak = useMemo(() => fardStreak(days, s, today), [days, s, today]);
-  const kinds = kindBreakdown(days, s, [day]);
+  const kinds = kindBreakdown(days, s, [day], due);
   const slot = isToday ? currentSlot(prayer.now, prayer.days?.today.prayers) : null;
+  const now = prayer.now;
+  /** "Opens at 3:30 PM" while the deed's time hasn't come today; null when it can be ticked. */
+  const opensLabel = (i: AmalItem, k: string = day): string | null => {
+    if (!now || isOpen(i, k, now, location)) return null;
+    const at = opensAt(i, k, location);
+    return at ? t("amal.opensAt", { time: formatTime(at, intlLocale) }) : t("amal.lockedHint");
+  };
+  // Before Fajr, last night's Witr, Tahajjud and night recitation still belong to yesterday.
+  const yesterday = shiftKey(today, -1);
+  const yRec = useAmalStore((st) => st.days[yesterday]);
+  const lastNight = isToday && now && now.getTime() < fajrOf(today, location).getTime() ? itemsFor(yesterday, s).filter((i) => (i.slot === "isha" || i.slot === "night") && i.kind !== "fard" && !isDone(i, yRec, s)) : [];
   const ymd = { year: +day.slice(0, 4), month: +day.slice(5, 7), day: +day.slice(8, 10) };
   const dateLabel = new Intl.DateTimeFormat(intlLocale, { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" }).format(parseKey(day));
   const recs = useMemo(() => (isToday ? recommend(days, s, today, firstDay, 2) : []), [isToday, days, s, today, firstDay]);
@@ -247,17 +264,39 @@ function TodayView({ day, today, onDay }: { day: string; today: string; onDay: (
         <Toggle checked={Boolean(rec?.excused)} onChange={(v) => setExcused(day, v)} label={t("amal.excused")} description={t("amal.excusedNote")} emoji="🌙" compact />
       </Card>
 
+      {lastNight.length ? (
+        <section aria-labelledby="last-night" className="hc-rise space-y-2 rounded-3xl bg-primary-soft/40 p-2 ring-1 ring-primary/30">
+          <header className="flex items-center gap-3 px-1 pt-1">
+            <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-card text-xl shadow-soft" aria-hidden>
+              🌌
+            </span>
+            <div className="min-w-0">
+              <h2 id="last-night" className="font-semibold">
+                {t("amal.lastNight")}
+              </h2>
+              <p className="text-xs text-muted-foreground">{t("amal.lastNightNote")}</p>
+            </div>
+          </header>
+          <ul className="space-y-2">
+            {lastNight.map((i) => (
+              <AmalRow key={`y-${i.id}`} item={i} day={yesterday} excused={false} onToggle={() => toggle(yesterday, i.id)} />
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
       {/* the day, slot by slot */}
       <div className="space-y-5">
         {SLOTS.map((sl) => {
           const list = items.filter((i) => i.slot === sl);
           if (!list.length) return null;
           const done = list.filter((i) => isDone(i, rec, s)).length;
-          const now = slot === sl;
+          const isNow = slot === sl;
           const time = timeOf(sl);
+          const allLocked = list.every((i) => opensLabel(i) && !isDone(i, rec, s));
           const name = sl === "dhuhr" && fri ? t("amal.slot_jumuah") : t(`amal.slot_${sl}`);
           return (
-            <section key={sl} aria-labelledby={`slot-${sl}`} className={cn("hc-rise space-y-2", now && "rounded-3xl bg-gold-soft/30 p-2 ring-2 ring-gold/40")}>
+            <section key={sl} aria-labelledby={`slot-${sl}`} className={cn("hc-rise space-y-2", isNow && "rounded-3xl bg-gold-soft/30 p-2 ring-2 ring-gold/40", allLocked && "opacity-80")}>
               <header className="flex items-center gap-3 px-1">
                 <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-card text-xl shadow-soft" aria-hidden>
                   {SLOT_EMOJI[sl]}
@@ -265,7 +304,8 @@ function TodayView({ day, today, onDay }: { day: string; today: string; onDay: (
                 <div className="min-w-0 flex-1">
                   <h2 id={`slot-${sl}`} className="flex items-center gap-2 font-semibold">
                     {name}
-                    {now ? <span className="rounded-full bg-gold px-2 py-0.5 text-[10px] font-bold text-white">{t("amal.now")}</span> : null}
+                    {isNow ? <span className="rounded-full bg-gold px-2 py-0.5 text-[10px] font-bold text-white">{t("amal.now")}</span> : null}
+                    {allLocked ? <Lock className="size-3.5 text-muted-foreground" aria-label={t("amal.lockedHint")} /> : null}
                   </h2>
                   {time ? <p className="text-xs text-muted-foreground tabular-nums">{time}</p> : null}
                 </div>
@@ -278,7 +318,7 @@ function TodayView({ day, today, onDay }: { day: string; today: string; onDay: (
               </header>
               <ul className="space-y-2">
                 {list.map((i) => (
-                  <AmalRow key={i.id} item={i} day={day} excused={Boolean(rec?.excused) && isSalat(i)} onToggle={() => toggle(day, i.id)} />
+                  <AmalRow key={i.id} item={i} day={day} excused={Boolean(rec?.excused) && isSalat(i)} onToggle={() => toggle(day, i.id)} opensLabel={opensLabel(i)} />
                 ))}
               </ul>
             </section>
@@ -294,7 +334,7 @@ function TodayView({ day, today, onDay }: { day: string; today: string; onDay: (
   );
 }
 
-function AmalRow({ item, day, excused, onToggle }: { item: AmalItem; day: string; excused: boolean; onToggle: () => void }) {
+function AmalRow({ item, day, excused, onToggle, opensLabel }: { item: AmalItem; day: string; excused: boolean; onToggle: () => void; opensLabel?: string | null }) {
   const { t, locale, formatNumber } = useI18n();
   const reduce = useReducedMotion();
   const s = useAmalSettings();
@@ -306,16 +346,23 @@ function AmalRow({ item, day, excused, onToggle }: { item: AmalItem; day: string
   const count = countOf(item, rec);
   const { title, sub } = itemText(item, day, locale);
   const where = item.auto ? t(`amal.where_${item.auto.type}`) : "";
+  const locked = Boolean(opensLabel) && !done;
 
   return (
-    <motion.li layout={!reduce} className={cn("overflow-hidden rounded-2xl border bg-card shadow-soft transition-colors", done ? "border-primary/40" : "border-border", excused && "opacity-50")}>
+    <motion.li layout={!reduce} className={cn("overflow-hidden rounded-2xl border bg-card shadow-soft transition-colors", done ? "border-primary/40" : locked ? "border-dashed border-border bg-card/60" : "border-border", excused && "opacity-50")}>
       <div className="flex items-start gap-3 p-3">
-        <CheckButton done={done} onToggle={onToggle} label={`${title}: ${done ? t("amal.markUndone") : t("amal.markDone")}`} />
+        <CheckButton done={done} locked={locked} onToggle={onToggle} label={`${title}: ${locked ? opensLabel : done ? t("amal.markUndone") : t("amal.markDone")}`} />
         <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="min-w-0 flex-1 text-start">
-          <span className={cn("block font-medium leading-snug", done && "text-muted-foreground")}>{title}</span>
+          <span className={cn("block font-medium leading-snug", (done || locked) && "text-muted-foreground")}>{title}</span>
           {sub ? <span className="mt-0.5 block text-xs text-muted-foreground">{sub}</span> : null}
           <span className="mt-1.5 flex flex-wrap items-center gap-1.5">
-            <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-semibold", KIND_STYLE[item.kind].chip)}>{t(`amal.kind_${item.kind}`)}</span>
+            <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-semibold", KIND_STYLE[item.kind].chip, locked && "opacity-60")}>{t(`amal.kind_${item.kind}`)}</span>
+            {locked ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                <Lock className="size-3" aria-hidden />
+                {opensLabel}
+              </span>
+            ) : null}
             {item.grade === "weak" ? <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-300">{t("amal.weak")}</span> : null}
             {auto && done ? (
               <span className="inline-flex items-center gap-0.5 rounded-full bg-sky-500/15 px-2 py-0.5 text-[10px] font-semibold text-sky-700 dark:text-sky-300">
@@ -455,6 +502,10 @@ function ProgressView({ today, onOpenDay }: { today: string; onOpenDay: (d: stri
   const days = useAmalStore((st) => st.days);
   const firstDay = useAmalStore((st) => st.firstDay);
   const [range, setRange] = useState<Range>("week");
+  const location = usePrefs((st) => st.location);
+  const { now: clockNow } = useClock(60_000);
+  const minute = clockNow ? Math.floor(clockNow.getTime() / 60_000) : 0;
+  const due = useMemo(() => (minute ? { now: new Date(minute * 60_000), location } : undefined), [minute, location]);
   const [offset, setOffset] = useState(0); // periods back from now
 
   const t0 = parseKey(today);
@@ -472,12 +523,12 @@ function ProgressView({ today, onOpenDay }: { today: string; onOpenDay: (d: stri
     return { from: `${y}-01-01`, to: `${y}-12-31`, y };
   }, [range, offset, today, t0]);
 
-  const scores = useMemo(() => rangeScores(days, s, period.from, period.to, today, firstDay), [days, s, period, today, firstDay]);
+  const scores = useMemo(() => rangeScores(days, s, period.from, period.to, today, firstDay, due), [days, s, period, today, firstDay, due]);
   const sum = summarize(scores);
   const streak = useMemo(() => fardStreak(days, s, today), [days, s, today]);
   const keys = trackedKeys(period.from, period.to, today, firstDay);
-  const kinds = kindBreakdown(days, s, keys);
-  const stats = itemStats(days, s, keys).filter((x) => x.total >= Math.min(3, keys.length) && x.item.grade !== "weak");
+  const kinds = kindBreakdown(days, s, keys, due);
+  const stats = itemStats(days, s, keys, due).filter((x) => x.total >= Math.min(3, keys.length) && x.item.grade !== "weak");
   const missed = [...stats].filter((x) => x.done < x.total).sort((a, b) => a.done / a.total - b.done / b.total || b.item.weight - a.item.weight).slice(0, 4);
   const kept = [...stats].filter((x) => x.done > 0).sort((a, b) => b.done / b.total - a.done / a.total || b.item.weight - a.item.weight).slice(0, 4);
   const recs = useMemo(() => recommend(days, s, today, firstDay, 3), [days, s, today, firstDay]);
@@ -490,33 +541,24 @@ function ProgressView({ today, onOpenDay }: { today: string; onOpenDay: (d: stri
         ? new Intl.DateTimeFormat(intlLocale, { month: "long", year: "numeric", timeZone: "UTC" }).format(parseKey(period.from))
         : new Intl.DateTimeFormat(intlLocale, { year: "numeric", timeZone: "UTC" }).format(parseKey(period.from));
 
-  const chart = (() => {
-    if (range === "week") {
-      const wd = new Intl.DateTimeFormat(intlLocale, { weekday: "short", timeZone: "UTC" });
-      return (
-        <BarChart
-          label={t("amal.chartLabel")}
-          onPick={onOpenDay}
-          data={scores.map((sc, i) => {
-            const k = shiftKey(period.from, i);
-            return { key: k, label: wd.format(parseKey(k)), sub: formatNumber(parseKey(k).getUTCDate()), value: sc ? sc.pct : null, highlight: k === today };
-          })}
-        />
-      );
-    }
-    if (range === "month") {
-      const map = new Map<string, number | null>();
-      scores.forEach((sc, i) => map.set(shiftKey(period.from, i), sc ? sc.pct : null));
-      return <MonthHeatmap year={period.y!} month={(period as { m: number }).m} values={map} today={today} onPick={onOpenDay} />;
-    }
-    const mf = new Intl.DateTimeFormat(intlLocale, { month: "narrow", timeZone: "UTC" });
-    const months = Array.from({ length: 12 }, (_, m) => {
-      const vals = scores.filter((sc, i) => sc && parseKey(shiftKey(period.from, i)).getUTCMonth() === m) as NonNullable<(typeof scores)[number]>[];
-      const k = `${period.y}-${String(m + 1).padStart(2, "0")}`;
-      return { key: k, label: mf.format(new Date(Date.UTC(period.y!, m, 15))), value: vals.length ? vals.reduce((a, x) => a + x.pct, 0) / vals.length : null, highlight: today.startsWith(k) };
+  // The progress graph: one point per day (week, month) or per month (year).
+  const trend: TrendPoint[] = useMemo(() => {
+    const raw = trendPoints(days, s, period.from, period.to, today, firstDay, range === "year" ? "month" : "day", due);
+    const wd = new Intl.DateTimeFormat(intlLocale, { weekday: "short", timeZone: "UTC" });
+    const dm = new Intl.DateTimeFormat(intlLocale, { day: "numeric", month: "short", timeZone: "UTC" });
+    const mf = new Intl.DateTimeFormat(intlLocale, { month: range === "year" ? "short" : "long", timeZone: "UTC" });
+    return raw.map((p) => {
+      if (range === "year") return { ...p, label: mf.format(parseKey(`${p.key}-15`)), tip: new Intl.DateTimeFormat(intlLocale, { month: "long", year: "numeric", timeZone: "UTC" }).format(parseKey(`${p.key}-15`)), highlight: today.startsWith(p.key) };
+      const d = parseKey(p.key);
+      return { ...p, label: range === "week" ? wd.format(d) : formatNumber(d.getUTCDate()), tip: dm.format(d), highlight: p.key === today };
     });
-    return <BarChart label={t("amal.yearLabel")} data={months} height={150} />;
-  })();
+  }, [days, s, period, today, firstDay, range, intlLocale, formatNumber, due]);
+  const [table, setTable] = useState(false);
+  const monthValues = useMemo(() => {
+    const map = new Map<string, number | null>();
+    scores.forEach((sc, i) => map.set(shiftKey(period.from, i), sc ? sc.pct : null));
+    return map;
+  }, [scores, period.from]);
 
   const tiles = [
     { label: t("amal.avg"), value: pct(sum.avg), icon: "📈" },
@@ -581,10 +623,33 @@ function ProgressView({ today, onOpenDay }: { today: string; onOpenDay: (d: stri
         </div>
         <AnimatePresence mode="wait">
           <motion.div key={`${range}-${offset}`} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
-            {sum.days === 0 ? <p className="py-10 text-center text-sm text-muted-foreground">{t("amal.noData")}</p> : chart}
+            {sum.days === 0 ? (
+              <p className="py-10 text-center text-sm text-muted-foreground">{t("amal.noData")}</p>
+            ) : (
+              <div className="space-y-5">
+                <div className="space-y-2">
+                  <h2 className="text-sm font-semibold">{t("amal.trendTitle")}</h2>
+                  <TrendChart
+                    points={trend}
+                    label={t("amal.trendTitle")}
+                    labelEvery={range === "month" ? 5 : range === "year" ? 2 : 1}
+                    onPick={range === "year" ? undefined : onOpenDay}
+                  />
+                </div>
+                {range === "month" ? <MonthHeatmap year={period.y!} month={(period as { m: number }).m} values={monthValues} today={today} onPick={onOpenDay} /> : null}
+                {table ? <TrendTable points={trend} /> : null}
+              </div>
+            )}
           </motion.div>
         </AnimatePresence>
-        {range !== "year" && sum.days > 0 ? <p className="text-center text-[11px] text-muted-foreground">{t("amal.tapToOpen")}</p> : null}
+        {sum.days > 0 ? (
+          <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-muted-foreground">
+            <span>{range !== "year" ? t("amal.tapToOpen") : ""}</span>
+            <button type="button" onClick={() => setTable((x) => !x)} className="font-semibold text-primary">
+              {table ? t("amal.hideTable") : t("amal.showTable")}
+            </button>
+          </div>
+        ) : null}
       </Card>
 
       <Recommendations recs={recs} />

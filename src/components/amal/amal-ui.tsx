@@ -125,7 +125,7 @@ export function AmalRing({
 }
 
 /** Round check button: the tick draws itself and a ring bursts out when done. */
-export function CheckButton({ done, onToggle, label, size = 36 }: { done: boolean; onToggle: () => void; label: string; size?: number }) {
+export function CheckButton({ done, onToggle, label, size = 36, locked }: { done: boolean; onToggle: () => void; label: string; size?: number; locked?: boolean }) {
   const reduce = useReducedMotion();
   return (
     <button
@@ -133,12 +133,14 @@ export function CheckButton({ done, onToggle, label, size = 36 }: { done: boolea
       role="checkbox"
       aria-checked={done}
       aria-label={label}
+      aria-disabled={locked || undefined}
+      disabled={locked && !done}
       onClick={onToggle}
-      className="relative grid shrink-0 place-items-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+      className="relative grid shrink-0 place-items-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed"
       style={{ width: size, height: size }}
     >
       <motion.span
-        className={cn("absolute inset-0 rounded-full border-2", done ? "border-primary bg-primary" : "border-border bg-card")}
+        className={cn("absolute inset-0 rounded-full border-2", done ? "border-primary bg-primary" : locked ? "border-dashed border-border bg-muted/60" : "border-border bg-card")}
         animate={reduce ? undefined : { scale: done ? [1, 0.82, 1.08, 1] : 1 }}
         transition={{ duration: 0.4 }}
       />
@@ -151,7 +153,13 @@ export function CheckButton({ done, onToggle, label, size = 36 }: { done: boolea
           transition={{ duration: 0.55, ease: "easeOut" }}
         />
       ) : null}
-      <svg viewBox="0 0 24 24" className="relative size-[55%]" fill="none" stroke="currentColor" strokeWidth={3.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      {locked && !done ? (
+        <svg viewBox="0 0 24 24" className="relative size-[42%] text-muted-foreground" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <rect x="5" y="11" width="14" height="10" rx="2" />
+          <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+        </svg>
+      ) : null}
+      <svg viewBox="0 0 24 24" className={cn("relative size-[55%]", locked && !done && "hidden")} fill="none" stroke="currentColor" strokeWidth={3.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
         <motion.path
           d="M5 12.5l4.5 4.5L19 7.5"
           className="text-primary-foreground"

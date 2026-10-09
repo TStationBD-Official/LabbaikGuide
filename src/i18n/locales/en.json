@@ -1291,6 +1291,18 @@
     "less": "Less",
     "more": "More",
     "countHint": "Count in the Zikr counter to fill this",
-    "nextDue": "Up next"
+    "nextDue": "Up next",
+    "opensAt": "Opens at {time}",
+    "lockedHint": "Its time hasn't come yet",
+    "lastNight": "Last night",
+    "lastNightNote": "Before Fajr, Witr, Tahajjud and night recitation still count for yesterday.",
+    "trendTitle": "Progress graph",
+    "seriesAll": "All deeds",
+    "seriesFard": "Fard prayers",
+    "showTable": "Show as table",
+    "hideTable": "Hide table",
+    "colPeriod": "Period",
+    "homeGraph": "Your progress",
+    "soFar": "{pct} of what's due so far"
   }
 }

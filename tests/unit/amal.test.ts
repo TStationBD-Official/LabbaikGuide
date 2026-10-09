@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { AMAL_ITEMS, AMAL_BY_ID } from "@/data/amal/items";
 import {
   amalDayKey,
+  isOpen,
+  opensAt,
   fardStreak,
   isFridayKey,
   itemsFor,
@@ -116,18 +118,47 @@ describe("ranges, streaks, breakdown", () => {
   });
 });
 
+describe("time windows", () => {
+  const noon = new Date("2026-10-09T09:30:00Z"); // 12:30 in Makkah, Friday
+  const item = (id: string) => AMAL_BY_ID.get(id)!;
+  it("opens prayer items at their adhan and night items after Maghrib/Isha", () => {
+    expect(isOpen(item("fajr-fard"), FRI, noon, "makkah")).toBe(true);
+    expect(isOpen(item("dhuhr-fard"), FRI, noon, "makkah")).toBe(true);
+    expect(isOpen(item("asr-fard"), FRI, noon, "makkah")).toBe(false);
+    expect(isOpen(item("maghrib-sunnah-after"), FRI, noon, "makkah")).toBe(false);
+    expect(isOpen(item("witr"), FRI, noon, "makkah")).toBe(false);
+    expect(isOpen(item("mulk"), FRI, noon, "makkah")).toBe(false);
+    expect(isOpen(item("istighfar"), FRI, noon, "makkah")).toBe(true);
+    const asr = opensAt(item("asr-fard"), FRI, "makkah")!;
+    expect(asr.getTime()).toBeGreaterThan(noon.getTime());
+    expect(isOpen(item("asr-fard"), FRI, new Date(asr.getTime() + 1000), "makkah")).toBe(true);
+  });
+  it("past days are open, future days closed; Duha opens after sunrise", () => {
+    expect(isOpen(item("isha-fard"), THU, noon, "makkah")).toBe(true);
+    expect(isOpen(item("fajr-fard"), "2026-10-10", noon, "makkah")).toBe(false);
+    const sunriseish = new Date("2026-10-09T03:16:00Z"); // ≈ 06:16 Makkah, just after sunrise
+    expect(isOpen(item("duha"), FRI, sunriseish, "makkah")).toBe(false);
+  });
+});
+
 describe("amal store", () => {
   beforeEach(() => useAmalStore.setState({ days: {}, firstDay: null, enabled: {}, goals: {} }));
+  it("won't tick a deed whose time hasn't come", () => {
+    const tomorrow = shiftKey(amalDayKey(), 1);
+    useAmalStore.getState().toggle(tomorrow, "fajr-fard");
+    expect(useAmalStore.getState().days[tomorrow]).toBeUndefined();
+  });
   it("toggles, auto-marks once and counts", () => {
     const st = useAmalStore.getState();
-    st.toggle(THU, "fajr-fard", 5);
-    expect(useAmalStore.getState().days[THU].done["fajr-fard"]).toBe(5);
+    const T = Date.parse("2026-10-09T09:00:00Z");
+    st.toggle(THU, "fajr-fard", T);
+    expect(useAmalStore.getState().days[THU].done["fajr-fard"]).toBe(T);
     expect(useAmalStore.getState().firstDay).toBe(THU);
     st.toggle(THU, "fajr-fard");
     expect(useAmalStore.getState().days[THU].done["fajr-fard"]).toBeUndefined();
-    st.markAuto(THU, "fajr-adhkar", 7);
-    st.markAuto(THU, "fajr-adhkar", 9);
-    expect(useAmalStore.getState().days[THU].done["fajr-adhkar"]).toBe(7);
+    st.markAuto(THU, "fajr-adhkar", T + 7);
+    st.markAuto(THU, "fajr-adhkar", T + 9);
+    expect(useAmalStore.getState().days[THU].done["fajr-adhkar"]).toBe(T + 7);
     expect(useAmalStore.getState().days[THU].auto?.["fajr-adhkar"]).toBe(1);
     st.markAuto(THU, "not-an-item");
     expect(useAmalStore.getState().days[THU].done["not-an-item"]).toBeUndefined();
@@ -135,7 +166,7 @@ describe("amal store", () => {
     expect(useAmalStore.getState().days[THU].counts?.istighfar).toBe(3);
   });
   it("Qur'an reading: new verses count, surah end ticks, Kahf only on Friday", () => {
-    const fri = new Date("2026-10-09T09:00:00Z");
+    const fri = new Date("2026-10-09T17:30:00Z"); // 20:30 in Makkah, after Maghrib
     const thu = new Date("2026-10-08T09:00:00Z");
     const st = useAmalStore.getState();
     st.noteQuran({ chapterId: 67, ayah: 29, verseKey: "67:29" }, null, fri);
@@ -148,5 +179,19 @@ describe("amal store", () => {
     expect(useAmalStore.getState().days[THU].done.kahf).toBeUndefined();
     st.noteQuran({ chapterId: 18, ayah: 110, verseKey: "18:110" }, null, fri);
     expect(useAmalStore.getState().days[FRI].done.kahf).toBeTruthy();
+  });
+});
+
+describe("today counts only what is due", () => {
+  it("at 12:30 on Friday, Asr/Maghrib/Isha and the night aren't counted yet", () => {
+    const S2: AmalSettings = { enabled: {}, goals: {} };
+    const due = { now: new Date("2026-10-09T09:30:00Z"), location: "makkah" as const };
+    const all = scoreDay(FRI, undefined, S2);
+    const soFar = scoreDay(FRI, undefined, S2, undefined, due);
+    expect(soFar.totalItems).toBeLessThan(all.totalItems);
+    expect(soFar.fardTotal).toBe(2); // Fajr and Jumu'ah/Dhuhr
+    const two = scoreDay(FRI, dayWith(["fajr-fard", "dhuhr-fard"]), S2, undefined, due);
+    expect(two.fardDone).toBe(2);
+    expect(two.pct).toBeGreaterThan(all.totalWeight ? 20 / all.totalWeight : 0);
   });
 });

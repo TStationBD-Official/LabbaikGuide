@@ -659,3 +659,8 @@ html[lang="ur"] :where(p, span, label, a, button, li, legend, h1, h2, h3, h4, dt
 .hc-amal-shine { background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.14) 45%, transparent 60%); background-size: 250% 100%; animation: hc-amal-shine 6s ease-in-out infinite; }
 @keyframes hc-amal-shine { 0%, 60% { background-position: 120% 0; } 100% { background-position: -120% 0; } }
 @media (prefers-reduced-motion: reduce) { .hc-confetti { display: none; } .hc-amal-shine { animation: none; } }
+
+/* Daily deeds trend chart: two series, validated for colour-blind separation (light & dark). */
+:root { --amal-s1: #14866a; --amal-s2: #b8891f; }
+[data-theme="dark"] { --amal-s1: #2f9e76; --amal-s2: #b58a2e; }
+@media (prefers-color-scheme: dark) { [data-theme="system"] { --amal-s1: #2f9e76; --amal-s2: #b58a2e; } }
