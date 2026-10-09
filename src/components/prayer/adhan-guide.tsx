@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { amalDayKey } from "@/features/amal/logic";
 import { useAmalStore } from "@/stores/amal-store";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
@@ -91,6 +91,26 @@ export function AdhanGuide({
   const lines = ADHAN_LINES.filter((l) => !l.fajrOnly || prayer === "fajr" || prayer === null);
   const done = step >= lines.length;
   const listRef = useRef<HTMLOListElement>(null);
+  // Switching between "answer" and "dua" changes the height a lot. Keep the guide where it was on
+  // screen — and if its top had scrolled away (long answer list), bring the tabs back under the header,
+  // so the dua is what you see instead of whatever ended up below the card.
+  const rootRef = useRef<HTMLDivElement>(null);
+  const anchorTop = useRef<number | null>(null);
+  const switchTab = (next: Tab) => {
+    anchorTop.current = rootRef.current?.getBoundingClientRect().top ?? null;
+    setTab(next);
+  };
+  useLayoutEffect(() => {
+    const before = anchorTop.current;
+    anchorTop.current = null;
+    const el = rootRef.current;
+    if (before === null || !el) return;
+    const HEADER = 124; // below the sticky header (and the city switch on Home)
+    const top = el.getBoundingClientRect().top;
+    const target = Math.max(HEADER, before);
+    const delta = top - target;
+    if (Math.abs(delta) > 1) window.scrollBy({ top: delta, behavior: "instant" as ScrollBehavior });
+  }, [tab]);
   const moved = useRef(false);
 
   // Keep the current line in view while stepping (not on first render).
@@ -140,11 +160,11 @@ export function AdhanGuide({
   };
 
   return (
-    <div className="space-y-4">
+    <div ref={rootRef} className="space-y-4 [overflow-anchor:none]">
       <SegmentedControl
         label={t("adhan.sectionTitle")}
         value={tab}
-        onChange={setTab}
+        onChange={switchTab}
         options={[
           { value: "answer", label: t("adhan.tabAnswer") },
           { value: "dua", label: t("adhan.tabDua") },
@@ -223,7 +243,7 @@ export function AdhanGuide({
                 aria-live="polite"
               >
                 <span className="text-sm font-semibold">{t("adhan.doneAnswer")}</span>
-                <Button size="sm" onClick={() => setTab("dua")}>
+                <Button size="sm" onClick={() => switchTab("dua")}>
                   {t("adhan.goDua")}
                 </Button>
               </motion.div>
@@ -285,7 +305,24 @@ export function AdhanWindowCard({ data }: { data: ReturnType<typeof usePrayerDat
   const duaDone = useAmalStore((s) => Boolean(win && s.days[amalDay]?.done[`${win.prayer}-adhan-dua`]));
   const markAmal = (id: string) => useAmalStore.getState().markAuto(amalDay, id);
   const key = win ? dismissKey(win.prayer, dayKey) : "";
-  if (!win || dismissed === key || readDismissed(key)) return null;
+  const [closing, setClosing] = useState(false);
+  const reduce = useReducedMotion();
+  const dismiss = () => {
+    try {
+      localStorage.setItem(key, "1");
+    } catch {
+      /* private mode — dismiss for this session only */
+    }
+    setDismissed(key);
+  };
+  // Dua said → tick it, show the check for a moment, then fold the card away.
+  const finish = () => {
+    if (!win) return;
+    markAmal(`${win.prayer}-adhan-dua`);
+    setClosing(true);
+    setTimeout(dismiss, reduce ? 0 : 900);
+  };
+  if (!win || dismissed === key || readDismissed(key) || (duaDone && !closing)) return null;
 
   const isFriday = days!.today.isFriday;
   const prayerName = t(prayerLabelKey(win.prayer, isFriday));
@@ -293,6 +330,12 @@ export function AdhanWindowCard({ data }: { data: ReturnType<typeof usePrayerDat
   const pad = (n: number) => formatNumber(n).padStart(2, formatNumber(0));
 
   return (
+    <motion.div
+      initial={false}
+      animate={closing ? { opacity: 0, height: 0, scale: 0.97 } : { opacity: 1, height: "auto", scale: 1 }}
+      transition={{ duration: reduce ? 0 : 0.45, delay: closing && !reduce ? 0.45 : 0, ease: [0.4, 0, 0.2, 1] }}
+      className="overflow-hidden"
+    >
     <Card className="overflow-hidden border-gold/60 p-0 ring-2 ring-gold/25">
       <div className="flex items-center gap-3 bg-gold-soft/60 px-4 py-3">
         <span className="relative flex size-3 shrink-0" aria-hidden>
@@ -316,14 +359,7 @@ export function AdhanWindowCard({ data }: { data: ReturnType<typeof usePrayerDat
         <IconButton
           size="sm"
           label={t("adhan.dismiss")}
-          onClick={() => {
-            try {
-              localStorage.setItem(key, "1");
-            } catch {
-              /* private mode — dismiss for this session only */
-            }
-            setDismissed(key);
-          }}
+          onClick={dismiss}
         >
           <X className="size-4" aria-hidden />
         </IconButton>
@@ -335,10 +371,11 @@ export function AdhanWindowCard({ data }: { data: ReturnType<typeof usePrayerDat
           storageKey={`${dayKey}:${win.prayer}`}
           initialTab={win.phase === "after" ? "dua" : "answer"}
           onAnswered={() => markAmal(`${win.prayer}-answer`)}
-          onDuaDone={() => markAmal(`${win.prayer}-adhan-dua`)}
-          duaDone={duaDone}
+          onDuaDone={finish}
+          duaDone={duaDone || closing}
         />
       </div>
     </Card>
+    </motion.div>
   );
 }
