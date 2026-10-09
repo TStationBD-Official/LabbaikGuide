@@ -13,6 +13,7 @@ import { useToast } from "@/components/ui/toast";
 import { useConfirm } from "@/components/ui/confirm";
 import { useClock, usePrayerData } from "@/hooks/use-prayer";
 import { useStoreHydrated } from "@/hooks/use-hydrated";
+import { AnimatedNumber } from "@/components/ui/animated-number";
 import { gt } from "@/data/guides/travel";
 import { AMAL_ITEMS, SLOTS, type AmalItem, type AmalSlot } from "@/data/amal/items";
 import {
@@ -525,6 +526,20 @@ function ProgressView({ today, onOpenDay }: { today: string; onOpenDay: (d: stri
 
   const scores = useMemo(() => rangeScores(days, s, period.from, period.to, today, firstDay, due), [days, s, period, today, firstDay, due]);
   const sum = summarize(scores);
+  // The same-length period just before, for the change arrow.
+  const prev = useMemo(() => {
+    if (range === "week") return { from: shiftKey(period.from, -7), to: shiftKey(period.to, -7) };
+    if (range === "month") {
+      const d = parseKey(period.from);
+      const a = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() - 1, 1, 12));
+      const b = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 0, 12));
+      return { from: a.toISOString().slice(0, 10), to: b.toISOString().slice(0, 10) };
+    }
+    const y = +period.from.slice(0, 4) - 1;
+    return { from: `${y}-01-01`, to: `${y}-12-31` };
+  }, [range, period]);
+  const prevSum = useMemo(() => summarize(rangeScores(days, s, prev.from, prev.to, today, firstDay, due)), [days, s, prev, today, firstDay, due]);
+  const delta = prevSum.days > 0 && sum.days > 0 ? sum.avg - prevSum.avg : null;
   const streak = useMemo(() => fardStreak(days, s, today), [days, s, today]);
   const keys = trackedKeys(period.from, period.to, today, firstDay);
   const kinds = kindBreakdown(days, s, keys, due);
@@ -628,7 +643,32 @@ function ProgressView({ today, onOpenDay }: { today: string; onOpenDay: (d: stri
             ) : (
               <div className="space-y-5">
                 <div className="space-y-2">
-                  <h2 className="text-sm font-semibold">{t("amal.trendTitle")}</h2>
+                  <div className="flex flex-wrap items-end justify-between gap-2">
+                    <div>
+                      <h2 className="text-sm font-semibold">{t("amal.trendTitle")}</h2>
+                      <p className="text-xs text-muted-foreground">{t("amal.avg")}</p>
+                    </div>
+                    <div className="flex items-end gap-2">
+                      <span className="text-3xl font-bold tracking-tight tabular-nums" style={{ color: "var(--amal-s1)" }}>
+                        <AnimatedNumber value={Math.round(sum.avg * 100)} />%
+                      </span>
+                      {delta !== null && Math.round(delta * 100) !== 0 ? (
+                        <motion.span
+                          initial={{ opacity: 0, y: 6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.4 }}
+                          className={cn(
+                            "mb-1 inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums",
+                            delta > 0 ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" : "bg-rose-500/15 text-rose-700 dark:text-rose-300",
+                          )}
+                          title={t("amal.vsPrev")}
+                        >
+                          {delta > 0 ? "▲" : "▼"} {pct(Math.abs(delta))}
+                          <span className="sr-only"> {t("amal.vsPrev")}</span>
+                        </motion.span>
+                      ) : null}
+                    </div>
+                  </div>
                   <TrendChart
                     points={trend}
                     label={t("amal.trendTitle")}

@@ -1303,6 +1303,7 @@
     "hideTable": "Hide table",
     "colPeriod": "Period",
     "homeGraph": "Your progress",
-    "soFar": "{pct} of what's due so far"
+    "soFar": "{pct} of what's due so far",
+    "vsPrev": "vs the previous period"
   }
 }
