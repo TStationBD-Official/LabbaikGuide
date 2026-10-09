@@ -1,7 +1,7 @@
 import "server-only";
 import { z } from "zod";
 import { LOCATIONS, type LocationId } from "@/config/locations";
-import { VERIFIED_GATES, type VerifiedGate } from "@/data/haram-gates";
+import { GATE_CORRECTIONS, UNRELIABLE_REFS, VERIFIED_GATES, type VerifiedGate } from "@/data/haram-gates";
 
 export const HARAM_MAP_TAG = "haram-map";
 
@@ -37,6 +37,8 @@ export type Poi = {
 export type HaramMapData = { location: LocationId; pois: Poi[]; source: "OpenStreetMap"; fetchedAt: string };
 
 const GATE_NAME = /(^|\s)(gate|bab|door)(\s|$)|باب|بوابة/i;
+/** Doors of hotels, towers and malls around the Haram (e.g. "Gate 4 - Jabal Omar Jumeirah") are not Haram gates. */
+const NOT_HARAM = /hotel|tower|jabal|jabel|omar|hilton|hyatt|conrad|jumeirah|swiss|fairmont|pullman|raffles|mövenpick|movenpick|marriott|hostel|mall|floor|food|kebab|restaurant|parking|tunnel|فندق|برج|أبراج|مول|مطعم|موقف|نفق/i;
 const LANDMARKS: [Landmark, RegExp][] = [
   ["kaaba", /الكعبة|kaaba|ka'?bah|ka`bah/i],
   ["maqam", /مقام\s*إبراهيم|مقام\s*ابراهيم|maqam\s*ibrah/i],
@@ -92,7 +94,13 @@ export function classify(el: z.infer<typeof Element>, onMosque: boolean): Poi | 
 
   const isEntrance = Boolean(t.entrance) || Boolean(t.door) || t.barrier === "gate";
   const namedGate = GATE_NAME.test(allNames);
-  if ((isEntrance && (onMosque || namedGate)) || (namedGate && !t.highway && !t.building && !t.amenity && !t.shop && !t.tourism)) {
+  // A numbered door (ref) near the Haram is a Haram gate even when it isn't drawn on the mosque outline.
+  const numbered = numberIn(t.ref) !== undefined;
+  const notHaram = NOT_HARAM.test(allNames) || el.type === "relation";
+  if (
+    !notHaram &&
+    ((isEntrance && (onMosque || namedGate || numbered)) || (namedGate && !t.highway && !t.building && !t.amenity && !t.shop && !t.tourism))
+  ) {
     const e = t.entrance;
     const role = e === "main" ? "main" : e === "exit" ? "exit" : e === "emergency" ? "emergency" : e === "service" ? "service" : "entrance";
     return {
@@ -110,15 +118,42 @@ export function classify(el: z.infer<typeof Element>, onMosque: boolean): Poi | 
   return null;
 }
 
-/** Drop duplicates (same kind, same name or number, within 15 m). */
+/** Distance in metres (equirectangular; fine at this scale). */
+const metres = (a: { lat: number; lon: number }, b: { lat: number; lon: number }) => {
+  const x = (b.lon - a.lon) * Math.cos(((a.lat + b.lat) / 2) * (Math.PI / 180));
+  return Math.hypot(x, b.lat - a.lat) * 111_320;
+};
+
+/**
+ * Drop duplicates: the same gate number within 40 m, or the same kind with the same (non-empty) name
+ * within 15 m. Neighbouring gates without names (e.g. 83 and 84, 8 m apart) are different gates.
+ */
 export function dedupe(pois: Poi[]): Poi[] {
   const out: Poi[] = [];
   for (const p of pois) {
-    const near = (q: Poi) => Math.abs(q.lat - p.lat) < 0.000135 && Math.abs(q.lon - p.lon) < 0.000145;
-    if (out.some((q) => q.kind === p.kind && near(q) && (q.num === p.num || q.name === p.name))) continue;
-    out.push(p);
+    const dup = out.some((q) => {
+      if (q.kind !== p.kind) return false;
+      const d = metres(p, q);
+      if (p.kind === "gate" && p.num !== undefined && q.num !== undefined) return p.num === q.num && d < 40;
+      if (p.name && q.name) return p.name === q.name && d < 15;
+      return p.kind !== "gate" && p.num === undefined && q.num === undefined && !p.name && !q.name && d < 3;
+    });
+    if (!dup) out.push(p);
   }
   return out;
+}
+
+/** Official gate numbers win over OSM; numbers from an unofficial sequence are removed. */
+export function applyCorrections(pois: Poi[], location: LocationId): Poi[] {
+  const fix = new Map(GATE_CORRECTIONS[location].map((c) => [c.osmId, c.num]));
+  const bad = UNRELIABLE_REFS[location];
+  return pois.map((p) => {
+    if (p.kind !== "gate") return p;
+    const n = fix.get(p.id);
+    if (n !== undefined) return { ...p, num: n };
+    if (p.num !== undefined && bad.some((r) => p.num! >= r.from && p.num! <= r.to)) return { ...p, num: undefined };
+    return p;
+  });
 }
 
 export function buildQuery(location: LocationId): string {
@@ -135,6 +170,8 @@ out count;
 (
   .mg;
   nwr${at}["name"~"باب|بوابة|Gate|Bab ",i];
+  node${at}["ref"]["entrance"];
+  node${at}["ref"]["door"];
   nwr${at}["amenity"~"^(toilets|drinking_water|water_point|first_aid|clinic|hospital|doctors)$"];
   nwr${at}["healthcare"];
   nwr${at}["name"~"الكعبة|Kaaba|Ka.bah|مقام|Maqam|الحجر الأسود|Black Stone|الصفا|Safa|المروة|Marwa|زمزم|Zamzam|الروضة|Rawdah|Riyad|القبة الخضراء|Green Dome|البقيع|Baqi",i];
@@ -164,8 +201,7 @@ export function parseOverpass(json: unknown, location: LocationId): Poi[] {
     const p = classify(parsed.data, seen.has(key));
     if (p) pois.push(p);
   }
-  void location;
-  return dedupe(pois).sort((a, b) => (a.num ?? 9999) - (b.num ?? 9999));
+  return dedupe(applyCorrections(pois, location)).sort((a, b) => (a.num ?? 9999) - (b.num ?? 9999));
 }
 
 /** Hand-checked gates replace OpenStreetMap gates with the same number. */

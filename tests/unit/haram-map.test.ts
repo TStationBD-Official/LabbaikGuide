@@ -58,3 +58,31 @@ describe("hand-checked gates", () => {
     expect(out.some((p) => p.id === "n3")).toBe(true);
   });
 });
+
+describe("Masjid al-Haram gates from a real OpenStreetMap snapshot", async () => {
+  const snap = (await import("../fixtures/haram-osm-2026-10-09.json")).default;
+  const gates = parseOverpass(snap, "makkah").filter((p) => p.kind === "gate");
+  const nums = gates.map((g) => g.num).filter((n): n is number => n !== undefined);
+
+  it("keeps neighbouring unnamed gates (83, 84, 85 are metres apart)", () => {
+    for (const n of [80, 81, 82, 83, 84, 85, 86, 87, 88]) expect(nums).toContain(n);
+    expect(gates.find((g) => g.num === 84)).toMatchObject({ lat: 21.4209167, lon: 39.8244405 });
+  });
+
+  it("includes numbered doors that are not on the drawn outline", () => {
+    for (const n of [75, 91, 92, 117, 118, 124, 125, 156, 157]) expect(nums).toContain(n);
+  });
+
+  it("uses the official numbers of the five main gates", () => {
+    expect(gates.find((g) => g.nameEn?.includes("Fateh"))?.num).toBe(45);
+    expect(gates.find((g) => g.nameEn?.includes("Umra"))?.num).toBe(62);
+    expect(gates.find((g) => g.num === 1)?.nameEn).toContain("King Abdul Aziz");
+    expect(gates.find((g) => g.num === 79)?.nameEn).toContain("King Fahd");
+    expect(gates.find((g) => g.num === 100)?.nameEn).toContain("King Abdullah");
+  });
+
+  it("never lists a gate number twice and leaves out hotel doors", () => {
+    expect(new Set(nums).size).toBe(nums.length);
+    expect(gates.some((g) => /jabel|jabal|hilton|hyatt|conrad|tower|food|kebab/i.test(`${g.name} ${g.nameEn}`))).toBe(false);
+  });
+});
