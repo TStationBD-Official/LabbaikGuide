@@ -1,6 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ZIKR_COUNTERS } from "@/data/amal/items";
+import { amalDayKey } from "@/features/amal/logic";
+import { useAmalStore } from "@/stores/amal-store";
 import { AnimatePresence, motion } from "motion/react";
 import { ChevronRight, Plus, RotateCcw, Undo2 } from "lucide-react";
 import { useI18n } from "@/components/providers/i18n-provider";
@@ -61,6 +64,8 @@ export function ZikrCounter({ zikr, next }: { zikr: Zikr; next: Zikr | null }) {
       if (now - lastTap.current < TAP_GUARD_MS) return;
       lastTap.current = now;
       increment(zikr.id);
+      const counter = ZIKR_COUNTERS[zikr.id];
+      if (counter) useAmalStore.getState().addCount(amalDayKey(), counter, 1);
       setPulse((p) => p + 1);
       buzz(TAP_PULSE);
     },

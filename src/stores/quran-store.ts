@@ -1,6 +1,7 @@
 "use client";
 
 import { create } from "zustand";
+import { useAmalStore } from "@/stores/amal-store";
 import { persist } from "zustand/middleware";
 import type { Locale } from "@/lib/preferences";
 import type { ReadingMode } from "@/types/quran";
@@ -120,6 +121,12 @@ export const useQuranStore = create<QuranState>()(
       // updates its entry and moves it to the top instead of adding a new one.
       setLastRead: (lastRead) =>
         set((s) => {
+          // Daily deeds: verses read today, and surahs read to the end (al-Kahf, al-Mulk…).
+          try {
+            useAmalStore.getState().noteQuran(lastRead, s.lastRead?.verseKey ?? null);
+          } catch {
+            /* tracker unavailable — reading still works */
+          }
           const rest = s.history.filter((h) => !(h.mode === lastRead.mode && h.id === lastRead.id));
           return { lastRead, history: [lastRead, ...rest].slice(0, HISTORY_SIZE) };
         }),

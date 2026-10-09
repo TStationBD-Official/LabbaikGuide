@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { amalDayKey } from "@/features/amal/logic";
+import { useAmalStore } from "@/stores/amal-store";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Check, ChevronLeft, ChevronRight, RotateCcw, Volume2, X } from "lucide-react";
 import { useI18n } from "@/components/providers/i18n-provider";
@@ -64,7 +66,23 @@ function saveProgress(key: string, v: Saved) {
 }
 
 /** Step-by-step reply to the adhan + the dua after it. `storageKey` keeps the place across reloads. */
-export function AdhanGuide({ prayer, initialTab = "answer", storageKey }: { prayer: PrayerName | null; initialTab?: Tab; storageKey?: string }) {
+export function AdhanGuide({
+  prayer,
+  initialTab = "answer",
+  storageKey,
+  onAnswered,
+  onDuaDone,
+  duaDone,
+}: {
+  prayer: PrayerName | null;
+  initialTab?: Tab;
+  storageKey?: string;
+  /** Called once when the last line has been answered (daily deeds tracker). */
+  onAnswered?: () => void;
+  /** When set, the dua tab shows a "said it" button. */
+  onDuaDone?: () => void;
+  duaDone?: boolean;
+}) {
   const { t, contentLocale, formatNumber } = useI18n();
   const reduce = useReducedMotion();
   const haptics = useZikrStore((s) => s.haptics);
@@ -106,6 +124,14 @@ export function AdhanGuide({ prayer, initialTab = "answer", storageKey }: { pray
   useEffect(() => {
     if (storageKey && restored.current) saveProgress(storageKey, { step, tab });
   }, [storageKey, step, tab]);
+
+  const answeredCb = useRef(onAnswered);
+  useEffect(() => {
+    answeredCb.current = onAnswered;
+  });
+  useEffect(() => {
+    if (done && moved.current) answeredCb.current?.();
+  }, [done]);
 
   const go = (d: 1 | -1) => {
     moved.current = true;
@@ -224,6 +250,11 @@ export function AdhanGuide({ prayer, initialTab = "answer", storageKey }: { pray
           {AFTER_ADHAN.map((d) => (
             <DuaBlock key={d.id} d={d} />
           ))}
+          {onDuaDone ? (
+            <Button className="w-full" variant={duaDone ? "outline" : "primary"} onClick={onDuaDone} disabled={duaDone}>
+              {duaDone ? `✓ ${t("amal.duaSaid")}` : t("amal.markDua")}
+            </Button>
+          ) : null}
           <p className="rounded-xl bg-muted px-3 py-2 text-sm">
             {t("adhan.betweenNote")} <span className="text-[11px] text-muted-foreground">({t("adhan.betweenRef")})</span>
           </p>
@@ -249,6 +280,10 @@ export function AdhanWindowCard({ data }: { data: ReturnType<typeof usePrayerDat
   const [dismissed, setDismissed] = useState<string | null>(null);
   const win = now && days ? findAdhanWindow(now, [days.today, days.tomorrow]) : null;
   const dayKey = win ? win.adhan.toISOString().slice(0, 10) : "";
+  // Daily deeds: the Haramain (Riyadh) day of this adhan.
+  const amalDay = win ? amalDayKey(win.adhan) : "";
+  const duaDone = useAmalStore((s) => Boolean(win && s.days[amalDay]?.done[`${win.prayer}-adhan-dua`]));
+  const markAmal = (id: string) => useAmalStore.getState().markAuto(amalDay, id);
   const key = win ? dismissKey(win.prayer, dayKey) : "";
   if (!win || dismissed === key || readDismissed(key)) return null;
 
@@ -299,6 +334,9 @@ export function AdhanWindowCard({ data }: { data: ReturnType<typeof usePrayerDat
           prayer={win.prayer}
           storageKey={`${dayKey}:${win.prayer}`}
           initialTab={win.phase === "after" ? "dua" : "answer"}
+          onAnswered={() => markAmal(`${win.prayer}-answer`)}
+          onDuaDone={() => markAmal(`${win.prayer}-adhan-dua`)}
+          duaDone={duaDone}
         />
       </div>
     </Card>

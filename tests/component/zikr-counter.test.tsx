@@ -8,6 +8,8 @@ import { ToastProvider } from "@/components/ui/toast";
 import { ZikrCounter } from "@/components/zikr/zikr-counter";
 import { DEFAULT_ZIKR } from "@/data/zikr/defaults";
 import { useZikrStore } from "@/stores/zikr-store";
+import { useAmalStore } from "@/stores/amal-store";
+import { amalDayKey } from "@/features/amal/logic";
 
 function renderCounter(next: (typeof DEFAULT_ZIKR)[number] | null = null) {
   return render(
@@ -52,6 +54,25 @@ describe("<ZikrCounter>", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Undo" }));
     expect(count()).toBe(1);
+  });
+
+  it("counts istighfar towards the daily deeds tracker", () => {
+    useAmalStore.setState({ days: {}, firstDay: null });
+    const istighfar = DEFAULT_ZIKR.find((z) => z.id === "astaghfirullah")!;
+    render(
+      <PreferencesProvider initial={{ ...DEFAULT_PREFERENCES, locale: "en" }}>
+        <I18nProvider initialLocale="en" initialMessages={en}>
+          <ToastProvider>
+            <ZikrCounter zikr={istighfar} next={null} />
+          </ToastProvider>
+        </I18nProvider>
+      </PreferencesProvider>,
+    );
+    const btn = screen.getByRole("button", { name: /Count one —/ });
+    tap(btn);
+    clock += 200;
+    tap(btn);
+    expect(useAmalStore.getState().days[amalDayKey()]?.counts?.istighfar).toBe(2);
   });
 
   it("does not count a touch that turns into a scroll", () => {

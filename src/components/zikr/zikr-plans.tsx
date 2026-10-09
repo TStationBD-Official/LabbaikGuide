@@ -45,6 +45,7 @@ import { useStoreHydrated } from "@/hooks/use-hydrated";
 import { cn, vibrate } from "@/lib/utils";
 import { pushSupported } from "@/services/push-client";
 import { useNotificationStore } from "@/stores/notification-store";
+import { useAmalStore } from "@/stores/amal-store";
 import { progressKey, usePlanStore, type PlanTrigger, type SalahName, type ZikrPlan } from "@/stores/zikr-plan-store";
 import { useZikrStore } from "@/stores/zikr-store";
 import { lt, type Zikr } from "@/types/content";
@@ -356,6 +357,7 @@ function PlanRunner({ plan, onClose, onEdit }: { plan: ZikrPlan; onClose: () => 
         skip(plan.id, day);
       }, STEP_PAUSE_MS);
     } else if (r === "plan-done") {
+      if (plan.id.startsWith("salah-")) useAmalStore.getState().markAuto(day, `${plan.id.slice(6)}-adhkar`);
       buzz(PLAN_DONE);
       setBurst((b) => b + 1);
       toast(t("zikrPlan.planDoneToast", { name }));

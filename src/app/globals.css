@@ -648,3 +648,14 @@ html[lang="ur"] :where(p, span, label, a, button, li, legend, h1, h2, h3, h4, dt
 .hc-site[data-side="above"] .hc-site-label { top: auto; bottom: calc(100% + 3px); inset-inline-start: 50%; transform: translateX(-50%); }
 [dir="rtl"] .hc-site[data-side="below"] .hc-site-label, [dir="rtl"] .hc-site[data-side="above"] .hc-site-label { transform: translateX(50%); }
 .hc-site:hover .hc-site-label, .hc-site:focus-visible .hc-site-label { visibility: visible !important; }
+
+/* Daily deeds: confetti when the day is complete, hero shine. */
+.hc-confetti { animation-name: hc-confetti; animation-timing-function: cubic-bezier(.25,.6,.4,1); animation-fill-mode: forwards; opacity: 0; }
+@keyframes hc-confetti {
+  0% { opacity: 1; transform: translate3d(0, 0, 0) rotate(0); }
+  100% { opacity: 0; transform: translate3d(var(--hc-x), 105vh, 0) rotate(var(--hc-r)); }
+}
+.hc-amal-hero { background: radial-gradient(120% 140% at 100% 0%, color-mix(in oklab, var(--gold) 55%, transparent) 0%, transparent 55%), linear-gradient(135deg, #0f5c45 0%, #0b4434 60%, #123b30 100%); }
+.hc-amal-shine { background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.14) 45%, transparent 60%); background-size: 250% 100%; animation: hc-amal-shine 6s ease-in-out infinite; }
+@keyframes hc-amal-shine { 0%, 60% { background-position: 120% 0; } 100% { background-position: -120% 0; } }
+@media (prefers-reduced-motion: reduce) { .hc-confetti { display: none; } .hc-amal-shine { animation: none; } }

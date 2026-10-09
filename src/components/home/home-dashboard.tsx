@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { AmalHomeCard } from "@/components/amal/amal-home-card";
 import { useMemo } from "react";
 import { motion } from "motion/react";
 import { BookOpen, BookText, Clock, Compass, HandHeart, Landmark, Mountain, Repeat, type LucideIcon } from "lucide-react";
@@ -117,6 +118,7 @@ export function HomeDashboard() {
         <div className="space-y-4">
           <AdhanWindowCard data={data} />
           <NextPrayerCard data={data} stripClassName="lg:hidden" />
+          <AmalHomeCard data={data} />
           <DualClock />
           <NextPrayerStaffCard data={data} />
           <HaramMapHomeCard />

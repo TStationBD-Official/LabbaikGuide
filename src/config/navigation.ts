@@ -17,6 +17,7 @@ import {
   Map,
   Signpost,
   HeartHandshake,
+  ListChecks,
   type LucideIcon,
 } from "lucide-react";
 import type { TKey } from "@/i18n";
@@ -46,6 +47,7 @@ export const PRIMARY_NAV: NavItem[] = [
 ];
 
 export const SECONDARY_NAV: NavItem[] = [
+  { href: "/amal", labelKey: "nav.amal", shortKey: "nav.short.amal", icon: ListChecks, match: starts("/amal") },
   { href: "/travel-guide", labelKey: "nav.travelGuide", shortKey: "nav.short.travelGuide", icon: Signpost, match: starts("/travel-guide") },
   { href: "/haram-map", labelKey: "nav.haramMap", shortKey: "nav.short.haramMap", icon: Map, match: starts("/haram-map") },
   { href: "/ziyarah", labelKey: "nav.ziyarah", shortKey: "nav.short.ziyarah", icon: Landmark, match: starts("/ziyarah") },

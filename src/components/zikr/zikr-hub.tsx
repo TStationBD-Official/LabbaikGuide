@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useI18n } from "@/components/providers/i18n-provider";
 import { SegmentedControl } from "@/components/ui/segmented";
 import { ZikrPage } from "./zikr-page";
 import { ZikrPlans } from "./zikr-plans";
+import { useAllZikr, useZikrStore } from "@/stores/zikr-store";
 
 type Tab = "plans" | "free";
 
@@ -14,7 +15,14 @@ export function ZikrHub() {
   const { t } = useI18n();
   const params = useSearchParams();
   const plan = params.get("plan");
-  const [tab, setTab] = useState<Tab>(plan ? "plans" : params.get("tab") === "free" ? "free" : "plans");
+  const z = params.get("z");
+  const [tab, setTab] = useState<Tab>(plan ? "plans" : params.get("tab") === "free" || z ? "free" : "plans");
+  const all = useAllZikr();
+  const setActive = useZikrStore((s) => s.setActive);
+  // Deep link to one zikr in the free counter (?z=astaghfirullah), e.g. from the daily deeds tracker.
+  useEffect(() => {
+    if (z && all.some((x) => x.id === z)) setActive(z);
+  }, [z, all, setActive]);
 
   const change = (v: Tab) => {
     setTab(v);
