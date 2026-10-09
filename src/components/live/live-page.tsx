@@ -209,7 +209,7 @@ export function LivePage() {
       />
 
       <motion.div key={ch} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-        <Player channel={channel} info={info} loading={q.isLoading} autoStart />
+        <Player channel={channel} info={info} loading={q.isLoading} />
       </motion.div>
 
       {unconfirmed ? (

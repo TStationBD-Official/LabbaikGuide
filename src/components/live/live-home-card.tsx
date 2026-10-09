@@ -12,7 +12,7 @@ import { useLiveStreams } from "./use-live";
 
 /**
  * Home: the live broadcast of the city chosen in the Makkah/Madinah tab at the top.
- * It starts muted when it comes on screen; the player's speaker button turns the sound on.
+ * Nothing plays until it's tapped; it then starts muted and the player's speaker button turns the sound on.
  */
 export function LiveHomeCard() {
   const { t, locale } = useI18n();
@@ -37,7 +37,7 @@ export function LiveHomeCard() {
           <ChevronRight className="size-4 rtl:rotate-180" aria-hidden />
         </Link>
       </div>
-      <Player key={location} channel={channel} info={info} loading={q.isLoading} autoStart compact />
+      <Player key={location} channel={channel} info={info} loading={q.isLoading} compact />
     </Card>
   );
 }
