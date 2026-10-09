@@ -1,0 +1,654 @@
+{
+ "hira": [
+  {
+   "id": "n1236462393",
+   "lat": 21.4577836,
+   "lon": 39.8597322,
+   "name": "جبل النور",
+   "en": "Jabal an Nur",
+   "kind": {
+    "natural": "peak"
+   }
+  },
+  {
+   "id": "n3732559985",
+   "lat": 21.4573709,
+   "lon": 39.8591955,
+   "name": "غار حراء",
+   "en": "Cave of Hira",
+   "kind": {
+    "historic": "yes",
+    "natural": "cave_entrance"
+   }
+  },
+  {
+   "id": "n7499980198",
+   "lat": 21.4593466,
+   "lon": 39.8691136,
+   "name": "جبل النور",
+   "en": "Jabal An Noor",
+   "kind": {
+    "place": "neighbourhood"
+   }
+  },
+  {
+   "id": "n12726284961",
+   "lat": 21.4514684,
+   "lon": 39.8653682,
+   "name": "جبل النور 359",
+   "en": "Jabal Al-Nour 359",
+   "kind": {
+    "highway": "bus_stop"
+   }
+  },
+  {
+   "id": "n12726284962",
+   "lat": 21.4514187,
+   "lon": 39.8654184,
+   "name": "جبل النور 359",
+   "en": "Jabal Al-Nour 359",
+   "kind": {}
+  },
+  {
+   "id": "w766655840",
+   "lat": 21.4585587,
+   "lon": 39.8714131,
+   "name": "جبل النور",
+   "en": null,
+   "kind": {
+    "natural": "bare_rock"
+   }
+  },
+  {
+   "id": "w1356453284",
+   "lat": 21.4578143,
+   "lon": 39.8652939,
+   "name": "طريق الصعود الى غار حراء",
+   "en": "Path to the Cave of Hira",
+   "kind": {
+    "highway": "footway"
+   }
+  },
+  {
+   "id": "w1431652545",
+   "lat": 21.4582521,
+   "lon": 39.8663763,
+   "name": "مركز تفويج الزوار إلى غار حراء",
+   "en": "Visitor center to Hira cave",
+   "kind": {
+    "tourism": "information",
+    "building": "yes"
+   }
+  },
+  {
+   "id": "r19262654",
+   "lat": 21.4570905,
+   "lon": 39.8712235,
+   "name": "جبل النور",
+   "en": "Jabal An Noor",
+   "kind": {}
+  }
+ ],
+ "thawr": {
+  "error": "HTTP Error 500: Internal Server Error"
+ },
+ "mualla": [
+  {
+   "id": "n9964861532",
+   "lat": 21.436558,
+   "lon": 39.8309036,
+   "name": "مقبرة المعلاة 139",
+   "en": "Al Muallaa Cemetery 139",
+   "kind": {
+    "highway": "bus_stop"
+   }
+  },
+  {
+   "id": "n9964861533",
+   "lat": 21.4364818,
+   "lon": 39.8310044,
+   "name": "مقبرة المعلاة 139",
+   "en": "Al Muallaa Cemetery 139",
+   "kind": {}
+  },
+  {
+   "id": "n9964861534",
+   "lat": 21.4361121,
+   "lon": 39.8309344,
+   "name": "مقبرة المعلاة 138",
+   "en": "Al Muallaa Cemetery 138",
+   "kind": {
+    "highway": "bus_stop"
+   }
+  },
+  {
+   "id": "n9964861535",
+   "lat": 21.4361254,
+   "lon": 39.8309157,
+   "name": "مقبرة المعلاة 138",
+   "en": "Al Muallaa Cemetery 138",
+   "kind": {}
+  },
+  {
+   "id": "r6046910",
+   "lat": 21.4351319,
+   "lon": 39.8288069,
+   "name": "مقبرة المعلاة",
+   "en": "Maqbara al-Mu'alla",
+   "kind": {
+    "landuse": "cemetery",
+    "religion": "muslim"
+   }
+  }
+ ],
+ "jinn": [
+  {
+   "id": "n9964861536",
+   "lat": 21.4330918,
+   "lon": 39.8289795,
+   "name": "مسجد الجن 137",
+   "en": "Jinn Mosque 137",
+   "kind": {
+    "highway": "bus_stop"
+   }
+  },
+  {
+   "id": "n9964861537",
+   "lat": 21.4330705,
+   "lon": 39.8290668,
+   "name": "مسجد الجن 137",
+   "en": "Jinn Mosque 137",
+   "kind": {}
+  },
+  {
+   "id": "w443792238",
+   "lat": 21.43339,
+   "lon": 39.8289247,
+   "name": "مسجد الجن",
+   "en": "Masjid al Jinn",
+   "kind": {
+    "amenity": "place_of_worship",
+    "building": "yes",
+    "religion": "muslim"
+   }
+  },
+  {
+   "id": "w457090135",
+   "lat": 21.4319782,
+   "lon": 39.8284693,
+   "name": "مسجد الجندراوي",
+   "en": "Masjid Al Jandrawi",
+   "kind": {
+    "amenity": "place_of_worship",
+    "building": "yes",
+    "religion": "muslim"
+   }
+  }
+ ],
+ "aisha": [
+  {
+   "id": "n9957164490",
+   "lat": 21.4719204,
+   "lon": 39.7974174,
+   "name": "التنعيم 324",
+   "en": "At Taniem 324",
+   "kind": {
+    "highway": "bus_stop"
+   }
+  },
+  {
+   "id": "n9957164491",
+   "lat": 21.4719162,
+   "lon": 39.7973562,
+   "name": "التنعيم 324",
+   "en": "At Taniem 324",
+   "kind": {}
+  },
+  {
+   "id": "n9957164492",
+   "lat": 21.4693707,
+   "lon": 39.7977576,
+   "name": "التنعيم 321",
+   "en": "At Taniem 321",
+   "kind": {
+    "highway": "bus_stop"
+   }
+  },
+  {
+   "id": "n9957164493",
+   "lat": 21.4694229,
+   "lon": 39.7978455,
+   "name": "التنعيم 321",
+   "en": "At Taniem 321",
+   "kind": {}
+  },
+  {
+   "id": "n9957164494",
+   "lat": 21.4674421,
+   "lon": 39.8006628,
+   "name": "مسجد ام المؤمنين عائشة 314",
+   "en": "Ayesha Mosque 314",
+   "kind": {
+    "highway": "bus_stop"
+   }
+  },
+  {
+   "id": "n9957164495",
+   "lat": 21.4673806,
+   "lon": 39.8006277,
+   "name": "مسجد ام المؤمنين عائشة 314",
+   "en": "Ayesha Mosque 314",
+   "kind": {}
+  },
+  {
+   "id": "n9957164496",
+   "lat": 21.4671372,
+   "lon": 39.8000168,
+   "name": "مسجد ام المؤمنين عائشة 319",
+   "en": "Ayesha Mosque 319",
+   "kind": {
+    "highway": "bus_stop"
+   }
+  },
+  {
+   "id": "n9957164497",
+   "lat": 21.4671999,
+   "lon": 39.8000683,
+   "name": "مسجد ام المؤمنين عائشة 319",
+   "en": "Ayesha Mosque 319",
+   "kind": {}
+  },
+  {
+   "id": "n12682154784",
+   "lat": 21.4675731,
+   "lon": 39.8019876,
+   "name": "مسجد عائشة 350",
+   "en": "Ayesha Mosque 350",
+   "kind": {}
+  },
+  {
+   "id": "n12682262108",
+   "lat": 21.4676118,
+   "lon": 39.8019138,
+   "name": "مسجد عائشة 350",
+   "en": "Ayesha Mosque 350",
+   "kind": {
+    "highway": "bus_stop"
+   }
+  },
+  {
+   "id": "n13136149296",
+   "lat": 21.467006,
+   "lon": 39.801329,
+   "name": "حدود الحرم الشمالية - التنعيم",
+   "en": "Al Haram boundary - At Tanim",
+   "kind": {
+    "tourism": "information",
+    "historic": "boundary_stone",
+    "religion": "islam"
+   }
+  },
+  {
+   "id": "n13136149298",
+   "lat": 21.467651,
+   "lon": 39.80219,
+   "name": "حدود الحرم الشمالية - التنعيم",
+   "en": "Al Haram boundary - At Tanim",
+   "kind": {
+    "tourism": "information",
+    "historic": "boundary_stone",
+    "religion": "islam"
+   }
+  },
+  {
+   "id": "n13158530874",
+   "lat": 21.4746428,
+   "lon": 39.7915788,
+   "name": "حدود الحرم الشمالية - التنعيم",
+   "en": "Al Haram boundary - At Tanim",
+   "kind": {
+    "tourism": "information",
+    "historic": "boundary_stone",
+    "religion": "islam"
+   }
+  },
+  {
+   "id": "n13158530875",
+   "lat": 21.4666078,
+   "lon": 39.8011379,
+   "name": "حدود الحرم الشمالية - التنعيم",
+   "en": "Al Haram boundary - At Tanim",
+   "kind": {
+    "tourism": "information",
+    "historic": "boundary_stone",
+    "religion": "islam"
+   }
+  },
+  {
+   "id": "w431611519",
+   "lat": 21.4677052,
+   "lon": 39.8013681,
+   "name": "مسجد أم المؤمنين السيدة عائشة",
+   "en": "Om El-Moumneen El-Sayeda Aisha Mosque",
+   "kind": {
+    "amenity": "place_of_worship",
+    "building": "mosque",
+    "religion": "muslim"
+   }
+  },
+  {
+   "id": "w566436951",
+   "lat": 21.4683301,
+   "lon": 39.8006703,
+   "name": "Masjid Aisha Parking",
+   "en": "Masjid Aisha Parking",
+   "kind": {
+    "amenity": "parking"
+   }
+  },
+  {
+   "id": "w566436952",
+   "lat": 21.4667383,
+   "lon": 39.8034078,
+   "name": "Masjid Aisha Parking",
+   "en": "Masjid Aisha Parking",
+   "kind": {
+    "amenity": "parking"
+   }
+  },
+  {
+   "id": "w566438931",
+   "lat": 21.467256,
+   "lon": 39.8023304,
+   "name": "Masjid Aisha Parking",
+   "en": "Masjid Aisha Parking",
+   "kind": {
+    "amenity": "parking"
+   }
+  },
+  {
+   "id": "r19262626",
+   "lat": 21.4915069,
+   "lon": 39.8129402,
+   "name": "التنعيم",
+   "en": "At Tanim",
+   "kind": {}
+  }
+ ],
+ "mina": [
+  {
+   "id": "w715064349",
+   "lat": 21.4143902,
+   "lon": 39.8817408,
+   "name": "Al-khaif Police Station",
+   "en": null,
+   "kind": {
+    "amenity": "police",
+    "building": "yes"
+   }
+  }
+ ],
+ "muzdalifah": [
+  {
+   "id": "w457318293",
+   "lat": 21.3862106,
+   "lon": 39.9124862,
+   "name": "مسجد المشعر الحرام",
+   "en": "Al-Mash'ar al-Haram Mosque",
+   "kind": {
+    "amenity": "place_of_worship",
+    "building": "mosque",
+    "religion": "muslim"
+   }
+  }
+ ],
+ "arafat": {
+  "error": "HTTP Error 500: Internal Server Error"
+ },
+ "exhibition": {
+  "error": "HTTP Error 500: Internal Server Error"
+ },
+ "quba": [
+  {
+   "id": "n4020672295",
+   "lat": 24.4418152,
+   "lon": 39.6176087,
+   "name": "قباء",
+   "en": "Quba'",
+   "kind": {
+    "place": "neighbourhood"
+   }
+  },
+  {
+   "id": "n6268499013",
+   "lat": 24.4387538,
+   "lon": 39.6165792,
+   "name": "الحافلة السياحية-مسجد قباء",
+   "en": "City Siightseeing - Masjid Quba",
+   "kind": {
+    "highway": "bus_stop"
+   }
+  },
+  {
+   "id": "n12407794803",
+   "lat": 24.4395969,
+   "lon": 39.6172632,
+   "name": "مسجد قباء",
+   "en": "QUBA Mosque",
+   "kind": {
+    "amenity": "place_of_worship",
+    "religion": "muslim"
+   }
+  },
+  {
+   "id": "w65543350",
+   "lat": 24.4410683,
+   "lon": 39.6167417,
+   "name": "جادة قباء",
+   "en": "Quba Avenue",
+   "kind": {
+    "highway": "pedestrian"
+   }
+  },
+  {
+   "id": "w460535510",
+   "lat": 24.4322043,
+   "lon": 39.6181993,
+   "name": "طريق قباء",
+   "en": "Quba Road",
+   "kind": {
+    "highway": "primary"
+   }
+  },
+  {
+   "id": "w1458227237",
+   "lat": 24.4458365,
+   "lon": 39.614346,
+   "name": "جادة قباء",
+   "en": "Quba Avenue",
+   "kind": {
+    "highway": "pedestrian"
+   }
+  },
+  {
+   "id": "w1458227238",
+   "lat": 24.4436628,
+   "lon": 39.6152106,
+   "name": "جادة قباء",
+   "en": "Quba Avenue",
+   "kind": {
+    "highway": "pedestrian"
+   }
+  },
+  {
+   "id": "w1458227263",
+   "lat": 24.4409386,
+   "lon": 39.6159971,
+   "name": "جادة قباء",
+   "en": "Quba Avenue",
+   "kind": {
+    "highway": "pedestrian"
+   }
+  },
+  {
+   "id": "w1458227267",
+   "lat": 24.4458365,
+   "lon": 39.6142624,
+   "name": "جادة قباء",
+   "en": "Quba Avenue",
+   "kind": {
+    "highway": "pedestrian"
+   }
+  },
+  {
+   "id": "w1458229192",
+   "lat": 24.4372095,
+   "lon": 39.6163942,
+   "name": "مقصد قباء",
+   "en": "Maqsad Quba",
+   "kind": {
+    "tourism": "attraction",
+    "landuse": "commercial"
+   }
+  },
+  {
+   "id": "r18051738",
+   "lat": 24.4393643,
+   "lon": 39.6172552,
+   "name": "مسجد قباء",
+   "en": "Quba Mosque",
+   "kind": {
+    "historic": "yes",
+    "building": "mosque"
+   }
+  },
+  {
+   "id": "r19955062",
+   "lat": 24.4393774,
+   "lon": 39.6174637,
+   "name": "ساحة قباء",
+   "en": "Quba Square",
+   "kind": {
+    "highway": "pedestrian"
+   }
+  }
+ ],
+ "qiblatayn": {
+  "error": "HTTP Error 500: Internal Server Error"
+ },
+ "baqi": [
+  {
+   "id": "n4562374598",
+   "lat": 24.4674505,
+   "lon": 39.611599,
+   "name": "باب البقيع - 41",
+   "en": "Exit - Al-Baqi Gate - 41",
+   "kind": {
+    "historic": "city_gate",
+    "religion": "muslim"
+   }
+  },
+  {
+   "id": "n6268575546",
+   "lat": 24.4655706,
+   "lon": 39.6133882,
+   "name": "الحافلة السياحية-البقيع",
+   "en": "City Siightseeing - Al Baq'",
+   "kind": {
+    "highway": "bus_stop"
+   }
+  },
+  {
+   "id": "w65541621",
+   "lat": 24.4666715,
+   "lon": 39.6163248,
+   "name": "مقبرة بقيع الغرقد",
+   "en": "Maqbara Al Baqeea",
+   "kind": {
+    "landuse": "cemetery",
+    "religion": "muslim"
+   }
+  }
+ ],
+ "seven": {
+  "error": "HTTP Error 500: Internal Server Error"
+ },
+ "ghamama": [
+  {
+   "id": "w369055309",
+   "lat": 24.465808,
+   "lon": 39.6069555,
+   "name": "مسجد الغمامة",
+   "en": "Masjid Ghamama",
+   "kind": {
+    "amenity": "place_of_worship",
+    "building": "yes",
+    "religion": "muslim"
+   }
+  },
+  {
+   "id": "w1150241657",
+   "lat": 24.4628546,
+   "lon": 39.6060085,
+   "name": "Al-Ghamamah Center",
+   "en": null,
+   "kind": {
+    "building": "yes"
+   }
+  }
+ ],
+ "ijabah": {
+  "error": "HTTP Error 500: Internal Server Error"
+ },
+ "miqat": [
+  {
+   "id": "w456361104",
+   "lat": 24.4136374,
+   "lon": 39.542991,
+   "name": "مسجد الشجرة",
+   "en": "Masjid ash-Shajarah",
+   "kind": {
+    "amenity": "place_of_worship",
+    "building": "mosque",
+    "religion": "muslim"
+   }
+  },
+  {
+   "id": "w457470976",
+   "lat": 24.4137405,
+   "lon": 39.5428117,
+   "name": "ميقات ذي الحليفة",
+   "en": "Miqat Dhul Hulaifah",
+   "kind": {
+    "historic": "monument"
+   }
+  },
+  {
+   "id": "w458914321",
+   "lat": 24.41361,
+   "lon": 39.5334785,
+   "name": "Al Miqat Hospital",
+   "en": null,
+   "kind": {
+    "amenity": "hospital"
+   }
+  },
+  {
+   "id": "r19122056",
+   "lat": 24.428642,
+   "lon": 39.5602745,
+   "name": "ذو الحليفة",
+   "en": "Dhu Al Hulayfah",
+   "kind": {}
+  }
+ ],
+ "badr": {
+  "error": "HTTP Error 500: Internal Server Error"
+ },
+ "khaybar": {
+  "error": "HTTP Error 500: Internal Server Error"
+ },
+ "balad": {
+  "error": "HTTP Error 500: Internal Server Error"
+ }
+}
