@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { LiveHomeCard } from "@/components/live/live-home-card";
 import { AmalHomeCard } from "@/components/amal/amal-home-card";
 import { useMemo } from "react";
 import { motion } from "motion/react";
@@ -119,6 +120,7 @@ export function HomeDashboard() {
           <AdhanWindowCard data={data} />
           <NextPrayerCard data={data} stripClassName="lg:hidden" />
           <AmalHomeCard data={data} />
+          <LiveHomeCard />
           <DualClock />
           <NextPrayerStaffCard data={data} />
           <HaramMapHomeCard />

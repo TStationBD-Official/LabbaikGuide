@@ -14,7 +14,7 @@ export function proxy(request: NextRequest) {
     // React renders `style` attributes; nonces cannot cover attributes.
     "style-src 'self' 'unsafe-inline'",
     // Imam/Muezzin photos: normally via our /api/haramain/photo proxy; direct from the source's storage as fallback.
-    "img-src 'self' blob: data: https://objectstorage.me-jeddah-1.oraclecloud.com https://upload.wikimedia.org",
+    "img-src 'self' blob: data: https://objectstorage.me-jeddah-1.oraclecloud.com https://upload.wikimedia.org https://i.ytimg.com",
     "font-src 'self' data:",
     "media-src 'self' https://verses.quran.com https://*.quranicaudio.com",
     // Map data for "My Hotel": OpenFreeMap vector tiles (OSM raster as fallback).

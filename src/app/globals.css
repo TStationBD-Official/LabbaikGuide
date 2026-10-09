@@ -664,3 +664,6 @@ html[lang="ur"] :where(p, span, label, a, button, li, legend, h1, h2, h3, h4, dt
 :root { --amal-s1: #14866a; --amal-s2: #b8891f; }
 [data-theme="dark"] { --amal-s1: #2f9e76; --amal-s2: #b58a2e; }
 @media (prefers-color-scheme: dark) { [data-theme="system"] { --amal-s1: #2f9e76; --amal-s2: #b58a2e; } }
+
+/* Live page poster when no thumbnail is available. */
+.hc-live-art { background: radial-gradient(120% 120% at 50% 0%, #1f3d33 0%, #0b1511 60%, #050a08 100%); }

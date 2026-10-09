@@ -34,7 +34,8 @@
       "janazah": "Janazah",
       "walks": "Walks",
       "ziyarah": "Ziyarah",
-      "amal": "Deeds"
+      "amal": "Deeds",
+      "live": "Live"
     },
     "collapse": "Collapse menu",
     "expand": "Expand menu",
@@ -45,7 +46,8 @@
     "janazah": "Janazah Prayer",
     "walks": "My Walks",
     "ziyarah": "Historical Places",
-    "amal": "Daily deeds"
+    "amal": "Daily deeds",
+    "live": "Live: Makkah & Madinah"
   },
   "location": {
     "makkah": "Makkah",
@@ -1305,5 +1307,23 @@
     "homeGraph": "Your progress",
     "soFar": "{pct} of what's due so far",
     "vsPrev": "vs the previous period"
+  },
+  "live": {
+    "title": "Live from the Haramain",
+    "subtitle": "Official 24/7 broadcasts from Masjid al-Haram and Masjid an-Nabawi",
+    "badge": "LIVE",
+    "tapToPlay": "Tap to watch live",
+    "checking": "Finding the live stream…",
+    "openYoutube": "Open on YouTube",
+    "refresh": "Check again",
+    "unavailable": "Live information is temporarily unavailable.",
+    "channelFallback": "You can still try the channel's live player above, or open it on YouTube.",
+    "alsoLive": "Also live",
+    "source": "Broadcast by the official Saudi Qur'an TV and Sunnah TV channels (Saudi Broadcasting Authority) on YouTube. Streams may pause at times.",
+    "dataNote": "Live video uses a lot of mobile data — you can lower the quality in the player's settings (⚙).",
+    "privacy": "Nothing loads from YouTube until you tap play (privacy-enhanced mode).",
+    "homeTitle": "Live: Makkah & Madinah",
+    "homeSub": "Official 24/7 broadcast from the Haramain",
+    "watch": "Watch"
   }
 }
