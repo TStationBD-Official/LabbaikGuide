@@ -496,7 +496,10 @@
     "nextStep": "الخطوة التالية: {step}",
     "umrahNotStarted": "لم تبدأ بعد",
     "guides": "الأدلة",
-    "staffTitle": "إمام ومؤذن {prayer}"
+    "staffTitle": "إمام ومؤذن {prayer}",
+    "iqamahAt": "الإقامة {time}",
+    "startZikr": "ابدأ",
+    "continueZikr": "تابع"
   },
   "search": {
     "title": "بحث",

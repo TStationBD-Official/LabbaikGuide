@@ -496,7 +496,10 @@
     "nextStep": "اگلا مرحلہ: {step}",
     "umrahNotStarted": "ابھی شروع نہیں ہوا",
     "guides": "رہنما",
-    "staffTitle": "{prayer} کے امام و مؤذن"
+    "staffTitle": "{prayer} کے امام و مؤذن",
+    "iqamahAt": "اقامت {time}",
+    "startZikr": "شروع",
+    "continueZikr": "جاری رکھیں"
   },
   "search": {
     "title": "تلاش",

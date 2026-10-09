@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { AfterSalahHomeCard } from "@/components/zikr/after-salah-home-card";
 import { LiveHomeCard } from "@/components/live/live-home-card";
 import { AmalHomeCard } from "@/components/amal/amal-home-card";
 import { useMemo } from "react";
@@ -119,6 +120,7 @@ export function HomeDashboard() {
         <div className="space-y-4">
           <AdhanWindowCard data={data} />
           <NextPrayerCard data={data} stripClassName="lg:hidden" />
+          <AfterSalahHomeCard data={data} />
           <AmalHomeCard data={data} />
           <LiveHomeCard />
           <DualClock />

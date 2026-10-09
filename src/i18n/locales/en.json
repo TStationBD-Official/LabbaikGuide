@@ -496,7 +496,10 @@
     "nextStep": "Next step: {step}",
     "umrahNotStarted": "Not started yet",
     "guides": "Guides",
-    "staffTitle": "{prayer}: Imam & Muezzin"
+    "staffTitle": "{prayer}: Imam & Muezzin",
+    "iqamahAt": "Iqamah {time}",
+    "startZikr": "Start",
+    "continueZikr": "Continue"
   },
   "search": {
     "title": "Search",

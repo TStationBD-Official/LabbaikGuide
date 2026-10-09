@@ -496,7 +496,10 @@
     "nextStep": "পরবর্তী ধাপ: {step}",
     "umrahNotStarted": "এখনো শুরু হয়নি",
     "guides": "গাইড",
-    "staffTitle": "{prayer}-এর ইমাম ও মুয়াজ্জিন"
+    "staffTitle": "{prayer}-এর ইমাম ও মুয়াজ্জিন",
+    "iqamahAt": "ইকামত {time}",
+    "startZikr": "শুরু",
+    "continueZikr": "চালিয়ে যান"
   },
   "search": {
     "title": "খুঁজুন",
