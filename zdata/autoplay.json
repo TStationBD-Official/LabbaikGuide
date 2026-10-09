@@ -1,0 +1,22 @@
+[
+ {
+  "name": "desktop",
+  "frame": "https://www.youtube-nocookie.com/embed/eC4LfEVxvKg?autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1&enablejsapi=1&",
+  "state": {
+   "paused": true,
+   "muted": true,
+   "t": 0,
+   "ready": 0
+  }
+ },
+ {
+  "name": "mobile",
+  "frame": "https://www.youtube-nocookie.com/embed/eC4LfEVxvKg?autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1&enablejsapi=1&",
+  "state": {
+   "paused": true,
+   "muted": true,
+   "t": 0,
+   "ready": 0
+  }
+ }
+]
