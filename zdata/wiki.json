@@ -1,12 +1,30 @@
 {
  "hira": {
-  "title": "Hira",
+  "title": "Jabal al-Nour",
   "missing": false,
-  "url": "https://en.wikipedia.org/wiki/Hira",
-  "desc": "Topics referred to by the same term",
-  "coords": null,
-  "image": null,
-  "extract": "Hira may refer to:"
+  "url": "https://en.wikipedia.org/wiki/Jabal_al-Nour",
+  "desc": "Holy mountain and peak in Saudi Arabia",
+  "coords": [
+   {
+    "lat": 21.45805556,
+    "lon": 39.86138889,
+    "primary": "",
+    "globe": "earth"
+   }
+  ],
+  "image": "Jabbal_An-Nour_(2024).jpg",
+  "extract": "Jabal al-Nour (Arabic: جَبَل ٱلنُّوْر, romanized: Jabal an-Nūr, lit. 'Mountain of the Light' or 'Hill of the Illumination') is a mountain near Mecca in the Hejaz region of Saudi Arabia. The mountain houses the grotto or cave of Hira (Arabic: غَار حِرَاء, romanized: Ghar-i-Hira, lit. 'Cave of Hira'). It is here where the Islamic prophet Muhammad is said to have received his first revelation of the Quran from the angel Jibra'il, which consists of the first five ayat of Surah Al-Alaq. The mountain itself is barely 640 m (2,100 ft) tall; nonetheless one to two hours are needed to make the strenuous hike to the cave. There are 1750 steps to the top which can take anywhere between half an hour and three hours. Jabal al-Nour is a major tourist destination for visitors and pilgrims.",
+  "img": {
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/57/Jabbal_An-Nour_%282024%29.jpg/960px-Jabbal_An-Nour_%282024%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Jabbal_An-Nour_(2024).jpg",
+   "w": 960,
+   "h": 720,
+   "artist": "<a href=\"//commons.wikimedia.org/wiki/User:Kaliper1\" class=\"mw-redirect\" title=\"User:Kaliper1\">Kaliper1</a>",
+   "license": "CC BY-SA 4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+   "host": "commons.wikimedia.org"
+  },
+  "searched": "Cave of Hira"
  },
  "nour": {
   "title": "Jabal al-Nour",
@@ -31,7 +49,7 @@
    "artist": "<a href=\"//commons.wikimedia.org/wiki/User:Kaliper1\" class=\"mw-redirect\" title=\"User:Kaliper1\">Kaliper1</a>",
    "license": "CC BY-SA 4.0",
    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-   "credit": "<span class=\"int-own-work\" lang=\"en\">Own work</span>"
+   "host": "commons.wikimedia.org"
   }
  },
  "thawr": {
@@ -57,7 +75,7 @@
    "artist": "<a rel=\"nofollow\" class=\"external text\" href=\"https://web.archive.org/web/20161102201511/http://www.panoramio.com/user/6840946?with_photo_id=72571917\">Abdul Razzaq Phulpot…</a>",
    "license": "CC BY-SA 3.0",
    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
-   "credit": "<a rel=\"nofollow\" class=\"external free\" href=\"https://web.archive.org/web/20161102201509/http://www.panoramio.com/photo/72571917\">https://web.archive.org/web/20161102201509/http://www.panoramio.com/photo/72571917</a>"
+   "host": "commons.wikimedia.org"
   }
  },
  "mualla": {
@@ -83,7 +101,7 @@
    "artist": "<a href=\"//commons.wikimedia.org/wiki/User:Tubi719\" title=\"User:Tubi719\">Tubi719</a>",
    "license": "CC BY-SA 4.0",
    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-   "credit": "<span class=\"int-own-work\" lang=\"en\">Own work</span>. I took this photo when I went to Makkah. I myself created this work."
+   "host": "commons.wikimedia.org"
   }
  },
  "mina": {
@@ -109,7 +127,7 @@
    "artist": "Mubeen Rahman",
    "license": "CC BY 3.0",
    "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
-   "credit": "<span class=\"int-own-work\" lang=\"en\">Own work</span>"
+   "host": "commons.wikimedia.org"
   }
  },
  "arafat": {
@@ -135,7 +153,7 @@
    "artist": "<a rel=\"nofollow\" class=\"external text\" href=\"https://www.flickr.com/people/32834977@N03\">Al Jazeera English</a>",
    "license": "CC BY-SA 2.0",
    "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
-   "credit": "<a rel=\"nofollow\" class=\"external text\" href=\"https://www.flickr.com/photos/aljazeeraenglish/4135889356/\">Pilgrims cover Arafat's roads, plains and mountain</a>"
+   "host": "commons.wikimedia.org"
   }
  },
  "muzdalifah": {
@@ -161,53 +179,143 @@
    "artist": "<a href=\"//commons.wikimedia.org/w/index.php?title=User:Arisdp&amp;action=edit&amp;redlink=1\" class=\"new\" title=\"User:Arisdp (page does not exist)\">Arisdp</a>",
    "license": "CC BY-SA 4.0",
    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-   "credit": "<span class=\"int-own-work\" lang=\"en\">Own work</span>"
+   "host": "commons.wikimedia.org"
   }
  },
  "jinn": {
-  "title": "Masjid al-Jinn",
-  "missing": true,
-  "url": "https://en.wikipedia.org/wiki/Masjid_al-Jinn",
-  "desc": null,
-  "coords": null,
-  "image": null,
-  "extract": null
+  "title": "Mosque of the Jinn",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Mosque_of_the_Jinn",
+  "desc": "Mosque in Makkah, Saudi Arabia",
+  "coords": [
+   {
+    "lat": 21.43338889,
+    "lon": 39.82894444,
+    "primary": "",
+    "globe": "earth"
+   }
+  ],
+  "image": "Mosque_of_the_Jinn_03.jpg",
+  "extract": "The Mosque of the Jinn (Arabic: مسجد الجنّ, romanized: Masjid al-Jinn) is a Sunni Islam mosque, located in Mecca, Saudi Arabia, near Jannat al-Mu'alla. It is also known as the Mosque of Allegiance (Arabic: مسجد بِيعات, romanized: Masjid Biy‘āt) and the Mosque of Guards (Arabic: مسجد الحرس, romanized: Masjid al-Ḥaras) because the city's guards would patrol up to that point.\nThe mosque is built at the place where a group of jinn are said to have gathered one night to hear the recitation of a portion of the Quran by Muhammad. Muhammad later met there with these jinn's leaders and accepted their embrace of Islam and their bay'ah (oath of allegiance) to him. The incident is mentioned in chapter al-Jinn of the Quran.\nThe mosque is considered one of the oldest in Mecca and is one of the most important mosques visited in the city.",
+  "img": {
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c7/Mosque_of_the_Jinn_03.jpg/960px-Mosque_of_the_Jinn_03.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Mosque_of_the_Jinn_03.jpg",
+   "w": 960,
+   "h": 720,
+   "artist": "<a href=\"//commons.wikimedia.org/wiki/User:Sadrettin\" title=\"User:Sadrettin\">Sadrettin</a>",
+   "license": "CC BY-SA 4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+   "host": "commons.wikimedia.org"
+  },
+  "searched": "Mosque of the Jinn Mecca"
  },
  "aisha": {
-  "title": "Masjid Aisha",
-  "missing": true,
-  "url": "https://en.wikipedia.org/wiki/Masjid_Aisha",
-  "desc": null,
-  "coords": null,
-  "image": null,
-  "extract": null
+  "title": "Masjid at-Taneem",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Masjid_at-Taneem",
+  "desc": "Mosque in Saudi Arabia",
+  "coords": [
+   {
+    "lat": 21.4677,
+    "lon": 39.8013,
+    "primary": "",
+    "globe": "earth"
+   }
+  ],
+  "image": "Masjid_Aisha_(1).jpg",
+  "extract": "The Masjid at-Taneem (Arabic: مَسْجِد ٱلتَّنْعِيْم, romanized: Masjid ʾat-Tanʿīm) is a historic mosque in the area of Al-Hil, approximately 8.0 kilometres (5 miles) from the Kaaba, in the neighbourhood of At-Tan'im in Mecca, Saudi Arabia.",
+  "img": {
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cc/Masjid_Aisha_%281%29.jpg/960px-Masjid_Aisha_%281%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Masjid_Aisha_(1).jpg",
+   "w": 960,
+   "h": 720,
+   "artist": "<a href=\"//commons.wikimedia.org/wiki/User:Imam_Khairul_Annas\" title=\"User:Imam Khairul Annas\">Imam Khairul Annas</a>",
+   "license": "CC BY-SA 4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+   "host": "commons.wikimedia.org"
+  },
+  "searched": "Masjid Aisha Tan'im Mecca"
  },
  "jiranah": {
-  "title": "Al-Ji'ranah Mosque",
-  "missing": true,
-  "url": "https://en.wikipedia.org/wiki/Al-Ji%27ranah_Mosque",
-  "desc": null,
-  "coords": null,
-  "image": null,
-  "extract": null
+  "title": "Masjid al-Haram",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Masjid_al-Haram",
+  "desc": "Holiest mosque in Mecca, Saudi Arabia",
+  "coords": [
+   {
+    "lat": 21.4225,
+    "lon": 39.82611111,
+    "primary": "",
+    "globe": "earth"
+   }
+  ],
+  "image": "Edited_Great_Mosque_of_Mecca1_5-2019-ccsa4.0_(cropped).jpg",
+  "extract": "Masjid al-Haram (Arabic: المسجد الحرام, romanized: al-Masjid al-Ḥarām, lit. 'The Sacred Mosque'), also known as the Great Mosque of Mecca, is a mosque in Mecca, Saudi Arabia, serving as the holiest and most important mosque in Islam. As of 2026, the Great Mosque is the largest mosque in the world.\nThe Great Mosque is considered, alongside the Quba Mosque in Medina, among the earliest mosques in Islam. According to Islamic scholars, Abraham is seen as having built the Kaaba in Mecca, and consequently its sanctuary, which according to the Muslim view is seen as the first mosque that ever existed.\nIt has undergone major renovations and expansions through the years. It has passed through the control of various caliphs, sultans and kings, and is now under the control of the King of Saudi Arabia who is titled the Custodian of the Two Holy Mosques.",
+  "img": {
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b8/Edited_Great_Mosque_of_Mecca1_5-2019-ccsa4.0_%28cropped%29.jpg/960px-Edited_Great_Mosque_of_Mecca1_5-2019-ccsa4.0_%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Edited_Great_Mosque_of_Mecca1_5-2019-ccsa4.0_(cropped).jpg",
+   "w": 960,
+   "h": 786,
+   "artist": "Saudipics.com",
+   "license": "CC BY-SA 4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+   "host": "commons.wikimedia.org"
+  },
+  "searched": "Ji'ranah mosque Mecca miqat"
  },
  "khayf": {
-  "title": "Al-Khayf Mosque",
-  "missing": true,
-  "url": "https://en.wikipedia.org/wiki/Al-Khayf_Mosque",
-  "desc": null,
-  "coords": null,
-  "image": null,
-  "extract": null
+  "title": "Mina, Saudi Arabia",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Mina,_Saudi_Arabia",
+  "desc": "Neighbourhood in Mecca, Saudi Arabia",
+  "coords": [
+   {
+    "lat": 21.41333333,
+    "lon": 39.89333333,
+    "primary": "",
+    "globe": "earth"
+   }
+  ],
+  "image": "Mina_Overview.JPG",
+  "extract": "Mina (Arabic: مِنَى, romanized: Minā), nicknamed the \"City of the Tents\", is a valley located 8 kilometres (5 miles) southeast of the city of Mecca, in the district of Masha'er, Province of Makkah in the Hejazi region of Saudi Arabia. Covering an area of approximately 20 km2 (7.7 sq mi), Mina incorporates the tents, the area of Jamarat, and the slaughterhouses just outside the tents.\nMina is most famous for its role in the Hajj (\"Pilgrimage\"). To accommodate the pilgrims who stay in Mina over multiple nights in the month of Dhu al-Hijjah, more than 100,000 air-conditioned tents have been built in the area, giving Mina the nickname \"City of Tents.\" With a capacity of up to 3 million people, Mina has been called the largest tent city in the world. The three Jamarat, located in the Mina valley, are the location of the Jamarat, performed between sunrise and sunset in the final days of the Hajj. The stone throwing ritual commemorates the Islamic prophet Ibrahim (Abraham)'s stoning of the Devil, who wanted to prevent him from carrying out the command of Allah to sacrifice his son, Isma'il (Ishmael).",
+  "img": {
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6a/Mina_Overview.JPG/960px-Mina_Overview.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Mina_Overview.JPG",
+   "w": 960,
+   "h": 720,
+   "artist": "Mubeen Rahman",
+   "license": "CC BY 3.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+   "host": "commons.wikimedia.org"
+  },
+  "searched": "Masjid al-Khayf Mina"
  },
  "namirah": {
-  "title": "Namirah Mosque",
-  "missing": true,
-  "url": "https://en.wikipedia.org/wiki/Namirah_Mosque",
-  "desc": null,
-  "coords": null,
-  "image": null,
-  "extract": null
+  "title": "Masjid al-Namirah",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Masjid_al-Namirah",
+  "desc": "Mosque in Makkah Province, Saudi Arabia",
+  "coords": [
+   {
+    "lat": 21.352956,
+    "lon": 39.966753,
+    "primary": "",
+    "globe": "earth"
+   }
+  ],
+  "image": "Masjid_al-Namira.jpg",
+  "extract": "Masjid an-Namirah (Arabic: مَسْجِد ٱلنَّمِرَة) or Masjid Nimrah (Arabic: مَسْجِد نِمْرَة) is a mosque in Wadi Uranah near Mecca in the Hejazi region of Saudi Arabia. It is believed to be where the Islamic prophet Muhammad stayed before delivering his last sermon in 'Arafat. It is one of the most important landmarks during the Hajj, as it is where the khutbahs are delivered to pilgrims during the Day of Arafah during the Dhuhr and Asr prayers. It is located near Mount Arafat.",
+  "img": {
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f7/Masjid_al-Namira.jpg/960px-Masjid_al-Namira.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Masjid_al-Namira.jpg",
+   "w": 960,
+   "h": 720,
+   "artist": "<a href=\"//commons.wikimedia.org/w/index.php?title=User:Ilhamnobi&amp;action=edit&amp;redlink=1\" class=\"new\" title=\"User:Ilhamnobi (page does not exist)\">Ilhamnobi</a>",
+   "license": "CC BY-SA 4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+   "host": "commons.wikimedia.org"
+  },
+  "searched": "Namirah Mosque Arafat"
  },
  "jamarat": {
   "title": "Jamaraat Bridge",
@@ -232,7 +340,7 @@
    "artist": "saudipics",
    "license": "CC BY-SA 4.0",
    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-   "credit": "<a rel=\"nofollow\" class=\"external free\" href=\"http://saudipics.com/images/preview/89\">http://saudipics.com/images/preview/89</a>"
+   "host": "commons.wikimedia.org"
   }
  },
  "mashar": {
@@ -258,26 +366,62 @@
    "artist": "<a href=\"//commons.wikimedia.org/wiki/User:%D8%A7%D9%84%D8%B4%D9%8A%D8%AE_%D9%87%D9%8A%D8%AB%D9%85_%D8%A7%D9%84%D8%AF%D8%AE%D9%8A%D9%86\" title=\"User:الشيخ هيثم الدخين\">الشيخ هيثم الدخين</a>",
    "license": "CC BY 4.0",
    "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
-   "credit": "<span class=\"int-own-work\" lang=\"en\">Own work</span>"
+   "host": "commons.wikimedia.org"
   }
  },
  "hiradistrict": {
-  "title": "Hira Cultural District",
-  "missing": true,
-  "url": "https://en.wikipedia.org/wiki/Hira_Cultural_District",
-  "desc": null,
-  "coords": null,
-  "image": null,
-  "extract": null
+  "title": "Mecca",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Mecca",
+  "desc": "Holiest city in Islam and capital of Mecca Province, Saudi Arabia",
+  "coords": [
+   {
+    "lat": 21.4225,
+    "lon": 39.82333333,
+    "primary": "",
+    "globe": "earth"
+   }
+  ],
+  "image": "Great_Mosque_of_Mecca1.jpg",
+  "extract": "Mecca, officially Makkah al-Mukarramah, is a city in the Hejaz region of western Saudi Arabia and is the capital of Mecca Province. Mecca is considered the birthplace of Islam and the Islamic prophet Muhammad, as well as being the holiest city in Islam.\nIt is located 70 km (43 mi) inland from Jeddah on the Red Sea in a narrow valley 277 m (909 ft) above sea level. Its metropolitan population in 2022 was 2.4 million, making it the third most populated city in Saudi Arabia after Riyadh and Jeddah. The Cave of Hira atop the Jabal al-Nour just outside the city is where Muslims believe the Quran was first revealed to Muhammad. The Great Mosque of Mecca, known as the Masjid al-Haram, is home to the Kaaba, believed by Muslims to have been built by Abraham and Ishmael.",
+  "img": {
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3f/Great_Mosque_of_Mecca1.jpg/960px-Great_Mosque_of_Mecca1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Great_Mosque_of_Mecca1.jpg",
+   "w": 960,
+   "h": 646,
+   "artist": "Saudipics.com",
+   "license": "CC BY-SA 4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+   "host": "commons.wikimedia.org"
+  },
+  "searched": "Hira Cultural District Mecca"
  },
  "exhibition": {
-  "title": "Exhibition of the Two Holy Mosques Architecture",
-  "missing": true,
-  "url": "https://en.wikipedia.org/wiki/Exhibition_of_the_Two_Holy_Mosques_Architecture",
-  "desc": null,
-  "coords": null,
-  "image": null,
-  "extract": null
+  "title": "The Two Holy Mosques Architecture Exhibition",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/The_Two_Holy_Mosques_Architecture_Exhibition",
+  "desc": "Museum in Makkah, Saudi Arabia",
+  "coords": [
+   {
+    "lat": 21.434587,
+    "lon": 39.754652,
+    "primary": "",
+    "globe": "earth"
+   }
+  ],
+  "image": "The_Two_Holy_Mosques_Architecture_Exhibition.jpg",
+  "extract": "The Two Holy Mosques Architecture Exhibition (Arabic: متحف الحرمين الشريفين) is located in Um al-Joud area, near the Kiswa Factory. Since its establishment it has become one of the most popular destinations in Makkah, Saudi Arabia. It was established in February 2000 during the late King Fahd bin Abdulaziz era.",
+  "img": {
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f7/The_Two_Holy_Mosques_Architecture_Exhibition.jpg/960px-The_Two_Holy_Mosques_Architecture_Exhibition.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:The_Two_Holy_Mosques_Architecture_Exhibition.jpg",
+   "w": 960,
+   "h": 640,
+   "artist": "Yasser.Bakhsh",
+   "license": "CC BY-SA 4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+   "host": "commons.wikimedia.org"
+  },
+  "searched": "Exhibition of the Two Holy Mosques Architecture Mecca museum"
  },
  "quba": {
   "title": "Quba Mosque",
@@ -302,7 +446,7 @@
    "artist": "<b><a href=\"https://en.wikipedia.org/wiki/User:Muhammad_Mahdi_Karim\" class=\"extiw\" title=\"w:User:Muhammad Mahdi Karim\">Muhammad Mahdi Karim</a></b>",
    "license": "GFDL 1.2",
    "licenseUrl": "http://www.gnu.org/licenses/old-licenses/fdl-1.2.html",
-   "credit": "<span class=\"int-own-work\" lang=\"en\">Own work</span>"
+   "host": "commons.wikimedia.org"
   }
  },
  "qiblatayn": {
@@ -328,7 +472,7 @@
    "artist": "<a href=\"//commons.wikimedia.org/wiki/User:Aiman_titi\" title=\"User:Aiman titi\">Aiman titi</a>",
    "license": "CC BY-SA 3.0",
    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
-   "credit": "<span class=\"int-own-work\" lang=\"en\">Own work</span>"
+   "host": "commons.wikimedia.org"
   }
  },
  "uhud": {
@@ -347,8 +491,9 @@
    "artist": "<a href=\"//commons.wikimedia.org/wiki/User:Bintladen\" class=\"mw-redirect\" title=\"User:Bintladen\">Bintladen</a>",
    "license": "CC BY-SA 4.0",
    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-   "credit": "<span class=\"int-own-work\" lang=\"en\">Own work</span>"
-  }
+   "host": "commons.wikimedia.org"
+  },
+  "searched": "Mount Uhud"
  },
  "shuhada": {
   "title": "Sayyid al-Shuhada Mosque",
@@ -382,26 +527,62 @@
    "artist": "Saleh Al Hussain",
    "license": "CC BY 4.0",
    "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
-   "credit": "<span class=\"int-own-work\" lang=\"en\">Own work</span>"
+   "host": "commons.wikimedia.org"
   }
  },
  "sevenmosques": {
-  "title": "Seven Mosques",
-  "missing": true,
-  "url": "https://en.wikipedia.org/wiki/Seven_Mosques",
-  "desc": null,
-  "coords": null,
-  "image": null,
-  "extract": null
+  "title": "The Seven Mosques",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/The_Seven_Mosques",
+  "desc": "Group of six historic mosques in Medina, Saudi Arabia",
+  "coords": [
+   {
+    "lat": 24.47683333,
+    "lon": 39.59597222,
+    "primary": "",
+    "globe": "earth"
+   }
+  ],
+  "image": "Sab'u_Masajid.jpg",
+  "extract": "The Seven Mosques (Arabic: المساجد السبعة, romanized: al-Masājid al-Sabʿa) is a complex of six small historic and often visited mosques in the city of Medina, Saudi Arabia. Despite only consisting of six mosques, the complex is called seven because some think it originally consisted of seven mosques. Another reason for the name is that many visitors usually visit Masjid Al-Qiblatayn among these mosques on their visit to Medina, making it seven. Some also consider Masjid al-Khandaq to be among one of those seven mosques.",
+  "img": {
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ec/Sab%27u_Masajid.jpg/960px-Sab%27u_Masajid.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Sab%27u_Masajid.jpg",
+   "w": 960,
+   "h": 720,
+   "artist": "<a href=\"//commons.wikimedia.org/wiki/User:Imam_Khairul_Annas\" title=\"User:Imam Khairul Annas\">Imam Khairul Annas</a>",
+   "license": "CC BY-SA 3.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+   "host": "commons.wikimedia.org"
+  },
+  "searched": "Seven Mosques Medina"
  },
  "ghamama": {
-  "title": "Al-Ghamama Mosque",
-  "missing": true,
-  "url": "https://en.wikipedia.org/wiki/Al-Ghamama_Mosque",
-  "desc": null,
-  "coords": null,
-  "image": null,
-  "extract": null
+  "title": "Mosque of Al-Ghamama",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Mosque_of_Al-Ghamama",
+  "desc": "Historic mosque in Medina, Saudi Arabia",
+  "coords": [
+   {
+    "lat": 24.46577778,
+    "lon": 39.60697222,
+    "primary": "",
+    "globe": "earth"
+   }
+  ],
+  "image": "Mosque_of_Al-Ghamama_2026-05-13.jpg",
+  "extract": "Mosque of Al-Ghamamah (Arabic: مسجد الغمامة) is a mosque, located in Medina, Saudi Arabia. The mosque is located at 500 m (1,600 ft) west of As-Salam door of Al-Masjid an-Nabawi.",
+  "img": {
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/eb/Mosque_of_Al-Ghamama_2026-05-13.jpg/960px-Mosque_of_Al-Ghamama_2026-05-13.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Mosque_of_Al-Ghamama_2026-05-13.jpg",
+   "w": 960,
+   "h": 720,
+   "artist": "<a href=\"//commons.wikimedia.org/wiki/User:FaysaLBinDaruL\" title=\"User:FaysaLBinDaruL\">FaysaLBinDaruL</a>",
+   "license": "CC BY 4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+   "host": "commons.wikimedia.org"
+  },
+  "searched": "Al-Ghamamah Mosque Medina"
  },
  "ijabah": {
   "title": "Al-Ijabah Mosque",
@@ -426,35 +607,58 @@
    "artist": "<a href=\"//commons.wikimedia.org/wiki/User:Imam_Khairul_Annas\" title=\"User:Imam Khairul Annas\">Imam Khairul Annas</a>",
    "license": "CC BY-SA 3.0",
    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
-   "credit": "<span class=\"int-own-work\" lang=\"en\">Own work</span>"
+   "host": "commons.wikimedia.org"
   }
  },
  "jumuah": {
-  "title": "Jumu'ah Mosque",
-  "missing": true,
-  "url": "https://en.wikipedia.org/wiki/Jumu%27ah_Mosque",
-  "desc": null,
+  "title": "Friday prayer",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Friday_prayer",
+  "desc": "Weekly Islamic obligatory ritual",
   "coords": null,
-  "image": null,
-  "extract": null
+  "image": "Dan_Hadani_collection_(990040387040205171).jpg",
+  "extract": "Friday prayer, or congregational prayer (Arabic: صلاة الجمعة, romanized: ṣalāt al-jumuʿa), is the meeting together of Muslims for communal prayer and a service at midday every Friday. In Islam, the day itself is called Yawm al-Jum'ah (shortened to Jum'ah), which translated from Arabic means \"Day of Meeting\", \"Day of Assembly\" or \"Day of Congregation\".\nOn this day, all Muslim men are expected to meet and participate at the designated place of meeting and prostration (mosque), with certain exceptions due to distance and situation. Women and children can also participate, but do not fall under the same obligation that men do.\nIn many Muslim countries, the weekend includes Fridays, and in others, Fridays are half-days for schools and some workplaces. It is one of the most exalted Islamic rituals and one of its confirmed obligatory acts.",
+  "img": {
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e4/Dan_Hadani_collection_%28990040387040205171%29.jpg/960px-Dan_Hadani_collection_%28990040387040205171%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Dan_Hadani_collection_(990040387040205171).jpg",
+   "w": 960,
+   "h": 629,
+   "artist": "<bdi><a href=\"https://www.wikidata.org/wiki/Q105886143\" class=\"extiw\" title=\"d:Q105886143\"><span title=\"Israeli photojournalist\">Gideon Markowiz</span></a></bdi>",
+   "license": "CC BY 4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+   "host": "commons.wikimedia.org"
+  },
+  "searched": "Masjid al-Jumu'ah Medina"
  },
  "ruma": {
-  "title": "Well of Rumah",
-  "missing": true,
-  "url": "https://en.wikipedia.org/wiki/Well_of_Rumah",
-  "desc": null,
+  "title": "Bir Rumah",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Bir_Rumah",
+  "desc": "Historic site in *Medina",
   "coords": null,
   "image": null,
-  "extract": null
+  "extract": "Bir Rumah, also known as Bir Uthman, (Arabic: بئر رومة), also called Kalib Mazni, is a well located in the Al-Aqiq area northwest of the Prophet's Mosque in Medina, Saudi Arabia. Traditionally believed to have been purchased (or according to some traditions dug) by Uthman ibn Affan, who later served as the third Caliph of Islam.",
+  "searched": "Well of Rumah Uthman Medina"
  },
  "darmadinah": {
-  "title": "Dar Al Madinah Museum",
-  "missing": true,
-  "url": "https://en.wikipedia.org/wiki/Dar_Al_Madinah_Museum",
-  "desc": null,
+  "title": "Al-Madinah Museum",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Al-Madinah_Museum",
+  "desc": "History museum in Medina, Saudi Arabia",
   "coords": null,
-  "image": null,
-  "extract": null
+  "image": "Madinah_Museum.JPG",
+  "extract": "Al-Madinah Museum (Arabic: متحف المدينة المنورة) is a museum in Al-Madinah, Saudi Arabia, that exhibits Al-Madinah heritage and history featuring different archaeological collections, visual galleries and rare images that related to Al-Medina. The museum exhibits around 2,000 rare artifacts that capture the heritage and culture of Al-Madinah and document the landscape, the people and how it has been shaped over the years. One of the parts of the tour is the evolution of Masjid Nabawi from a house, courtyard, and home to the massive complex that it is now.",
+  "img": {
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3c/Madinah_Museum.JPG/960px-Madinah_Museum.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Madinah_Museum.JPG",
+   "w": 960,
+   "h": 720,
+   "artist": "<a href=\"//commons.wikimedia.org/wiki/User:Imam_Khairul_Annas\" title=\"User:Imam Khairul Annas\">Imam Khairul Annas</a>",
+   "license": "CC BY-SA 4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+   "host": "commons.wikimedia.org"
+  },
+  "searched": "Dar Al Madinah museum"
  },
  "khandaq": {
   "title": "Battle of the Trench",
@@ -479,7 +683,7 @@
    "artist": "<a href=\"//commons.wikimedia.org/wiki/User:DrZubairRashid\" title=\"User:DrZubairRashid\">DrZubairRashid</a>",
    "license": "CC BY-SA 4.0",
    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-   "credit": "<span class=\"int-own-work\" lang=\"en\">Own work</span>"
+   "host": "commons.wikimedia.org"
   }
  },
  "taif": {
@@ -505,17 +709,35 @@
    "artist": "<a href=\"//commons.wikimedia.org/wiki/User:%D8%B9%D8%A8%D8%A7%D8%AF_%D8%AF%D9%8A%D8%B1%D8%A7%D9%86%D9%8A%D8%A9\" title=\"User:عباد ديرانية\">عباد ديرانية</a>",
    "license": "CC BY-SA 3.0",
    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
-   "credit": "<span class=\"int-own-work\" lang=\"en\">Own work</span>"
+   "host": "commons.wikimedia.org"
   }
  },
  "ibnabbas": {
-  "title": "Abdullah ibn Abbas Mosque",
-  "missing": true,
-  "url": "https://en.wikipedia.org/wiki/Abdullah_ibn_Abbas_Mosque",
-  "desc": null,
-  "coords": null,
-  "image": null,
-  "extract": null
+  "title": "Abd Allah ibn al-Abbas Mosque",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Abd_Allah_ibn_al-Abbas_Mosque",
+  "desc": "Historical mosque in Taif, Saudi Arabia",
+  "coords": [
+   {
+    "lat": 21.21666667,
+    "lon": 40.5,
+    "primary": "",
+    "globe": "earth"
+   }
+  ],
+  "image": "مسجد_عبدالله_بن_عباس.jpg",
+  "extract": "The Abd Allah ibn al-Abbas Mosque (Arabic: مَسْجِد عَبْد ٱللَّٰه ٱبْن ٱلْعَبَّاس, romanized: Masjid ʿAbd Allāh ibn al-ʿAbbās) is a historical mosque located in the city of Taif within the Mecca Province of western Saudi Arabia. The mosque is named after Ibn Abbas, who is buried within the grounds of the mosque.",
+  "img": {
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fc/%D9%85%D8%B3%D8%AC%D8%AF_%D8%B9%D8%A8%D8%AF%D8%A7%D9%84%D9%84%D9%87_%D8%A8%D9%86_%D8%B9%D8%A8%D8%A7%D8%B3.jpg/960px-%D9%85%D8%B3%D8%AC%D8%AF_%D8%B9%D8%A8%D8%AF%D8%A7%D9%84%D9%84%D9%87_%D8%A8%D9%86_%D8%B9%D8%A8%D8%A7%D8%B3.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:%D9%85%D8%B3%D8%AC%D8%AF_%D8%B9%D8%A8%D8%AF%D8%A7%D9%84%D9%84%D9%87_%D8%A8%D9%86_%D8%B9%D8%A8%D8%A7%D8%B3.jpg",
+   "w": 960,
+   "h": 641,
+   "artist": "Muhammad Sobri",
+   "license": "CC BY-SA 4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+   "host": "commons.wikimedia.org"
+  },
+  "searched": "Abdullah ibn Abbas Mosque Taif"
  },
  "badr": {
   "title": "Badr, Saudi Arabia",
@@ -540,7 +762,7 @@
    "artist": "<a href=\"//commons.wikimedia.org/wiki/User:Myrat\" title=\"User:Myrat\">Myrat</a>",
    "license": "CC BY 4.0",
    "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
-   "credit": "<span class=\"int-own-work\" lang=\"en\">Own work</span>"
+   "host": "commons.wikimedia.org"
   }
  },
  "battlebadr": {
@@ -566,7 +788,7 @@
    "artist": "Lütfi Abdullah",
    "license": "Public domain",
    "licenseUrl": null,
-   "credit": "<a rel=\"nofollow\" class=\"external free\" href=\"http://www.eslam.de/arab/bildergalerien/s/siyer_i_nebi_bildergalerie.htm\">http://www.eslam.de/arab/bildergalerien/s/siyer_i_nebi_bildergalerie.htm</a>"
+   "host": "commons.wikimedia.org"
   }
  },
  "khaybar": {
@@ -592,7 +814,7 @@
    "artist": "<a href=\"//commons.wikimedia.org/wiki/User:Hardscarf\" title=\"User:Hardscarf\">Hardscarf</a>",
    "license": "CC BY-SA 4.0",
    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-   "credit": "<span class=\"int-own-work\" lang=\"en\">Own work</span>"
+   "host": "commons.wikimedia.org"
   }
  },
  "hudaybiyyah": {
@@ -627,7 +849,7 @@
    "artist": "Francisco Anzola",
    "license": "CC BY 2.0",
    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
-   "credit": "<a rel=\"nofollow\" class=\"external free\" href=\"https://www.flickr.com/photos/fran001/51860338721/\">https://www.flickr.com/photos/fran001/51860338721/</a>"
+   "host": "commons.wikimedia.org"
   }
  },
  "addas": {
@@ -653,16 +875,34 @@
    "artist": "<a href=\"//commons.wikimedia.org/wiki/User:%D8%B9%D8%A8%D8%A7%D8%AF_%D8%AF%D9%8A%D8%B1%D8%A7%D9%86%D9%8A%D8%A9\" title=\"User:عباد ديرانية\">عباد ديرانية</a>",
    "license": "CC BY-SA 3.0",
    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
-   "credit": "<span class=\"int-own-work\" lang=\"en\">Own work</span>"
+   "host": "commons.wikimedia.org"
   }
  },
  "miqat": {
-  "title": "Dhu al-Hulayfah",
-  "missing": true,
-  "url": "https://en.wikipedia.org/wiki/Dhu_al-Hulayfah",
-  "desc": null,
-  "coords": null,
-  "image": null,
-  "extract": null
+  "title": "Miqat Dhu al-Hulayfah",
+  "missing": false,
+  "url": "https://en.wikipedia.org/wiki/Miqat_Dhu_al-Hulayfah",
+  "desc": "One of several Miqats for Muslims on pilgrimage to Mecca for umrah or hajj",
+  "coords": [
+   {
+    "lat": 24.4137172,
+    "lon": 39.5424318,
+    "primary": "",
+    "globe": "earth"
+   }
+  ],
+  "image": "Abiar_Ali.jpg",
+  "extract": "The Mīqāt Dhu al-Ḥulayfah (Arabic: مِيْقَات ذُو ٱلْحُلَيْفَة, lit. 'Mosque of the Tree'), also known as Masjid Dhu al-Hulayfah (Arabic: مَسْجِد ذُو ٱلْحُلَيْفَة), is a miqat and mosque in Abyār ʿAlī, Medina, Saudi Arabia. The miqat mosque is located west of Wadi al-'Aqiq, where the final Islamic prophet, Muhammad, entered the state of ihram before performing 'Umrah, after the Treaty of Hudaybiyyah. The mosque is located 7 km (4.3 miles) SW of the Al-Masjid an-Nabawi and was defined by Muhammad as the miqat for those willing to perform the Hajj or Umrah pilgrimages from Medina.It is the second-largest miqat mosque after the Miqat Qarn al-Manazil in As-Sayl al-Kabir.",
+  "img": {
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/06/Abiar_Ali.jpg/960px-Abiar_Ali.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Abiar_Ali.jpg",
+   "w": 960,
+   "h": 720,
+   "artist": "<a href=\"//commons.wikimedia.org/wiki/User:Aiman_titi\" title=\"User:Aiman titi\">Aiman titi</a>",
+   "license": "CC BY-SA 3.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+   "host": "commons.wikimedia.org"
+  },
+  "searched": "Dhu al-Hulayfah mosque Medina miqat"
  }
 }
