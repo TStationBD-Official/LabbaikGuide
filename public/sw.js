@@ -14,7 +14,7 @@
  * its build id changes). Reader pages for all 114 surahs + 30 juz are cached
  * when the user downloads the Quran for offline use ("precache-pages").
  */
-const VERSION = "v9";
+const VERSION = "v10";
 const STATIC = `hc-static-${VERSION}`;
 const PAGES = `hc-pages-${VERSION}`;
 const API = `hc-api-${VERSION}`;
@@ -33,7 +33,7 @@ const TILE_HOSTS = ["tiles.openfreemap.org", "tile.openstreetmap.org"];
 
 const CORE_PAGES = [
   "/", "/quran", "/quran/surah/1", "/zikr", "/manasik", "/umrah", "/hajj", "/tawaf", "/sai",
-  "/duas", "/prayer", "/qibla", "/hotel", "/search", "/settings", "/sources", "/privacy", "/about", "/haram-map", "/travel-guide", "/janazah", "/walks",
+  "/duas", "/prayer", "/qibla", "/hotel", "/search", "/settings", "/sources", "/privacy", "/about", "/haram-map", "/travel-guide", "/janazah", "/walks", "/ziyarah",
 ];
 const CORE_ASSETS = [
   "/vendor/maplibre-gl-csp-worker.js",

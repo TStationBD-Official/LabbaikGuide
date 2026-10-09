@@ -609,3 +609,20 @@ html[lang="ur"] :where(p, span, label, a, button, li, legend, h1, h2, h3, h4, dt
 /* Janazah tutorial: the imam's words pop in above him; figures breathe gently while standing. */
 @keyframes hc-say { from { opacity: 0; transform: translateY(4px) scale(.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
 .hc-say { transform-box: fill-box; transform-origin: 50% 100%; animation-name: hc-say; animation-duration: 320ms; animation-timing-function: ease-out; }
+
+/* Ziyarah (historical places): animated hero, rising cards, shimmer and slow photo zoom */
+.hc-z-hero { background: linear-gradient(120deg, #0f5132, #1d7a4f 45%, #b8891f); background-size: 220% 220%; animation-name: hc-z-pan; animation-duration: 14s; animation-iteration-count: infinite; animation-timing-function: ease-in-out; animation-direction: alternate; }
+@keyframes hc-z-pan { from { background-position: 0% 50%; } to { background-position: 100% 50%; } }
+.hc-z-float { animation-name: hc-z-float; animation-duration: 5s; animation-iteration-count: infinite; animation-timing-function: ease-in-out; }
+@keyframes hc-z-float { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-8px) rotate(3deg); } }
+.hc-z-orb { animation-name: hc-z-orb; animation-duration: 9s; animation-iteration-count: infinite; animation-timing-function: ease-in-out; }
+@keyframes hc-z-orb { 0%, 100% { transform: scale(1); opacity: .5; } 50% { transform: scale(1.25); opacity: .9; } }
+.hc-rise { animation-name: hc-rise; animation-duration: 520ms; animation-timing-function: cubic-bezier(.2,.7,.2,1); animation-fill-mode: both; }
+@keyframes hc-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+.hc-shimmer { background: linear-gradient(100deg, transparent 20%, rgb(255 255 255 / .35) 50%, transparent 80%), var(--muted); background-size: 200% 100%; animation-name: hc-shimmer; animation-duration: 1.3s; animation-iteration-count: infinite; animation-timing-function: linear; }
+@keyframes hc-shimmer { from { background-position: 150% 0; } to { background-position: -50% 0; } }
+.hc-kenburns { animation-name: hc-kenburns; animation-duration: 18s; animation-timing-function: ease-out; animation-fill-mode: both; transform-origin: 60% 40%; }
+@keyframes hc-kenburns { from { transform: scale(1.12); } to { transform: scale(1); } }
+.hc-z-art { background: radial-gradient(circle at 30% 20%, #f4e2b8, transparent 60%), linear-gradient(135deg, #e9dcc0, #c9a46a); }
+@media (prefers-reduced-motion: reduce) { .hc-z-hero, .hc-z-float, .hc-z-orb, .hc-rise, .hc-shimmer, .hc-kenburns { animation: none !important; } }
+[data-reduced-motion="true"] :is(.hc-z-hero, .hc-z-float, .hc-z-orb, .hc-rise, .hc-shimmer, .hc-kenburns) { animation: none !important; }

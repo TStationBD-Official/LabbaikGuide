@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { AlertTriangle, ChevronDown, ExternalLink, Search, ShieldCheck } from "lucide-react";
+import Link from "next/link";
+import { AlertTriangle, ChevronDown, ChevronRight, ExternalLink, Landmark, Search, ShieldCheck } from "lucide-react";
 import { useI18n } from "@/components/providers/i18n-provider";
 import { Card } from "@/components/ui/card";
 import { AUDIENCES, gt, TRAVEL_GUIDE, TRAVEL_GUIDE_CHECKED, type Audience, type GText, type GuideApp, type GuideItem, type GuideTable } from "@/data/guides/travel";
@@ -239,6 +240,20 @@ export function TravelGuidePage() {
           {t("travelGuide.checked", { date: checked })} {t("travelGuide.changeNote")}
         </span>
       </p>
+
+      <Link
+        href="/ziyarah"
+        className="group flex items-center gap-3 rounded-2xl border border-gold/40 bg-gradient-to-br from-gold-soft to-card p-4 shadow-soft transition-colors hover:border-gold"
+      >
+        <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-gold text-white" aria-hidden>
+          <Landmark className="size-6" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block font-semibold leading-snug">{t("ziyarah.guideCardTitle")}</span>
+          <span className="block text-sm text-muted-foreground">{t("ziyarah.guideCardSub")}</span>
+        </span>
+        <ChevronRight className="size-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 rtl:rotate-180" aria-hidden />
+      </Link>
 
       <div role="radiogroup" aria-label={t("travelGuide.from")} className="space-y-2">
         <p className="text-sm font-medium">{t("travelGuide.from")}</p>

@@ -32,7 +32,8 @@
       "haramMap": "Map",
       "travelGuide": "Guide",
       "janazah": "Janazah",
-      "walks": "Walks"
+      "walks": "Walks",
+      "ziyarah": "Ziyarah"
     },
     "collapse": "Collapse menu",
     "expand": "Expand menu",
@@ -41,7 +42,8 @@
     "haramMap": "Haram Map",
     "travelGuide": "Travel Guide",
     "janazah": "Janazah Prayer",
-    "walks": "My Walks"
+    "walks": "My Walks",
+    "ziyarah": "Historical Places"
   },
   "location": {
     "makkah": "Makkah",
@@ -1132,5 +1134,43 @@
     "followPath": "Show my position on the path",
     "followNote": "Distance, time and steps are measured along your saved path. Inside buildings GPS can be weak.",
     "privacy": "Walks and your location stay on this phone only."
+  },
+  "ziyarah": {
+    "title": "Historical Places (Ziyarah)",
+    "subtitle": "Islamic historical sites of Makkah, Madinah and beyond — history, sources, distance, transport and costs",
+    "heroKicker": "Ziyarah",
+    "heroTitle": "Walk where the Seerah happened",
+    "heroSub": "Sourced history, how to get there, time and estimated cost",
+    "beyond": "Beyond",
+    "fromYou": "from you",
+    "fromHaram": "from Masjid al-Haram",
+    "fromNabawi": "from Masjid an-Nabawi",
+    "distancesFrom": "Distances {from}",
+    "useMyLocation": "Use my location",
+    "sar": "SAR {a}–{b}",
+    "etiquette": "Before you go",
+    "allPlaces": "All places",
+    "gettingThere": "Getting there",
+    "distance": "Distance",
+    "byCar": "By car",
+    "taxi": "Taxi",
+    "walkLine": "Walkable: about {min} min on foot.",
+    "busMakkah": "Makkah Bus: SAR {fare} per ride (pay on the bus or in the app); check the route in the app.",
+    "busMadinah": "Madinah Bus: SAR {fare} per ride (pay on the bus or in the app); check the route in the app.",
+    "taxiLine": "Taxi / ride app: ≈ {km} by road, estimated SAR {a}–{b} on the official meter tariff.",
+    "source": "Source",
+    "directions": "Directions in Google Maps",
+    "estimateNote": "Times and fares are estimates from the straight-line distance, typical road detours and the official taxi tariff; traffic, surge pricing and fixed intercity prices can differ. Agree the price first for long trips.",
+    "about": "History & significance",
+    "visit": "Visiting tips",
+    "more": "Read more",
+    "costNote": "Fares checked {date}: Makkah Bus SAR 4 (Gulf News, 2024), Madinah Bus SAR 3.45 (KSA Expats, 2025), taxi meter SAR 6.4 + 2.1/km, minimum SAR 10 (Saudi Gazette, 2022). Photos: Wikimedia Commons, credited on each place.",
+    "homeTitle": "Historical places",
+    "homeSubMakkah": "Hira, Thawr, Mina, Arafat and more",
+    "homeSubMadinah": "Quba, Uhud, Qiblatayn, al-Baqi' and more",
+    "open": "Explore",
+    "count": "{n} places",
+    "guideCardTitle": "Historical places (Ziyarah)",
+    "guideCardSub": "Makkah, Madinah, Taif, Badr and more — with sources, distance and costs"
   }
 }

@@ -48,6 +48,7 @@ export const PRIMARY_NAV: NavItem[] = [
 export const SECONDARY_NAV: NavItem[] = [
   { href: "/travel-guide", labelKey: "nav.travelGuide", shortKey: "nav.short.travelGuide", icon: Signpost, match: starts("/travel-guide") },
   { href: "/haram-map", labelKey: "nav.haramMap", shortKey: "nav.short.haramMap", icon: Map, match: starts("/haram-map") },
+  { href: "/ziyarah", labelKey: "nav.ziyarah", shortKey: "nav.short.ziyarah", icon: Landmark, match: starts("/ziyarah") },
   { href: "/walks", labelKey: "nav.walks", shortKey: "nav.short.walks", icon: Footprints, match: starts("/walks") },
   { href: "/janazah", labelKey: "nav.janazah", shortKey: "nav.short.janazah", icon: HeartHandshake, match: starts("/janazah") },
   { href: "/hotel", labelKey: "nav.hotel", shortKey: "nav.short.hotel", icon: Hotel, match: starts("/hotel") },
