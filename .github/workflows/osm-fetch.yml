@@ -1,0 +1,33 @@
+name: osm-fetch
+on:
+  push:
+    branches: [tools/osm-fetch]
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Query Overpass for Masjid al-Haram gates
+        run: |
+          cat > q.txt <<'Q'
+          [out:json][timeout:90];
+          way(around:150,21.4225,39.8262)["amenity"="place_of_worship"]->.m;
+          rel(around:150,21.4225,39.8262)["amenity"="place_of_worship"]->.r;
+          (.m; .r; way(r.r););
+          out tags geom;
+          (
+            node(around:700,21.4225,39.8262)["entrance"];
+            node(around:700,21.4225,39.8262)["door"];
+            node(around:700,21.4225,39.8262)["barrier"="gate"];
+            nwr(around:700,21.4225,39.8262)["name"~"باب|بوابة|Gate|Bab|Door",i];
+            nwr(around:700,21.4225,39.8262)["ref"]["building"!~"."];
+          );
+          out center tags;
+          Q
+          for u in https://overpass-api.de/api/interpreter https://overpass.kumi.systems/api/interpreter https://overpass.private.coffee/api/interpreter; do
+            curl -sS -m 120 --data-urlencode data@q.txt "$u" -o haram.json && python3 -c "import json;d=json.load(open('haram.json'));print(len(d['elements']))" && break
+          done
+          ls -la haram.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: haram-osm
+          path: haram.json
