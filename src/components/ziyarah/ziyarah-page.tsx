@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useUrlSubView } from "@/hooks/use-url-subview";
 import { ArrowLeft, BookOpen, Bus, Car, Crosshair, ExternalLink, Footprints, Info, MapPin, Navigation } from "lucide-react";
 import { useI18n } from "@/components/providers/i18n-provider";
 import { usePrefs } from "@/components/providers/preferences-provider";
@@ -95,7 +96,8 @@ export function ZiyarahPage() {
   const fmt = useFmt();
   const pref = usePrefs((s) => s.location);
   const [region, setRegion] = useState<ZRegion>(REGION_OF[pref]);
-  const [openId, setOpenId] = useState<string | null>(null);
+  const listUrl = useCallback(() => `/ziyarah?region=${region}`, [region]);
+  const [openId, open] = useUrlSubView(PLACE_PARAM, listUrl, (id) => PLACES.some((p) => p.id === id));
   const live = useLiveLocation();
   const fix = live.fix;
 
@@ -104,18 +106,15 @@ export function ZiyarahPage() {
     const id = q.get(PLACE_PARAM);
     const r = q.get("region") as ZRegion | null;
     // eslint-disable-next-line react-hooks/set-state-in-effect -- read the address once on mount
-    if (id && PLACES.some((p) => p.id === id)) setOpenId(id);
     if (r && ["makkah", "madinah", "other"].includes(r)) setRegion(r);
+    else if (id) {
+      const p = PLACES.find((x) => x.id === id);
+      if (p) setRegion(p.region);
+    }
     // Distances from the user when location is already allowed (never prompts on its own).
     void geolocationGranted().then((ok) => ok && live.start());
     // eslint-disable-next-line react-hooks/exhaustive-deps -- once
   }, []);
-
-  const open = (id: string | null) => {
-    setOpenId(id);
-    window.history.replaceState(null, "", id ? `/ziyarah?${PLACE_PARAM}=${id}` : `/ziyarah?region=${region}`);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
 
   const opened = PLACES.find((p) => p.id === openId) ?? null;
 

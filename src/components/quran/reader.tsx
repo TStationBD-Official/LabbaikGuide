@@ -229,11 +229,6 @@ export function QuranReader({ mode, id, initialAyah }: { mode: ReadingMode; id: 
   return (
     <div data-quran-size={q.size} data-quran-spacing={q.spacing}>
       <header className="mb-4">
-        <nav className="mb-2 text-sm text-muted-foreground">
-          <Link href="/quran" className="hover:text-foreground">
-            {t("quran.title")}
-          </Link>
-        </nav>
         <div className="flex items-start justify-between gap-3">
           <div>
             <h1 className="text-2xl font-bold sm:text-3xl">{title}</h1>

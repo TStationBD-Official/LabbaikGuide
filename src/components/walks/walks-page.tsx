@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useUrlSubView } from "@/hooks/use-url-subview";
 import { ArrowLeft, Check, ChevronRight, Circle, Footprints, Navigation, Pause, Pencil, Save, Trash2, X } from "lucide-react";
 import { useI18n } from "@/components/providers/i18n-provider";
 import { usePrefs } from "@/components/providers/preferences-provider";
@@ -74,21 +75,12 @@ export function WalksPage() {
   const mapRef = useRef<MapViewHandle>(null);
   const [follow, setFollow] = useState(true);
   const [now, setNow] = useState(() => Date.now());
-  const [openId, setOpenId] = useState<string | null>(null);
+  const listUrl = useCallback(() => "/walks", []);
+  const [openId, open] = useUrlSubView(ID_PARAM, listUrl);
   const [naming, setNaming] = useState<string | null>(null);
   const opened = walks.find((w) => w.id === openId) ?? null;
 
-  // Open a walk from the address (/walks?id=…), and keep the address in sync so refresh/back work.
-  useEffect(() => {
-    const id = new URLSearchParams(window.location.search).get(ID_PARAM);
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- read the address once on mount
-    if (id) setOpenId(id);
-  }, []);
-  const open = (id: string | null) => {
-    setOpenId(id);
-    window.history.replaceState(null, "", id ? `/walks?${ID_PARAM}=${id}` : "/walks");
-    window.scrollTo({ top: 0 });
-  };
+  // Open a walk from the address (/walks?id=…); the phone's Back button returns to the list.
 
   // A walk recorded on the Haram Map before this page existed moves here once.
   const migrated = useRef(false);

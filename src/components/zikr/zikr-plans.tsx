@@ -84,12 +84,31 @@ export function ZikrPlans({ initialPlan }: { initialPlan: string | null }) {
   const [open, setOpen] = useState<string | null>(initialPlan);
   const [editing, setEditing] = useState<ZikrPlan | "new" | null>(null);
 
+  // Opening a plan adds a history entry, so the phone's Back button returns to the list.
+  const pushed = useRef(false);
+  useEffect(() => {
+    const onPop = () => {
+      const id = new URL(window.location.href).searchParams.get("plan");
+      if (!id) pushed.current = false;
+      setOpen(id);
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
   const openPlan = useCallback((id: string | null) => {
-    setOpen(id);
     const url = new URL(window.location.href);
     if (id) url.searchParams.set("plan", id);
     else url.searchParams.delete("plan");
-    window.history.replaceState(window.history.state, "", url.pathname + url.search);
+    if (!id && pushed.current) {
+      pushed.current = false;
+      window.history.back();
+      return;
+    }
+    setOpen(id);
+    if (id && !pushed.current) {
+      pushed.current = true;
+      window.history.pushState(window.history.state, "", url.pathname + url.search);
+    } else window.history.replaceState(window.history.state, "", url.pathname + url.search);
     // In the side-by-side layout the list stays put; elsewhere bring the runner into view.
     if (!window.matchMedia("(min-width: 80rem)").matches) window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
