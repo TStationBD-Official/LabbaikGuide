@@ -10,13 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
-          set +e
-          B=https://labbaikguide.vercel.app
-          : > zdata/live.txt
-          for q in "from=21.4225,39.8262&to=21.2704,40.4085&mode=drive" "from=21.4225,39.8262&to=21.43339,39.82892" "from=24.4672,39.6111&to=24.43936,39.61726&mode=drive" "from=24.4672,39.6111&to=23.771984,38.788554&mode=drive"; do
-            echo "== $q" >> zdata/live.txt
-            curl -s "$B/api/route/walk?$q" | python3 -c "import json,sys;d=json.load(sys.stdin);print({k:(v if k!='coordinates' else len(v)) for k,v in d.items() if k!='alternatives'}, 'alts', len(d.get('alternatives') or []))" >> zdata/live.txt 2>&1
-            sleep 6
-          done
+          set +e; git pull -q origin tools/ziyarah-data
+          python3 tools/yt.py 2> zdata/yterr.txt
           git config user.name ci && git config user.email ci@users.noreply.github.com
-          git add zdata && git commit -m "live check [skip ci]" && git push
+          git add zdata && git commit -m "yt probe [skip ci]" && git push
