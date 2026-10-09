@@ -661,7 +661,13 @@
     "straightIs": "straight line {d}",
     "routeSource": "Route:",
     "fixMap": "Map wrong? Report it",
-    "mapSlow": "The map is taking longer than usual to load — it will appear when it's ready."
+    "mapSlow": "The map is taking longer than usual to load — it will appear when it's ready.",
+    "hereNow": "I'm here now",
+    "onMap": "Choose on map",
+    "whereHint": "Search the hotel's name or paste its Google Maps link above. Standing at the entrance? Tap “I'm here now”.",
+    "locationSet": "Location set — drag the pin on the map if it needs moving",
+    "placeYourself": "Move the pin onto “{name}” (Google doesn't share its exact spot), then save.",
+    "shareTip": "Easiest: in Google Maps open your hotel → Share → Labbaik Guide (with the app installed), or copy the link and paste it in the search box."
   },
   "zikrPlan": {
     "tabPlans": "After prayers",
@@ -1076,7 +1082,8 @@
     "linkError": "This link couldn't be read. Open it in Google Maps, tap the pin and copy the coordinates instead.",
     "linkFound": "From your Google Maps link: “{name}” — pick the right one.",
     "linkNotFound": "Google doesn't include the location of “{name}” in this link, and it isn't on our map yet. In Google Maps, long-press the hotel entrance to drop a pin and share that pin instead — or paste its numbers (like 21.41…, 39.82…).",
-    "linkSearchName": "Search by name"
+    "linkSearchName": "Search by name",
+    "approx": "Tap to place it yourself — the map opens near {area}"
   },
   "mapStyle": {
     "title": "Map style",

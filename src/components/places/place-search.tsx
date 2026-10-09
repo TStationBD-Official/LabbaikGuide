@@ -20,7 +20,14 @@ const HitSchema = z.object({
   kind: z.enum(["hotel", "mosque", "street", "food", "shop", "transport", "health", "place"]),
 });
 const ResSchema = z.object({ results: z.array(HitSchema) });
-const LinkSchema = z.object({ coords: z.object({ lat: z.number(), lon: z.number() }).nullable(), name: z.string().nullable(), results: z.array(HitSchema) });
+const LinkSchema = z.object({
+  coords: z.object({ lat: z.number(), lon: z.number() }).nullable(),
+  name: z.string().nullable(),
+  results: z.array(HitSchema),
+  area: z.object({ name: z.string(), lat: z.number(), lon: z.number() }).nullable().optional(),
+});
+/** id of the "place the pin yourself near this area" suggestion. */
+export const APPROX_ID = "approx";
 
 const ICON: Record<SearchKind, string> = {
   hotel: "🏨",
@@ -70,6 +77,7 @@ export function PlaceSearch({
   placeholder,
   autoFocus,
   className,
+  allowApprox,
 }: {
   loc: LocationId;
   near?: LatLon | null;
@@ -78,6 +86,8 @@ export function PlaceSearch({
   placeholder?: string;
   autoFocus?: boolean;
   className?: string;
+  /** Offer "put the pin yourself near <area>" when a Google link's exact spot is unknown. */
+  allowApprox?: boolean;
 }) {
   const { t, locale, formatNumber } = useI18n();
   const id = useId();
@@ -112,7 +122,9 @@ export function PlaceSearch({
           const title = r.name?.split(/[,،]/)[0].trim() || null;
           const hits: SearchHit[] = r.coords
             ? [{ id: `c${r.coords.lat},${r.coords.lon}`, name: title ?? `${r.coords.lat.toFixed(6)}, ${r.coords.lon.toFixed(6)}`, detail: t("placeSearch.fromLink"), lat: r.coords.lat, lon: r.coords.lon, kind: "coords" }]
-            : r.results;
+            : r.results.length || !allowApprox || !r.area || !title
+              ? r.results
+              : [{ id: APPROX_ID, name: title, detail: t("placeSearch.approx", { area: r.area.name }), lat: r.area.lat, lon: r.area.lon, kind: "place" }];
           setRes({ key, hits, linkName: title });
         })
         .catch(() => {
@@ -123,7 +135,7 @@ export function PlaceSearch({
       window.clearTimeout(timer);
       ctrl.abort();
     };
-  }, [wantRemote, shortLink, key, query, loc, locale, nearKey, t]);
+  }, [wantRemote, shortLink, key, query, loc, locale, nearKey, t, allowApprox]);
   const remote = useMemo(() => (wantRemote && res?.key === key ? res.hits : []), [wantRemote, res, key]);
   const status: "idle" | "loading" | "error" = !wantRemote ? "idle" : failed === key ? "error" : res?.key === key ? "idle" : "loading";
 
@@ -150,7 +162,7 @@ export function PlaceSearch({
   }, []);
 
   const pick = (h: SearchHit) => {
-    if (h.kind !== "coords") saveRecent(loc, h);
+    if (h.kind !== "coords" && h.id !== APPROX_ID) saveRecent(loc, h);
     setQ("");
     setOpen(false);
     onPick(h);

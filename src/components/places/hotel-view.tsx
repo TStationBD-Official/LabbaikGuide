@@ -8,7 +8,6 @@ import {
   Crosshair,
   ExternalLink,
   Hotel,
-  Link2,
   LocateFixed,
   MapPin,
   MapPinned,
@@ -52,7 +51,7 @@ import { useWakeLock } from "@/hooks/use-wake-lock";
 import { useWalkingRoute } from "@/hooks/use-walking-route";
 import { RouteOptions } from "@/components/places/route-options";
 import { useMapStyleNames } from "@/components/places/map-style-names";
-import { PlaceSearch, type SearchHit } from "@/components/places/place-search";
+import { APPROX_ID, PlaceSearch, type SearchHit } from "@/components/places/place-search";
 import { cn, copyText, shareOrCopy, vibrate } from "@/lib/utils";
 import { usePlacesStore, type Place, type PlaceKind } from "@/stores/places-store";
 import type { MapViewHandle } from "./map-view";
@@ -163,6 +162,7 @@ export function HotelView() {
 
   const haram = { lat: LOCATIONS[location].latitude, lon: LOCATIONS[location].longitude };
 
+
   // ── create / edit flows ──────────────────────────────────────────────────
   const startCreate = (kind: PlaceKind = places.length ? "meeting" : "hotel") => {
     setDraft(emptyDraft(kind));
@@ -192,6 +192,7 @@ export function HotelView() {
     try {
       const pos = await captureLocation(setCapture, { signal: ctrl.signal, seed: live.fix });
       vibrate(30);
+      setPlaceYourself(null);
       setDraft((d) => ({ ...(d ?? emptyDraft()), pos: { ...pos, source: "gps" } }));
       setPicking(false);
       live.start();
@@ -216,31 +217,42 @@ export function HotelView() {
     requestAnimationFrame(() => mapCard.current?.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" }));
 
   /** A hotel (or any place) chosen from search: put the pin there, keep the name if none was typed. */
+  /** Set when the exact spot is unknown: the pin starts in the neighbourhood and the user moves it. */
+  const [placeYourself, setPlaceYourself] = useState<string | null>(null);
   const pickSearchHit = (h: SearchHit) => {
+    setPlaceYourself(h.id === APPROX_ID ? h.name : null);
     setDraft((d) => {
       const base = d ?? emptyDraft();
       return { ...base, name: base.name.trim() ? base.name : h.kind === "coords" ? base.name : h.name, pos: { lat: h.lat, lon: h.lon, accuracy: null, source: h.kind === "coords" ? "link" : "map" } };
     });
     setPicking(true);
-    mapRef.current?.centerOn(h, 17.5);
+    mapRef.current?.centerOn(h, h.id === APPROX_ID ? 16 : 17.5);
     revealMap();
   };
 
   const [linkBusy, setLinkBusy] = useState(false);
   /** Name of the place in a Google link we couldn't locate (to explain why). */
   const [linkPlace, setLinkPlace] = useState<string | null>(null);
-  const useLink = async () => {
+  const openLink = async (input: string = link) => {
+    const link = input.trim();
     // Google Maps share links (maps.app.goo.gl/…) carry no coordinates: our server opens them.
     if (!parseCoordinates(link) && isShortMapLink(link)) {
       setLinkBusy(true);
       setLinkError(false);
       try {
         const r = await fetch(`/api/places/resolve?${new URLSearchParams({ url: link.trim(), loc: location, lang: locale })}`);
-        const d = (await r.json()) as { coords?: { lat: number; lon: number } | null; name?: string | null; results?: SearchHit[] };
+        const d = (await r.json()) as {
+          coords?: { lat: number; lon: number } | null;
+          name?: string | null;
+          results?: SearchHit[];
+          area?: { name: string; lat: number; lon: number } | null;
+        };
         const title = d.name?.split(/[,،]/)[0].trim() ?? "";
         const hit: SearchHit | null = d.coords
           ? { id: "link", name: title, detail: "", lat: d.coords.lat, lon: d.coords.lon, kind: "coords" }
-          : (d.results ?? [])[0] ?? null;
+          : ((d.results ?? [])[0] ??
+            // Exact spot unknown: open the map in the neighbourhood and let the user drop the pin.
+            (title ? { id: APPROX_ID, name: title, detail: "", lat: d.area?.lat ?? haram.lat, lon: d.area?.lon ?? haram.lon, kind: "place" } : null));
         setLinkPlace(!hit && title ? title : null);
         if (!r.ok || !hit) return setLinkError(true);
         pickSearchHit(hit.kind === "coords" && title ? { ...hit, kind: "hotel" } : hit);
@@ -260,6 +272,25 @@ export function HotelView() {
     mapRef.current?.centerOn(p, 17);
     revealMap();
   };
+
+  // Shared from Google Maps (Share → Labbaik Guide): /hotel?share_text=…&share_url=…
+  const shareHandled = useRef(false);
+  useEffect(() => {
+    if (shareHandled.current) return;
+    const q = new URLSearchParams(window.location.search);
+    const shared = [q.get("share_url"), q.get("share_text"), q.get("share_title")].filter(Boolean).join(" ");
+    if (!shared) return;
+    shareHandled.current = true;
+    window.history.replaceState(null, "", "/hotel");
+    const url = shared.match(/https?:\/\/\S+/)?.[0];
+    const text = url ?? shared;
+    if (!url && !parseCoordinates(text)) return;
+    queueMicrotask(() => {
+      setDraft(emptyDraft(places.length ? "meeting" : "hotel"));
+      void openLink(text);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once, when opened from a share
+  }, []);
 
   const saveDraft = () => {
     if (!draft?.pos) return;
@@ -340,7 +371,10 @@ export function HotelView() {
             route={draft ? null : routePath}
             altRoutes={draft ? undefined : walk.routes.flatMap((r, i) => (i === walk.choice ? [] : [{ index: i, coords: r.coordinates }]))}
             onAltRouteClick={walk.choose}
-            pick={picking && draft?.pos ? { value: draft.pos, onChange: (p) => setDraft((x) => (x ? { ...x, pos: { ...p, accuracy: null, source: "map" } } : x)) } : null}
+            pick={picking && draft?.pos ? { value: draft.pos, onChange: (p) => {
+                    setPlaceYourself(null);
+                    setDraft((x) => (x ? { ...x, pos: { ...p, accuracy: null, source: "map" } } : x));
+                  } } : null}
             initialCenter={haram}
             dark={dark}
             labels={{ map: t("hotel.mapLabel"), you: t("hotel.you"), offline: t("hotel.offlineMap"), loading: t("hotel.mapLoading"), slow: t("hotel.mapSlow"), styles: t("mapStyle.title"), styleNames: mapStyleNames }}
@@ -363,7 +397,7 @@ export function HotelView() {
           </div>
           {picking ? (
             <p className="absolute top-2 right-14 left-2 z-10 rounded-xl bg-card/95 px-3 py-2 text-center text-xs font-medium shadow-soft sm:right-auto sm:max-w-sm">
-              {t("hotel.dragHint")}
+              {placeYourself ? t("hotel.placeYourself", { name: placeYourself }) : t("hotel.dragHint")}
             </p>
           ) : null}
         </div>
@@ -380,14 +414,12 @@ export function HotelView() {
           onCapture={runCapture}
           onCancelCapture={() => captureAbort.current?.abort()}
           onPick={startPick}
-          searchBox={<PlaceSearch loc={location} near={live.fix} onPick={pickSearchHit} placeholder={t("placeSearch.hotelPlaceholder")} />}
+          searchBox={<PlaceSearch loc={location} near={live.fix} onPick={pickSearchHit} allowApprox placeholder={t("placeSearch.hotelPlaceholder")} />}
           picking={picking}
-          link={link}
-          setLink={setLink}
           linkError={linkError}
           linkBusy={linkBusy}
           linkPlace={linkPlace}
-          onUseLink={useLink}
+          approxName={placeYourself}
           onSave={saveDraft}
           onCancel={places.length ? () => (setDraft(null), setPicking(false)) : null}
           fmtN={fmt.n}
@@ -772,12 +804,10 @@ function Editor({
   onPick,
   searchBox,
   picking,
-  link,
-  setLink,
   linkError,
   linkBusy,
   linkPlace,
-  onUseLink,
+  approxName,
   onSave,
   onCancel,
   fmtN,
@@ -792,12 +822,10 @@ function Editor({
   onPick: () => void;
   searchBox: React.ReactNode;
   picking: boolean;
-  link: string;
-  setLink: (s: string) => void;
   linkError: boolean;
   linkBusy: boolean;
   linkPlace: string | null;
-  onUseLink: () => void;
+  approxName: string | null;
   onSave: () => void;
   onCancel: (() => void) | null;
   fmtN: (n: number) => string;
@@ -836,47 +864,33 @@ function Editor({
         ) : (
           <>
             {searchBox}
-            <Button size="lg" className="w-full" onClick={onCapture}>
-              <Crosshair className="size-5" aria-hidden />
-              {t("hotel.saveGps")}
-            </Button>
-            <p className="text-xs text-muted-foreground">{t("hotel.saveGpsHint")}</p>
-            {errKey ? <UnavailableNotice message={t(errKey)} /> : null}
-            <Button variant="outline" className="w-full" onClick={onPick} aria-pressed={picking}>
-              <MapPinned className="size-4" aria-hidden />
-              {t("hotel.pickOnMap")}
-            </Button>
-            <div>
-              <label className="mb-1 block text-xs text-muted-foreground" htmlFor="hc-link">
-                {t("hotel.pasteLink")}
-              </label>
-              <div className="flex gap-2">
-                <input
-                  id="hc-link"
-                  value={link}
-                  onChange={(e) => setLink(e.target.value)}
-                  placeholder={t("hotel.pastePlaceholder")}
-                  inputMode="url"
-                  autoComplete="off"
-                  dir="ltr"
-                  className={cn(input, "min-w-0 flex-1 text-sm")}
-                />
-                <Button variant="outline" onClick={onUseLink} disabled={!link.trim() || linkBusy}>
-                  <Link2 className="size-4" aria-hidden />
-                  {t("hotel.useLink")}
-                </Button>
-              </div>
-              {linkError ? <p className="mt-1 text-xs text-danger">{linkPlace ? t("placeSearch.linkNotFound", { name: linkPlace }) : t("hotel.invalidLink")}</p> : null}
+            <div className="grid grid-cols-2 gap-2">
+              <Button size="lg" className="h-auto min-h-14 flex-col gap-1 py-2.5 text-sm" onClick={onCapture}>
+                <Crosshair className="size-5" aria-hidden />
+                {t("hotel.hereNow")}
+              </Button>
+              <Button variant="outline" size="lg" className="h-auto min-h-14 flex-col gap-1 py-2.5 text-sm" onClick={onPick} aria-pressed={picking}>
+                <MapPinned className="size-5" aria-hidden />
+                {t("hotel.onMap")}
+              </Button>
             </div>
+            <p className="text-xs text-muted-foreground">{t("hotel.whereHint")}</p>
+            <p className="rounded-xl bg-muted/60 px-3 py-2 text-xs text-muted-foreground">💡 {t("hotel.shareTip")}</p>
+            {errKey ? <UnavailableNotice message={t(errKey)} /> : null}
+            {linkBusy ? <p className="text-xs text-muted-foreground">{t("placeSearch.linkOpening")}</p> : null}
+            {linkError ? <p className="text-xs text-danger">{linkPlace ? t("placeSearch.linkNotFound", { name: linkPlace }) : t("hotel.invalidLink")}</p> : null}
           </>
         )}
-        {draft.pos ? (
-          <p className="flex items-center gap-1.5 text-xs font-medium text-primary">
-            <Check className="size-4" aria-hidden />
-            <span dir="ltr" className="font-mono">
-              {draft.pos.lat.toFixed(6)}, {draft.pos.lon.toFixed(6)}
-            </span>
-            {draft.pos.accuracy !== null ? <span>· ±{fmtN(draft.pos.accuracy)}</span> : null}
+        {draft.pos && approxName ? (
+          <p className="flex items-start gap-1.5 rounded-xl bg-gold-soft px-3 py-2 text-sm font-medium text-warning">
+            <MapPinned className="mt-0.5 size-4 shrink-0" aria-hidden />
+            {t("hotel.placeYourself", { name: approxName })}
+          </p>
+        ) : draft.pos ? (
+          <p className="flex items-center gap-1.5 rounded-xl bg-primary-soft px-3 py-2 text-sm font-medium text-primary">
+            <Check className="size-4 shrink-0" aria-hidden />
+            {t("hotel.locationSet")}
+            {draft.pos.accuracy !== null ? <span className="font-normal opacity-80">· ±{fmtN(draft.pos.accuracy)}</span> : null}
           </p>
         ) : null}
       </div>
