@@ -1057,5 +1057,18 @@
     "toHotel": "Route to my hotel",
     "saveHotel": "Save your hotel to get directions to it",
     "myHotel": "My hotel"
+  },
+  "placeSearch": {
+    "placeholder": "Search hotels, streets, places…",
+    "hotelPlaceholder": "Search your hotel by name",
+    "coords": "Coordinates / map link",
+    "clear": "Clear search",
+    "recent": "Recent",
+    "none": "No places found in this city. Try another spelling, or paste a Google Maps link.",
+    "unavailable": "Search is temporarily unavailable. You can still pick on the map or paste a link.",
+    "source": "Places from OpenStreetMap",
+    "m": "m",
+    "km": "km",
+    "picked": "Searched place"
   }
 }

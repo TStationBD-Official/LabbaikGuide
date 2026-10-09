@@ -50,6 +50,7 @@ import { useStoreHydrated } from "@/hooks/use-hydrated";
 import { useWakeLock } from "@/hooks/use-wake-lock";
 import { useWalkingRoute } from "@/hooks/use-walking-route";
 import { RouteOptions } from "@/components/places/route-options";
+import { PlaceSearch, type SearchHit } from "@/components/places/place-search";
 import { cn, copyText, shareOrCopy, vibrate } from "@/lib/utils";
 import { usePlacesStore, type Place, type PlaceKind } from "@/stores/places-store";
 import type { MapViewHandle } from "./map-view";
@@ -211,6 +212,17 @@ export function HotelView() {
   const revealMap = () =>
     requestAnimationFrame(() => mapCard.current?.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" }));
 
+  /** A hotel (or any place) chosen from search: put the pin there, keep the name if none was typed. */
+  const pickSearchHit = (h: SearchHit) => {
+    setDraft((d) => {
+      const base = d ?? emptyDraft();
+      return { ...base, name: base.name.trim() ? base.name : h.kind === "coords" ? base.name : h.name, pos: { lat: h.lat, lon: h.lon, accuracy: null, source: h.kind === "coords" ? "link" : "map" } };
+    });
+    setPicking(true);
+    mapRef.current?.centerOn(h, 17.5);
+    revealMap();
+  };
+
   const useLink = () => {
     const p = parseCoordinates(link);
     if (!p) return setLinkError(true);
@@ -340,6 +352,7 @@ export function HotelView() {
           onCapture={runCapture}
           onCancelCapture={() => captureAbort.current?.abort()}
           onPick={startPick}
+          searchBox={<PlaceSearch loc={location} near={live.fix} onPick={pickSearchHit} placeholder={t("placeSearch.hotelPlaceholder")} />}
           picking={picking}
           link={link}
           setLink={setLink}
@@ -727,6 +740,7 @@ function Editor({
   onCapture,
   onCancelCapture,
   onPick,
+  searchBox,
   picking,
   link,
   setLink,
@@ -744,6 +758,7 @@ function Editor({
   onCapture: () => void;
   onCancelCapture: () => void;
   onPick: () => void;
+  searchBox: React.ReactNode;
   picking: boolean;
   link: string;
   setLink: (s: string) => void;
@@ -786,6 +801,7 @@ function Editor({
           </div>
         ) : (
           <>
+            {searchBox}
             <Button size="lg" className="w-full" onClick={onCapture}>
               <Crosshair className="size-5" aria-hidden />
               {t("hotel.saveGps")}

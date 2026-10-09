@@ -15,6 +15,7 @@ import { MapView, type MapPoi, type MapViewHandle } from "@/components/places/ma
 import { geolocationGranted, useLiveLocation } from "@/hooks/use-geolocation";
 import { useConfirm } from "@/components/ui/confirm";
 import { RouteOptions } from "@/components/places/route-options";
+import { PlaceSearch, type SearchHit } from "@/components/places/place-search";
 import { useActivePlace } from "@/stores/places-store";
 import Link from "next/link";
 import { useCompass } from "@/hooks/use-compass";
@@ -93,7 +94,7 @@ function usePoiText() {
       }
       return name(p) ?? t(p.kind === "landmark" ? "haramMap.kLandmark" : `haramMap.${p.kind}`);
     };
-    const kindLabel = (p: Poi) => (p.id === HOTEL_ID ? t("walk.myHotel") : p.kind === "gate" ? t(`haramMap.${p.role ?? "entrance"}`) : p.kind === "landmark" ? t("haramMap.kLandmark") : t(`haramMap.${p.kind}`));
+    const kindLabel = (p: Poi) => (p.id === HOTEL_ID ? t("walk.myHotel") : p.id === FOUND_ID ? t("placeSearch.picked") : p.kind === "gate" ? t(`haramMap.${p.role ?? "entrance"}`) : p.kind === "landmark" ? t("haramMap.kLandmark") : t(`haramMap.${p.kind}`));
     return { title, kindLabel, name };
   }, [t, locale, formatNumber]);
 }
@@ -101,6 +102,9 @@ function usePoiText() {
 const DEST_KEY = "hc_haram_dest_v1";
 /** The saved hotel (from My Hotel) used as a destination on this map. */
 const HOTEL_ID = "hotel";
+/** A place picked from search (hotel, street, shop…) used as a destination. */
+const FOUND_ID = "found";
+type Found = { name: string; detail: string; lat: number; lon: number };
 
 /** 3:07 or 1:02:45 */
 function clock(ms: number) {
@@ -159,13 +163,14 @@ export function HaramMapPage({ initialLoc }: { initialLoc?: LocationId }) {
   const fix = live.fix;
 
   const confirm = useConfirm();
+  const [found, setFound] = useState<Found | null>(null);
   // Recorded walk: saved on this device so a refresh or a closed tab doesn't lose it.
   const [track, setTrack] = useState<Track>(EMPTY_TRACK);
   const [restored, setRestored] = useState(false);
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     let saved = EMPTY_TRACK;
-    let dest: { loc?: string; id?: string; route?: boolean } = {};
+    let dest: { loc?: string; id?: string; route?: boolean; found?: Found } = {};
     try {
       saved = loadTrack(localStorage.getItem(TRACK_KEY));
       dest = JSON.parse(localStorage.getItem(DEST_KEY) ?? "{}");
@@ -175,6 +180,7 @@ export function HaramMapPage({ initialLoc }: { initialLoc?: LocationId }) {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- restore the saved walk after mount
     setTrack(saved);
     if (dest.id && dest.loc === (initialLoc ?? prefLoc)) {
+      if (dest.found) setFound(dest.found);
       setSelectedId(dest.id);
       setRouteOn(Boolean(dest.route));
     }
@@ -208,11 +214,11 @@ export function HaramMapPage({ initialLoc }: { initialLoc?: LocationId }) {
   useEffect(() => {
     if (!restored) return;
     try {
-      localStorage.setItem(DEST_KEY, JSON.stringify(selectedId ? { loc, id: selectedId, route: routeOn } : {}));
+      localStorage.setItem(DEST_KEY, JSON.stringify(selectedId ? { loc, id: selectedId, route: routeOn, found: selectedId === FOUND_ID ? found : undefined } : {}));
     } catch {
       /* storage unavailable */
     }
-  }, [selectedId, routeOn, loc, restored]);
+  }, [selectedId, routeOn, loc, restored, found]);
 
   const pois = useMemo(() => (data.data?.location === loc ? data.data.pois : []), [data.data, loc]);
   const shown = useMemo(() => pois.filter((p) => layers[layerOf(p)]), [pois, layers]);
@@ -221,7 +227,26 @@ export function HaramMapPage({ initialLoc }: { initialLoc?: LocationId }) {
     () => (hotel ? { id: HOTEL_ID, kind: "landmark", lat: hotel.lat, lon: hotel.lon, name: hotel.name || t("walk.myHotel") } : null),
     [hotel, t],
   );
-  const selected = selectedId === HOTEL_ID ? hotelPoi : (pois.find((p) => p.id === selectedId) ?? null);
+  const foundPoi: Poi | null = useMemo(() => (found ? { id: FOUND_ID, kind: "landmark", lat: found.lat, lon: found.lon, name: found.name, nameEn: found.name, nameAr: found.name } : null), [found]);
+  const selected = selectedId === HOTEL_ID ? hotelPoi : selectedId === FOUND_ID ? foundPoi : (pois.find((p) => p.id === selectedId) ?? null);
+  /** Gates, landmarks and the hotel, offered first in the search box. */
+  const localHits: SearchHit[] = useMemo(
+    () => [
+      ...(hotelPoi ? [{ id: HOTEL_ID, name: hotelPoi.name ?? t("walk.myHotel"), detail: t("walk.myHotel"), lat: hotelPoi.lat, lon: hotelPoi.lon, kind: "hotel" as const }] : []),
+      ...pois
+        .filter((p) => p.kind === "gate" || p.kind === "landmark")
+        .map((p) => ({
+          id: p.id,
+          name: text.title(p),
+          // Every name the place has, so "king fahd", "79" and "باب الملك فهد" all find it.
+          detail: [...new Set([p.nameEn, p.nameAr, p.name].filter((n): n is string => Boolean(n) && n !== text.title(p)))].concat(text.kindLabel(p)).join(" · "),
+          lat: p.lat,
+          lon: p.lon,
+          kind: p.kind === "gate" ? ("gate" as const) : ("landmark" as const),
+        })),
+    ],
+    [hotelPoi, pois, text, t],
+  );
   const mapPois: MapPoi[] = useMemo(
     () => shown.map((p) => ({ id: p.id, lat: p.lat, lon: p.lon, kind: p.kind === "zamzam" ? "water" : p.kind, num: p.num, muted: Boolean(p.restricted) })),
     [shown],
@@ -242,7 +267,7 @@ export function HaramMapPage({ initialLoc }: { initialLoc?: LocationId }) {
     setSelectedId(id);
     setRouteOn(false);
     setFollow(false);
-    const p = id === HOTEL_ID ? hotelPoi : pois.find((x) => x.id === id);
+    const p = id === HOTEL_ID ? hotelPoi : id === FOUND_ID ? foundPoi : pois.find((x) => x.id === id);
     if (p) mapRef.current?.centerOn(p, 17.5);
   };
 
@@ -300,6 +325,21 @@ export function HaramMapPage({ initialLoc }: { initialLoc?: LocationId }) {
           );
         })}
       </div>
+
+      {/* search like a map app */}
+      <PlaceSearch
+        loc={loc}
+        near={fix ?? { lat: center.latitude, lon: center.longitude }}
+        local={localHits}
+        onPick={(h) => {
+          if (h.id === HOTEL_ID || pois.some((p) => p.id === h.id)) return select(h.id);
+          setFound({ name: h.name, detail: h.detail, lat: h.lat, lon: h.lon });
+          setSelectedId(FOUND_ID);
+          setRouteOn(false);
+          setFollow(false);
+          mapRef.current?.centerOn(h, 17.5);
+        }}
+      />
 
       {/* way back to the hotel */}
       {hotelPoi ? (
@@ -447,6 +487,11 @@ export function HaramMapPage({ initialLoc }: { initialLoc?: LocationId }) {
             {selDist !== null ? <DirectionArrow bearing={bearingDeg(fix!, selected)} heading={compass.heading ?? fix?.heading ?? null} /> : null}
             <div className="min-w-0 flex-1">
               <h2 className="text-lg font-semibold leading-snug">{text.title(selected)}</h2>
+              {selected.id === FOUND_ID && found?.detail ? (
+                <p className="text-sm text-muted-foreground" dir="auto">
+                  {found.detail}
+                </p>
+              ) : null}
               {selected.kind === "gate" && text.name(selected) && text.name(selected) !== text.title(selected) ? (
                 <p className="text-sm text-muted-foreground" dir="auto">
                   {selected.nameAr && selected.nameAr !== text.name(selected) ? selected.nameAr : null}
