@@ -1,0 +1,78 @@
+{
+ "uhud_martyrs": [
+  {
+   "id": "w444240032",
+   "lat": 24.5038,
+   "lon": 39.6117524,
+   "name": "مقبره شهداء أحد",
+   "en": "graveyard of the martyr",
+   "kind": {
+    "amenity": "grave_yard",
+    "religion": "muslim"
+   }
+  }
+ ],
+ "shuhada_mosque": [
+  {
+   "id": "w444240031",
+   "lat": 24.5034726,
+   "lon": 39.6127542,
+   "name": "مسجد سيد الشهداء",
+   "en": "Masjid Sayed Al Shuhada",
+   "kind": {
+    "amenity": "place_of_worship",
+    "building": "yes",
+    "religion": "muslim"
+   }
+  }
+ ],
+ "rumah_hill": [
+  {
+   "id": "n4548415100",
+   "lat": 24.5022832,
+   "lon": 39.6121414,
+   "name": "جبل الرماة",
+   "en": "Jabal Al Romah",
+   "kind": {
+    "natural": "peak"
+   }
+  },
+  {
+   "id": "w987754464",
+   "lat": 24.5022149,
+   "lon": 39.6121985,
+   "name": "جبل الرماة",
+   "en": null,
+   "kind": {
+    "historic": "battlefield"
+   }
+  }
+ ],
+ "uhud_peak": {
+  "error": "HTTP Error 504: Gateway Time-out"
+ },
+ "ibnabbas": [
+  {
+   "id": "w105299684",
+   "lat": 21.26896,
+   "lon": 40.4090659,
+   "name": "مقبرة عبد الله بن عباس رضي الله عنهما",
+   "en": "Abdullah Ibn Abbas Cemetery",
+   "kind": {
+    "landuse": "cemetery"
+   }
+  },
+  {
+   "id": "w112016836",
+   "lat": 21.2704067,
+   "lon": 40.4084565,
+   "name": "مسجد عبدالله بن العباس",
+   "en": "Abdullah Ibn Abbas Mosque",
+   "kind": {
+    "amenity": "place_of_worship",
+    "building": "mosque",
+    "religion": "muslim"
+   }
+  }
+ ]
+}
