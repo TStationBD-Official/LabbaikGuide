@@ -1044,5 +1044,18 @@
     "inHaramain": "In Masjid al-Haram & Masjid an-Nabawi",
     "artNote": "About the illustration: out of respect and following the scholars' guidance on images, every figure is shown from behind without a face, and the deceased is never depicted — only a covered bier. There is no music.",
     "you": "You"
+  },
+  "walk": {
+    "paths": "Ways to walk there",
+    "pathsN": "{n} ways to walk there",
+    "onePath": "Walking path",
+    "best": "Best",
+    "minutes": "{n} min",
+    "steps": "{n} steps",
+    "noteMany": "Tap a path here or a grey line on the map to follow it. Time is at a relaxed crowd pace (~4 km/h); steps are an estimate (≈0.72 m each). Paths follow streets and squares — inside the mosque, follow the signs.",
+    "noteOne": "The router found only one sensible walking path from here. Time is at a relaxed crowd pace (~4 km/h); steps are an estimate (≈0.72 m each).",
+    "toHotel": "Route to my hotel",
+    "saveHotel": "Save your hotel to get directions to it",
+    "myHotel": "My hotel"
   }
 }

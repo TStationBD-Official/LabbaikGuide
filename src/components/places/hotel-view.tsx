@@ -49,6 +49,7 @@ import { captureLocation, geolocationGranted, useLiveLocation, type CaptureProgr
 import { useStoreHydrated } from "@/hooks/use-hydrated";
 import { useWakeLock } from "@/hooks/use-wake-lock";
 import { useWalkingRoute } from "@/hooks/use-walking-route";
+import { RouteOptions } from "@/components/places/route-options";
 import { cn, copyText, shareOrCopy, vibrate } from "@/lib/utils";
 import { usePlacesStore, type Place, type PlaceKind } from "@/stores/places-store";
 import type { MapViewHandle } from "./map-view";
@@ -297,6 +298,8 @@ export function HotelView() {
             follow={follow}
             onFollowChange={setFollow}
             route={draft ? null : routePath}
+            altRoutes={draft ? undefined : walk.routes.flatMap((r, i) => (i === walk.choice ? [] : [{ index: i, coords: r.coordinates }]))}
+            onAltRouteClick={walk.choose}
             pick={picking && draft?.pos ? { value: draft.pos, onChange: (p) => setDraft((x) => (x ? { ...x, pos: { ...p, accuracy: null, source: "map" } } : x)) } : null}
             initialCenter={haram}
             dark={dark}
@@ -517,6 +520,11 @@ function Navigator({
         {stale ? <p className="text-xs font-medium text-warning">{t("hotel.stale", { s: formatNumber(ageS) })}</p> : null}
         {errKey ? <UnavailableNotice message={t(errKey)} /> : null}
       </div>
+      {!arrived && walk.routes.length ? (
+        <div className="mt-4">
+          <RouteOptions routes={walk.routes} choice={walk.choice} onChoose={walk.choose} fmtDist={fmt.dist} />
+        </div>
+      ) : null}
 
       {routeMsg && !arrived ? <p className="mt-2 text-xs font-medium text-primary">{routeMsg}</p> : null}
       {fix && !weak ? (

@@ -52,6 +52,30 @@ function throttled<T>(fn: () => Promise<T>): Promise<T> {
   return run;
 }
 
+/**
+ * Keep only alternatives that are really different walks: not much longer than the best one
+ * and not mostly the same streets.
+ */
+export function distinctPaths<T extends { distance: number; coordinates: [number, number][] }>(best: T, others: T[]): T[] {
+  const cell = (c: [number, number]) => `${Math.round(c[0] / 0.0002)},${Math.round(c[1] / 0.0002)}`; // ~20 m grid
+  const kept: T[] = [best];
+  const out: T[] = [];
+  for (const o of others) {
+    if (o.distance > best.distance * 1.6 + 150) continue;
+    const mine = new Set(o.coordinates.map(cell));
+    const tooSimilar = kept.some((k) => {
+      const theirs = new Set(k.coordinates.map(cell));
+      let shared = 0;
+      for (const c of mine) if (theirs.has(c)) shared++;
+      return shared / Math.max(1, mine.size) > 0.85;
+    });
+    if (tooSimilar) continue;
+    kept.push(o);
+    out.push(o);
+  }
+  return out;
+}
+
 export async function walkingRoute(from: { lat: number; lon: number }, to: { lat: number; lon: number }): Promise<WalkRoute> {
   const f = { lat: +from.lat.toFixed(4), lon: +from.lon.toFixed(4) };
   const t = { lat: +to.lat.toFixed(5), lon: +to.lon.toFixed(5) };
@@ -60,7 +84,7 @@ export async function walkingRoute(from: { lat: number; lon: number }, to: { lat
   if (hit && Date.now() - hit.at < CACHE_TTL) return hit.route;
 
   const { osrmUrl, sourceName, sourceUrl, timeoutMs } = SERVER_CONFIG.routing;
-  const url = `${osrmUrl.replace(/\/$/, "")}/route/v1/foot/${key}?overview=full&geometries=geojson&steps=false&alternatives=false`;
+  const url = `${osrmUrl.replace(/\/$/, "")}/route/v1/foot/${key}?overview=full&geometries=geojson&steps=false&alternatives=3`;
 
   const raw = await throttled(async () => {
     let res: Response;
@@ -84,12 +108,16 @@ export async function walkingRoute(from: { lat: number; lon: number }, to: { lat
   if (!parsed.success) throw new RoutingError(502);
   if (parsed.data.code === "NoRoute" || parsed.data.code === "NoSegment" || !parsed.data.routes?.length) throw new RoutingError(404);
   if (parsed.data.code !== "Ok") throw new RoutingError(502);
-  const r = parsed.data.routes[0];
-  const route: WalkRoute = {
+  const toPath = (r: (typeof parsed.data.routes)[number]) => ({
     distance: Math.round(r.distance),
     duration: Math.round(r.duration),
     coordinates: r.geometry.coordinates.map(([lon, lat]) => [+lon.toFixed(6), +lat.toFixed(6)] as [number, number]),
+  });
+  const [first, ...others] = parsed.data.routes;
+  const route: WalkRoute = {
+    ...toPath(first),
     source: { name: sourceName, url: sourceUrl },
+    alternatives: distinctPaths(toPath(first), others.map(toPath)).slice(0, 3),
   };
   cache.set(key, { at: Date.now(), route });
   if (cache.size > CACHE_MAX) cache.delete(cache.keys().next().value!);

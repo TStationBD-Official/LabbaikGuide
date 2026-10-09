@@ -54,6 +54,9 @@ export type MapViewProps = {
   pick?: { value: LatLon; onChange: (p: LatLon) => void } | null;
   /** Remaining walking route along roads ([lon, lat]); null → straight dashed guide. */
   route?: [number, number][] | null;
+  /** Other walking paths to the same place, drawn grey; tap → onAltRouteClick(index). */
+  altRoutes?: { index: number; coords: [number, number][] }[];
+  onAltRouteClick?: (index: number) => void;
   initialCenter: LatLon;
   dark: boolean;
   labels: { map: string; you: string; offline: string; loading: string };
@@ -209,6 +212,45 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
             filter: ["==", ["get", "start"], true],
             paint: { "circle-radius": 7, "circle-color": "#16a34a", "circle-stroke-color": "#ffffff", "circle-stroke-width": 2.5 },
           });
+        }
+        if (!m.getSource("hc-alt")) {
+          // Alternative paths: grey, under the chosen route; tap one to choose it.
+          m.addSource("hc-alt", { type: "geojson", data: EMPTY });
+          m.addLayer({
+            id: "hc-alt-casing",
+            type: "line",
+            source: "hc-alt",
+            layout: { "line-cap": "round", "line-join": "round" },
+            paint: { "line-color": "#ffffff", "line-width": 8, "line-opacity": 0.85 },
+          });
+          m.addLayer({
+            id: "hc-alt",
+            type: "line",
+            source: "hc-alt",
+            layout: { "line-cap": "round", "line-join": "round" },
+            paint: { "line-color": "#8a94a6", "line-width": 4.5, "line-opacity": 0.9 },
+          });
+          m.addLayer({
+            id: "hc-alt-label",
+            type: "symbol",
+            source: "hc-alt",
+            layout: {
+              "symbol-placement": "line-center",
+              "text-field": ["get", "label"],
+              "text-size": 12,
+              "text-font": ["Noto Sans Bold"],
+              "text-allow-overlap": true,
+            },
+            paint: { "text-color": "#4b5563", "text-halo-color": "#ffffff", "text-halo-width": 2 },
+          });
+          // A wide invisible line makes the grey paths easy to tap.
+          m.addLayer({ id: "hc-alt-hit", type: "line", source: "hc-alt", paint: { "line-color": "#000000", "line-width": 22, "line-opacity": 0 } });
+          m.on("click", "hc-alt-hit", (e) => {
+            const i = e.features?.[0]?.properties?.i;
+            if (typeof i === "number") latest.current.onAltRouteClick?.(i);
+          });
+          m.on("mouseenter", "hc-alt-hit", () => (m.getCanvas().style.cursor = "pointer"));
+          m.on("mouseleave", "hc-alt-hit", () => (m.getCanvas().style.cursor = ""));
         }
         if (!m.getSource("hc-route")) {
           // Real walking route: white casing + solid line, drawn under the markers.
@@ -407,6 +449,22 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
     src?.setData(r && r.length > 1 ? { type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: r } } : EMPTY);
     drawGuide();
   }, [props.route, props.pick, props.target, state, styleTick]);
+
+  // Alternative paths, labelled with their letter in the route list (A = best).
+  useEffect(() => {
+    const m = map.current;
+    if (!m || state !== "ready") return;
+    const src = m.getSource("hc-alt") as GeoJSONSource | undefined;
+    const alts = props.pick ? [] : (props.altRoutes ?? []);
+    src?.setData({
+      type: "FeatureCollection",
+      features: alts.flatMap((a) =>
+        a.coords.length > 1
+          ? [{ type: "Feature" as const, properties: { i: a.index, label: String.fromCharCode(65 + a.index) }, geometry: { type: "LineString" as const, coordinates: a.coords } }]
+          : [],
+      ),
+    });
+  }, [props.altRoutes, props.pick, state, styleTick]);
 
   // Points of interest.
   useEffect(() => {

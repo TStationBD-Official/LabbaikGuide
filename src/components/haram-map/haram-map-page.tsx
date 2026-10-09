@@ -14,6 +14,9 @@ import { SkeletonList, UnavailableNotice } from "@/components/ui/states";
 import { MapView, type MapPoi, type MapViewHandle } from "@/components/places/map-view";
 import { geolocationGranted, useLiveLocation } from "@/hooks/use-geolocation";
 import { useConfirm } from "@/components/ui/confirm";
+import { RouteOptions } from "@/components/places/route-options";
+import { useActivePlace } from "@/stores/places-store";
+import Link from "next/link";
 import { useCompass } from "@/hooks/use-compass";
 import { useIsDark } from "@/hooks/use-is-dark";
 import { useWalkingRoute } from "@/hooks/use-walking-route";
@@ -90,12 +93,14 @@ function usePoiText() {
       }
       return name(p) ?? t(p.kind === "landmark" ? "haramMap.kLandmark" : `haramMap.${p.kind}`);
     };
-    const kindLabel = (p: Poi) => (p.kind === "gate" ? t(`haramMap.${p.role ?? "entrance"}`) : p.kind === "landmark" ? t("haramMap.kLandmark") : t(`haramMap.${p.kind}`));
+    const kindLabel = (p: Poi) => (p.id === HOTEL_ID ? t("walk.myHotel") : p.kind === "gate" ? t(`haramMap.${p.role ?? "entrance"}`) : p.kind === "landmark" ? t("haramMap.kLandmark") : t(`haramMap.${p.kind}`));
     return { title, kindLabel, name };
   }, [t, locale, formatNumber]);
 }
 
 const DEST_KEY = "hc_haram_dest_v1";
+/** The saved hotel (from My Hotel) used as a destination on this map. */
+const HOTEL_ID = "hotel";
 
 /** 3:07 or 1:02:45 */
 function clock(ms: number) {
@@ -174,8 +179,8 @@ export function HaramMapPage({ initialLoc }: { initialLoc?: LocationId }) {
       setRouteOn(Boolean(dest.route));
     }
     setRestored(true);
-    // Recording was on before the refresh: carry on if location access is already allowed.
-    if (saved.on) void geolocationGranted().then((ok) => ok && live.start());
+    // Recording or a route was on before the refresh: carry on if location access is already allowed.
+    if (saved.on || dest.route) void geolocationGranted().then((ok) => ok && live.start());
     // eslint-disable-next-line react-hooks/exhaustive-deps -- once, on mount
   }, []);
   useEffect(() => {
@@ -211,7 +216,12 @@ export function HaramMapPage({ initialLoc }: { initialLoc?: LocationId }) {
 
   const pois = useMemo(() => (data.data?.location === loc ? data.data.pois : []), [data.data, loc]);
   const shown = useMemo(() => pois.filter((p) => layers[layerOf(p)]), [pois, layers]);
-  const selected = pois.find((p) => p.id === selectedId) ?? null;
+  const hotel = useActivePlace();
+  const hotelPoi: Poi | null = useMemo(
+    () => (hotel ? { id: HOTEL_ID, kind: "landmark", lat: hotel.lat, lon: hotel.lon, name: hotel.name || t("walk.myHotel") } : null),
+    [hotel, t],
+  );
+  const selected = selectedId === HOTEL_ID ? hotelPoi : (pois.find((p) => p.id === selectedId) ?? null);
   const mapPois: MapPoi[] = useMemo(
     () => shown.map((p) => ({ id: p.id, lat: p.lat, lon: p.lon, kind: p.kind === "zamzam" ? "water" : p.kind, num: p.num, muted: Boolean(p.restricted) })),
     [shown],
@@ -232,7 +242,7 @@ export function HaramMapPage({ initialLoc }: { initialLoc?: LocationId }) {
     setSelectedId(id);
     setRouteOn(false);
     setFollow(false);
-    const p = pois.find((x) => x.id === id);
+    const p = id === HOTEL_ID ? hotelPoi : pois.find((x) => x.id === id);
     if (p) mapRef.current?.centerOn(p, 17.5);
   };
 
@@ -291,6 +301,28 @@ export function HaramMapPage({ initialLoc }: { initialLoc?: LocationId }) {
         })}
       </div>
 
+      {/* way back to the hotel */}
+      {hotelPoi ? (
+        <Button
+          variant={selectedId === HOTEL_ID ? "primary" : "outline"}
+          className="w-full justify-center"
+          onClick={() => {
+            select(HOTEL_ID);
+            setRouteOn(true);
+            locate();
+          }}
+        >
+          <span aria-hidden>🏨</span>
+          {t("walk.toHotel")}
+          {hotel?.name ? <span className="truncate font-normal opacity-80">· {hotel.name}</span> : null}
+        </Button>
+      ) : (
+        <Link href="/hotel" className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-dashed border-border px-3 text-sm text-muted-foreground hover:border-gold">
+          <span aria-hidden>🏨</span>
+          {t("walk.saveHotel")}
+        </Link>
+      )}
+
       <Card className="overflow-hidden p-0">
         <div className="relative">
           <MapView
@@ -305,6 +337,8 @@ export function HaramMapPage({ initialLoc }: { initialLoc?: LocationId }) {
             follow={follow}
             onFollowChange={setFollow}
             route={routeOn ? routePath : null}
+            altRoutes={routeOn ? walk.routes.flatMap((r, i) => (i === walk.choice ? [] : [{ index: i, coords: r.coordinates }])) : undefined}
+            onAltRouteClick={walk.choose}
             pois={mapPois}
             selectedPoi={selectedId}
             onPoiClick={select}
@@ -464,9 +498,11 @@ export function HaramMapPage({ initialLoc }: { initialLoc?: LocationId }) {
                 <Route className="size-4" aria-hidden />
                 {routeOn ? t("haramMap.routeHide") : t("haramMap.route")}
               </Button>
-              {routeOn ? <p className="text-xs text-muted-foreground">{t("haramMap.routeNote")}</p> : null}
+              {routeOn && walk.status === "loading" ? <p className="text-xs text-muted-foreground">{t("hotel.routeLoading")}</p> : null}
+              {routeOn && walk.status === "unavailable" && !walk.route ? <p className="text-xs text-warning">{t("hotel.routeUnavailable")}</p> : null}
             </div>
           ) : null}
+          {routeOn && walk.routes.length ? <RouteOptions routes={walk.routes} choice={walk.choice} onChoose={walk.choose} fmtDist={fmt} /> : null}
         </Card>
       ) : null}
 
