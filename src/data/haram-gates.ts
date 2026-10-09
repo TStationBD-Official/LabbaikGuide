@@ -28,11 +28,11 @@ export const VERIFIED_GATES: Record<LocationId, VerifiedGate[]> = {
  * Two Holy Mosques. Its list of the five main gates (Sabq, 28 Apr 2025): King Abdulaziz 1, Al-Fath 45,
  * Umrah 62, King Fahd 79, King Abdullah 100.
  */
-export type GateCorrection = { osmId: string; num: number; source: string };
+export type GateCorrection = { osmId: string; num: number; nameEn?: string; nameAr?: string; source: string };
 export const GATE_CORRECTIONS: Record<LocationId, GateCorrection[]> = {
   makkah: [
-    { osmId: "n4318154227", num: 45, source: "Al-Fath Gate is No. 45 (General Authority for the Two Holy Mosques, 2025); OSM had 30" },
-    { osmId: "n4318154228", num: 62, source: "Umrah Gate is No. 62 (General Authority for the Two Holy Mosques, 2025); OSM had 40" },
+    { osmId: "n4318154227", num: 45, nameEn: "Al-Fath Gate", nameAr: "باب الفتح", source: "Al-Fath Gate is No. 45 (General Authority for the Two Holy Mosques, 2025); OSM had 30" },
+    { osmId: "n4318154228", num: 62, nameEn: "Umrah Gate", nameAr: "باب العمرة", source: "Umrah Gate is No. 62 (General Authority for the Two Holy Mosques, 2025); OSM had 40" },
   ],
   madinah: [],
 };

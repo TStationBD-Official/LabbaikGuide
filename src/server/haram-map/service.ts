@@ -145,12 +145,13 @@ export function dedupe(pois: Poi[]): Poi[] {
 
 /** Official gate numbers win over OSM; numbers from an unofficial sequence are removed. */
 export function applyCorrections(pois: Poi[], location: LocationId): Poi[] {
-  const fix = new Map(GATE_CORRECTIONS[location].map((c) => [c.osmId, c.num]));
+  const fix = new Map(GATE_CORRECTIONS[location].map((c) => [c.osmId, c]));
   const bad = UNRELIABLE_REFS[location];
   return pois.map((p) => {
     if (p.kind !== "gate") return p;
-    const n = fix.get(p.id);
-    if (n !== undefined) return { ...p, num: n };
+    const c = fix.get(p.id);
+    // The OSM names carry the old numbers too ("Umra Gate 40"), so they are replaced with the official ones.
+    if (c) return { ...p, num: c.num, nameEn: c.nameEn ?? p.nameEn, nameAr: c.nameAr ?? p.nameAr, name: c.nameAr ?? p.name };
     if (p.num !== undefined && bad.some((r) => p.num! >= r.from && p.num! <= r.to)) return { ...p, num: undefined };
     return p;
   });

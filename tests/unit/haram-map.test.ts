@@ -74,8 +74,9 @@ describe("Masjid al-Haram gates from a real OpenStreetMap snapshot", async () =>
   });
 
   it("uses the official numbers of the five main gates", () => {
-    expect(gates.find((g) => g.nameEn?.includes("Fateh"))?.num).toBe(45);
-    expect(gates.find((g) => g.nameEn?.includes("Umra"))?.num).toBe(62);
+    expect(gates.find((g) => g.num === 45)).toMatchObject({ nameEn: "Al-Fath Gate", nameAr: "باب الفتح" });
+    expect(gates.find((g) => g.num === 62)).toMatchObject({ nameEn: "Umrah Gate", nameAr: "باب العمرة" });
+    expect(gates.some((g) => /\b(30|40)\b/.test(`${g.name} ${g.nameEn} ${g.nameAr}`))).toBe(false);
     expect(gates.find((g) => g.num === 1)?.nameEn).toContain("King Abdul Aziz");
     expect(gates.find((g) => g.num === 79)?.nameEn).toContain("King Fahd");
     expect(gates.find((g) => g.num === 100)?.nameEn).toContain("King Abdullah");
