@@ -66,18 +66,18 @@ export function ZiyarahOverviewMap({
   onOpen,
   onLocate,
 }: {
-  items: { id: string; lat: number; lon: number; num: number }[];
+  items: { id: string; lat: number; lon: number; num: number; label: string }[];
   user: Fix | null;
   center: LatLon;
   onOpen: (id: string) => void;
   onLocate: () => void;
 }) {
-  const { t } = useI18n();
+  const { t, formatNumber } = useI18n();
   const dark = useDarkScheme();
   const labels = useMapLabels();
   const ref = useRef<MapViewHandle>(null);
   const [follow, setFollow] = useState(false);
-  const pois: MapPoi[] = useMemo(() => items.map((i) => ({ id: i.id, lat: i.lat, lon: i.lon, kind: "site", num: i.num })), [items]);
+  const pois: MapPoi[] = useMemo(() => items.map((i) => ({ id: i.id, lat: i.lat, lon: i.lon, kind: "site", num: i.num, numText: formatNumber(i.num), label: i.label })), [items, formatNumber]);
   const fitTo = useMemo(() => items.map((i) => ({ lat: i.lat, lon: i.lon })), [items]);
 
   return (

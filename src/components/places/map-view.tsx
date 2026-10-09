@@ -58,7 +58,7 @@ export type MapViewHandle = {
 };
 
 /** A point drawn as a map layer (gate number in a circle, facility dot…). */
-export type MapPoi = { id: string; lat: number; lon: number; kind: string; num?: number; muted?: boolean };
+export type MapPoi = { id: string; lat: number; lon: number; kind: string; num?: number; muted?: boolean; label?: string; numText?: string };
 
 /** Dot colour per kind. */
 const POI_COLORS: [string, string][] = [
@@ -328,6 +328,8 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
             id: "hc-pois",
             type: "circle",
             source: "hc-pois",
+            // Numbered places ("site") are HTML markers with their name (works on every map look).
+            filter: ["!=", ["get", "kind"], "site"],
             paint: {
               // Zoom must be the outermost expression; size per kind/selection inside each stop.
               "circle-radius": [
@@ -354,15 +356,6 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
               minzoom: 15.5,
               filter: ["all", ["has", "num"], ["!=", ["get", "kind"], "site"]],
               layout: { "text-field": ["to-string", ["get", "num"]], "text-size": 10, "text-allow-overlap": true, "text-font": ["Noto Sans Bold"] },
-              paint: { "text-color": "#ffffff" },
-            });
-            // Numbered places (Ziyarah): numbers at every zoom, matching the list.
-            m.addLayer({
-              id: "hc-site-num",
-              type: "symbol",
-              source: "hc-pois",
-              filter: ["all", ["has", "num"], ["==", ["get", "kind"], "site"]],
-              layout: { "text-field": ["to-string", ["get", "num"]], "text-size": 12, "text-allow-overlap": true, "text-font": ["Noto Sans Bold"] },
               paint: { "text-color": "#ffffff" },
             });
           }
@@ -542,6 +535,103 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
     });
   }, [props.pois, props.selectedPoi, state, styleTick]);
 
+  // Numbered places with their names, as HTML markers; names that would overlap are hidden until you zoom in.
+  const siteMarkers = useRef(new Map<string, Marker>());
+  useEffect(() => {
+    const m = map.current;
+    const ml = lib.current;
+    if (!m || !ml || state !== "ready") return;
+    const sites = (props.pois ?? []).filter((p) => p.kind === "site");
+    const keep = new Set(sites.map((p) => p.id));
+    for (const [id, mk] of siteMarkers.current) {
+      if (!keep.has(id)) {
+        mk.remove();
+        siteMarkers.current.delete(id);
+      }
+    }
+    for (const p of sites) {
+      let mk = siteMarkers.current.get(p.id);
+      if (!mk) {
+        const el = document.createElement("button");
+        el.type = "button";
+        el.className = "hc-site";
+        el.innerHTML = `<span class="hc-site-num"></span><span class="hc-site-label"></span>`;
+        el.addEventListener("click", (e) => {
+          e.stopPropagation();
+          latest.current.onPoiClick?.(p.id);
+        });
+        mk = new ml.Marker({ element: el, anchor: "center" }).setLngLat([p.lon, p.lat]).addTo(m);
+        siteMarkers.current.set(p.id, mk);
+      }
+      mk.setLngLat([p.lon, p.lat]);
+      const el = mk.getElement();
+      el.setAttribute("aria-label", [p.num, p.label].filter((x) => x !== undefined && x !== "").join(". "));
+      el.querySelector(".hc-site-num")!.textContent = p.numText ?? (p.num !== undefined ? String(p.num) : "");
+      el.querySelector(".hc-site-label")!.textContent = p.label ?? "";
+      el.classList.toggle("hc-site-sel", p.id === props.selectedPoi);
+    }
+    // Greedy de-clutter in list order: a label is shown only if it doesn't cover a shown label or another dot.
+    const declutter = () => {
+      const kept: DOMRect[] = [];
+      const ordered = sites.map((p) => siteMarkers.current.get(p.id)).filter(Boolean) as Marker[];
+      const dots = ordered.map((mk) => mk.getElement().querySelector(".hc-site-num")!.getBoundingClientRect());
+      const hit = (a: DOMRect, b: DOMRect) => a.left < b.right + 2 && a.right + 2 > b.left && a.top < b.bottom + 2 && a.bottom + 2 > b.top;
+      ordered.forEach((mk, i) => {
+        const el = mk.getElement();
+        const lab = el.querySelector<HTMLElement>(".hc-site-label")!;
+        lab.style.visibility = "hidden";
+        if (!lab.textContent) return;
+        const d = dots[i];
+        const w = lab.offsetWidth;
+        const h = lab.offsetHeight;
+        const cx = d.left + d.width / 2;
+        // Try beside the dot (reading side first), then the other side, below, above.
+        const rtl = getComputedStyle(el).direction === "rtl";
+        const sides: [string, DOMRect][] = [
+          ["end", new DOMRect(rtl ? d.left - 4 - w : d.right + 4, d.top + d.height / 2 - h / 2, w, h)],
+          ["start", new DOMRect(rtl ? d.right + 4 : d.left - 4 - w, d.top + d.height / 2 - h / 2, w, h)],
+          ["below", new DOMRect(cx - w / 2, d.bottom + 3, w, h)],
+          ["above", new DOMRect(cx - w / 2, d.top - 3 - h, w, h)],
+        ];
+        const box = m.getContainer().getBoundingClientRect();
+        const inside = (r: DOMRect) => r.left >= box.left + 2 && r.right <= box.right - 52 && r.top >= box.top + 2 && r.bottom <= box.bottom - 2;
+        for (const [side, r] of sides) {
+          if (!inside(r)) continue;
+          const clash = kept.some((k) => hit(k, r)) || dots.some((o, j) => j !== i && hit(o, r));
+          if (!clash) {
+            kept.push(r);
+            el.dataset.side = side;
+            lab.style.visibility = "visible";
+            return;
+          }
+        }
+      });
+    };
+    // After layout, and shortly after any move/zoom (also when tiles never finish loading).
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const soon = () => {
+      clearTimeout(timer);
+      timer = setTimeout(declutter, 120);
+    };
+    const raf = requestAnimationFrame(declutter);
+    soon();
+    m.on("move", soon);
+    m.on("resize", soon);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(timer);
+      m.off("move", soon);
+      m.off("resize", soon);
+    };
+  }, [props.pois, props.selectedPoi, state]);
+  useEffect(
+    () => () => {
+      for (const mk of siteMarkers.current.values()) mk.remove();
+      siteMarkers.current.clear();
+    },
+    [],
+  );
+
   // Walked trail.
   useEffect(() => {
     const m = map.current;
@@ -612,7 +702,7 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
     if (pts.length === 1) return void m.jumpTo({ center: [pts[0].lon, pts[0].lat], zoom: 15 });
     const b = new ml.LngLatBounds([pts[0].lon, pts[0].lat], [pts[0].lon, pts[0].lat]);
     for (const p of pts) b.extend([p.lon, p.lat]);
-    m.fitBounds(b, { padding: { top: 60, bottom: 40, left: 40, right: 60 }, maxZoom: 16, duration: first ? 0 : 600 });
+    m.fitBounds(b, { padding: { top: 60, bottom: 40, left: 70, right: 90 }, maxZoom: 16, duration: first ? 0 : 600 });
   }, [fitKey, state]);
 
   useImperativeHandle(ref, () => ({

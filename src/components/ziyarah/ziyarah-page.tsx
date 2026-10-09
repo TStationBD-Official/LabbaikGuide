@@ -80,6 +80,9 @@ function Refs({ refs }: { refs: ZRef[] }) {
   );
 }
 
+/** Short name for the map: Arabic uses the Arabic name; others the short label or full name. */
+const pinLabel = (p: ZPlace, locale: string) => (locale === "ar" ? p.arabic.split(" · ")[0] : gt(p.pin ?? p.name, locale));
+
 const REGION_OF: Record<"makkah" | "madinah", ZRegion> = { makkah: "makkah", madinah: "madinah" };
 
 const LOCATION_POINT = {
@@ -183,7 +186,7 @@ export function ZiyarahPage() {
       </div>
 
       <ZiyarahOverviewMap
-        items={list.map(({ p }, i) => ({ id: p.id, lat: p.lat, lon: p.lon, num: i + 1 }))}
+        items={list.map(({ p }, i) => ({ id: p.id, lat: p.lat, lon: p.lon, num: i + 1, label: pinLabel(p, locale) }))}
         user={fix}
         center={LOCATION_POINT[base]}
         onOpen={open}

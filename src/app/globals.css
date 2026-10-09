@@ -626,3 +626,25 @@ html[lang="ur"] :where(p, span, label, a, button, li, legend, h1, h2, h3, h4, dt
 .hc-z-art { background: radial-gradient(circle at 30% 20%, #f4e2b8, transparent 60%), linear-gradient(135deg, #e9dcc0, #c9a46a); }
 @media (prefers-reduced-motion: reduce) { .hc-z-hero, .hc-z-float, .hc-z-orb, .hc-rise, .hc-shimmer, .hc-kenburns { animation: none !important; } }
 [data-reduced-motion="true"] :is(.hc-z-hero, .hc-z-float, .hc-z-orb, .hc-rise, .hc-shimmer, .hc-kenburns) { animation: none !important; }
+
+/* Ziyarah map: numbered place marker with its name beside it. */
+.hc-site { position: relative; display: block; width: 30px; height: 30px; padding: 0; border: 0; background: none; cursor: pointer; }
+.hc-site-num {
+  display: grid; place-items: center; width: 30px; height: 30px; border-radius: 9999px;
+  background: #b8891f; color: #fff; font: 700 13px/1 system-ui, sans-serif;
+  border: 2.5px solid #fff; box-shadow: 0 2px 6px rgb(0 0 0 / 0.35);
+}
+.hc-site-label {
+  position: absolute; top: 50%; inset-inline-start: calc(100% + 4px); transform: translateY(-50%);
+  max-width: 9.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  padding: 3px 8px; border-radius: 9999px; font-weight: 600; font-size: 12px; line-height: 1.25;
+  background: rgb(255 255 255 / 0.95); color: #1f2a24; box-shadow: 0 1px 4px rgb(0 0 0 / 0.25);
+  pointer-events: none;
+}
+.hc-site:hover .hc-site-num, .hc-site:focus-visible .hc-site-num, .hc-site-sel .hc-site-num { background: #0f5c45; transform: scale(1.08); }
+.hc-site:hover, .hc-site:focus-visible { z-index: 2; }
+.hc-site[data-side="start"] .hc-site-label { inset-inline-start: auto; inset-inline-end: calc(100% + 4px); }
+.hc-site[data-side="below"] .hc-site-label { top: calc(100% + 3px); inset-inline-start: 50%; transform: translateX(-50%); }
+.hc-site[data-side="above"] .hc-site-label { top: auto; bottom: calc(100% + 3px); inset-inline-start: 50%; transform: translateX(-50%); }
+[dir="rtl"] .hc-site[data-side="below"] .hc-site-label, [dir="rtl"] .hc-site[data-side="above"] .hc-site-label { transform: translateX(50%); }
+.hc-site:hover .hc-site-label, .hc-site:focus-visible .hc-site-label { visibility: visible !important; }
