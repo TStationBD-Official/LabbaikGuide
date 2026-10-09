@@ -1,0 +1,179 @@
+{
+ "thawr": [
+  {
+   "id": "n1236462352",
+   "lat": 21.3770009,
+   "lon": 39.8498682,
+   "name": "جبل ثور",
+   "en": "Jabal Thawr",
+   "kind": {
+    "natural": "peak"
+   }
+  },
+  {
+   "id": "n4394613601",
+   "lat": 21.3771192,
+   "lon": 39.8498158,
+   "name": "غار ثور",
+   "en": "Thawr cave",
+   "kind": {
+    "natural": "cave_entrance"
+   }
+  }
+ ],
+ "mina": [
+  {
+   "id": "w715064349",
+   "lat": 21.4143902,
+   "lon": 39.8817408,
+   "name": "Al-khaif Police Station",
+   "en": null,
+   "kind": {
+    "amenity": "police",
+    "building": "yes"
+   }
+  }
+ ],
+ "arafat": {
+  "error": "HTTP Error 504: Gateway Timeout"
+ },
+ "exhibition": [
+  {
+   "id": "w444240922",
+   "lat": 21.4338082,
+   "lon": 39.7542986,
+   "name": "معرض عمارة الحرمين الشريفين",
+   "en": "Exhibition Of The Two Holy Mosques Architecture",
+   "kind": {
+    "tourism": "museum",
+    "building": "yes"
+   }
+  }
+ ],
+ "qiblatayn": {
+  "error": "HTTP Error 504: Gateway Timeout"
+ },
+ "seven": [
+  {
+   "id": "n12830607219",
+   "lat": 24.4796195,
+   "lon": 39.5950138,
+   "name": "الفتح",
+   "en": "Al Fath",
+   "kind": {
+    "place": "neighbourhood"
+   }
+  },
+  {
+   "id": "w666323177",
+   "lat": 24.4692815,
+   "lon": 39.6038942,
+   "name": "Salman the Persian Street",
+   "en": null,
+   "kind": {
+    "highway": "residential"
+   }
+  },
+  {
+   "id": "w1536783059",
+   "lat": 24.4774586,
+   "lon": 39.5956027,
+   "name": "مسجد سلمان الفارسي",
+   "en": "Salman Al Farsi Mosque",
+   "kind": {
+    "amenity": "place_of_worship",
+    "building": "mosque",
+    "religion": "muslim"
+   }
+  },
+  {
+   "id": "w1536783060",
+   "lat": 24.4778438,
+   "lon": 39.5956597,
+   "name": "مسجد الفتح",
+   "en": "Al Fath Mosque",
+   "kind": {
+    "amenity": "place_of_worship",
+    "building": "mosque",
+    "religion": "muslim"
+   }
+  },
+  {
+   "id": "w1544963301",
+   "lat": 24.4771004,
+   "lon": 39.5951048,
+   "name": "Masjid Al-Sab'a",
+   "en": "The Seven Mosques",
+   "kind": {
+    "landuse": "religious",
+    "religion": "muslim"
+   }
+  },
+  {
+   "id": "r19122091",
+   "lat": 24.4786245,
+   "lon": 39.594806,
+   "name": "الفتح",
+   "en": "Al Fath",
+   "kind": {}
+  }
+ ],
+ "ijabah": [
+  {
+   "id": "w346500332",
+   "lat": 24.4719641,
+   "lon": 39.6184441,
+   "name": "مسجد الإجابة",
+   "en": "Masjid Al Ijabah",
+   "kind": {
+    "amenity": "place_of_worship",
+    "building": "yes",
+    "religion": "muslim"
+   }
+  }
+ ],
+ "badr": [],
+ "khaybar": [
+  {
+   "id": "n546640970",
+   "lat": 25.7025446,
+   "lon": 39.2932974,
+   "name": "خيبر",
+   "en": "Khaybar",
+   "kind": {
+    "place": "town"
+   }
+  },
+  {
+   "id": "n13271136775",
+   "lat": 25.7011054,
+   "lon": 39.2859762,
+   "name": "غزوة خيبر",
+   "en": "Battle of Khaybar",
+   "kind": {
+    "historic": "battlefield"
+   }
+  },
+  {
+   "id": "w353773997",
+   "lat": 25.700012,
+   "lon": 39.2940936,
+   "name": "حديقة خيبر العامة",
+   "en": null,
+   "kind": {}
+  },
+  {
+   "id": "r12429011",
+   "lat": 25.8575615,
+   "lon": 39.2048,
+   "name": "محافظة خيبر",
+   "en": "Khaybar",
+   "kind": {
+    "place": "province"
+   }
+  }
+ ],
+ "balad": {
+  "error": "HTTP Error 429: Too Many Requests"
+ }
+}
