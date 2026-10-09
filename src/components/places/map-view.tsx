@@ -4,11 +4,13 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import type { GeoJSONSource, Map as MlMap, Marker, StyleSpecification } from "maplibre-gl";
 import { circleRing, tilesForArea, type Fix, type LatLon } from "@/features/places/geo";
+import { MAP_STYLE_IDS, type MapStyleId } from "@/components/places/map-styles";
+export type { MapStyleId };
 
 type MapLib = typeof import("maplibre-gl");
 
 /** OpenFreeMap: free OpenStreetMap vector tiles, no API key, no usage limits. */
-const STYLE_URL = { light: "https://tiles.openfreemap.org/styles/liberty", dark: "https://tiles.openfreemap.org/styles/dark" };
+const OFM = "https://tiles.openfreemap.org/styles/";
 
 /** Fallback if OpenFreeMap is unreachable: standard OpenStreetMap raster tiles. */
 const OSM_RASTER: StyleSpecification = {
@@ -24,6 +26,28 @@ const OSM_RASTER: StyleSpecification = {
   },
   layers: [{ id: "osm", type: "raster", source: "osm" }],
 };
+
+const STYLE_KEY = "hc_map_style";
+/** Preview colours for the picker: land, roads/water accent. */
+export const MAP_STYLE_SWATCH: Record<MapStyleId, [string, string]> = {
+  auto: ["#f2efe9", "#2b2f36"],
+  liberty: ["#f2efe9", "#8fc3e8"],
+  bright: ["#f8f4f0", "#f6c96b"],
+  positron: ["#fafaf8", "#d9d9d9"],
+  dark: ["#1c1f24", "#3b4250"],
+  fiord: ["#45516e", "#6b7fa6"],
+  osm: ["#f2efe9", "#e892a2"],
+};
+const resolveStyle = (id: MapStyleId, dark: boolean): Exclude<MapStyleId, "auto"> => (id === "auto" ? (dark ? "dark" : "liberty") : id);
+const styleFor = (id: Exclude<MapStyleId, "auto">): string | StyleSpecification => (id === "osm" ? OSM_RASTER : `${OFM}${id}`);
+function readStyle(): MapStyleId {
+  try {
+    const v = localStorage.getItem(STYLE_KEY) as MapStyleId | null;
+    return v && MAP_STYLE_IDS.includes(v) ? v : "auto";
+  } catch {
+    return "auto";
+  }
+}
 
 export type MapViewHandle = {
   /** Show both the user and the target. */
@@ -59,7 +83,7 @@ export type MapViewProps = {
   onAltRouteClick?: (index: number) => void;
   initialCenter: LatLon;
   dark: boolean;
-  labels: { map: string; you: string; offline: string; loading: string; slow?: string };
+  labels: { map: string; you: string; offline: string; loading: string; slow?: string; styles?: string; styleNames?: Record<MapStyleId, string> };
   className?: string;
   /** Extra points (gates, facilities, landmarks); tap → onPoiClick. */
   pois?: MapPoi[];
@@ -143,7 +167,9 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
     src.setData({ type: "Feature", properties: {}, geometry: { type: "MultiLineString", coordinates: lines } });
   };
   const [styleTick, setStyleTick] = useState(0);
-  const styleKey = useRef<"light" | "dark" | "raster">(props.dark ? "dark" : "light");
+  const styleKey = useRef<string>("");
+  const [styleId, setStyleId] = useState<MapStyleId>("auto");
+  const [stylesOpen, setStylesOpen] = useState(false);
 
   // ── create map once ───────────────────────────────────────────────────────
   useEffect(() => {
@@ -160,13 +186,17 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
       lib.current = ml;
       const p = latest.current;
       const start = p.pick?.value ?? p.target ?? p.user ?? p.initialCenter;
+      const chosen = readStyle();
+      setStyleId(chosen);
+      styleKey.current = resolveStyle(chosen, p.dark);
       const m = new ml.Map({
         container: container.current,
-        style: p.dark ? STYLE_URL.dark : STYLE_URL.light,
+        style: styleFor(resolveStyle(chosen, p.dark)),
         center: [start.lon, start.lat],
         zoom: p.target || p.pick ? 16 : 15,
         maxZoom: 19,
-        attributionControl: { compact: true },
+        // Credit is shown as one small line (see below) instead of the (i) button.
+        attributionControl: false,
         cooperativeGestures: false,
         dragRotate: true,
         pitchWithRotate: false,
@@ -344,7 +374,7 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
         // Style itself failed (vector service down / blocked): switch to OSM raster once.
         if (!fellBack && !m.isStyleLoaded() && /style|Failed to fetch|NetworkError|AJAXError|Load failed/i.test(msg)) {
           fellBack = true;
-          styleKey.current = "raster";
+          styleKey.current = "osm";
           if (!navigator.onLine) setState("offline");
           else m.setStyle(OSM_RASTER);
         }
@@ -363,16 +393,26 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
     };
   }, []);
 
-  // Theme switch → swap vector style (custom layers are re-added on style.load).
+  // Chosen look or theme switch → swap the style (custom layers are re-added on style.load).
   useEffect(() => {
     const m = map.current;
-    if (!m || state !== "ready" || styleKey.current === "raster") return;
-    const want = props.dark ? "dark" : "light";
+    if (!m || state !== "ready") return;
+    const want = resolveStyle(styleId, props.dark);
     if (styleKey.current !== want) {
       styleKey.current = want;
-      m.setStyle(STYLE_URL[want]);
+      m.setStyle(styleFor(want));
     }
-  }, [props.dark, state]);
+  }, [props.dark, styleId, state]);
+
+  const chooseStyle = (id: MapStyleId) => {
+    setStyleId(id);
+    setStylesOpen(false);
+    try {
+      localStorage.setItem(STYLE_KEY, id);
+    } catch {
+      /* storage unavailable */
+    }
+  };
 
   // ── target marker (or pick marker) ────────────────────────────────────────
   useEffect(() => {
@@ -544,10 +584,58 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
     centerOn: (p, zoom) => map.current?.easeTo({ center: [p.lon, p.lat], zoom: zoom ?? Math.max(map.current.getZoom(), 16), duration: 600 }),
   }));
 
+  const resolved = resolveStyle(styleId, props.dark);
+  const darkMap = resolved === "dark" || resolved === "fiord";
   return (
     <div className={props.className} style={{ position: "relative" }}>
       {/* Inline position: maplibre's CSS sets .maplibregl-map { position: relative }, which would collapse a class-based inset. */}
       <div ref={container} style={{ position: "absolute", inset: 0 }} role="application" aria-label={props.labels.map} />
+      {/* map look picker */}
+      {props.labels.styleNames ? (
+        <div className="absolute start-2.5 top-2.5 z-10">
+          <button
+            type="button"
+            onClick={() => setStylesOpen((o) => !o)}
+            aria-expanded={stylesOpen}
+            aria-label={props.labels.styles}
+            title={props.labels.styles}
+            className="grid size-10 place-items-center rounded-xl bg-card/95 shadow-soft ring-1 ring-border backdrop-blur"
+          >
+            <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <path d="m12 2 9 5-9 5-9-5 9-5Z" />
+              <path d="m3 12 9 5 9-5" />
+              <path d="m3 17 9 5 9-5" />
+            </svg>
+          </button>
+          {stylesOpen ? (
+            <div role="radiogroup" aria-label={props.labels.styles} className="mt-2 grid w-[15.5rem] grid-cols-3 gap-2 rounded-2xl bg-card/97 p-2.5 shadow-lg ring-1 ring-border backdrop-blur">
+              {MAP_STYLE_IDS.map((id) => {
+                const [a, b] = MAP_STYLE_SWATCH[id];
+                const on = id === styleId;
+                return (
+                  <button key={id} type="button" role="radio" aria-checked={on} onClick={() => chooseStyle(id)} className="flex flex-col items-center gap-1 text-[11px] font-medium">
+                    <span
+                      className={`block h-11 w-full overflow-hidden rounded-lg ring-2 ${on ? "ring-primary" : "ring-transparent"}`}
+                      style={{ background: id === "auto" ? `linear-gradient(135deg, ${a} 50%, ${b} 50%)` : `linear-gradient(160deg, ${a} 55%, ${b} 55%, ${b} 70%, ${a} 70%)` }}
+                      aria-hidden
+                    />
+                    <span className={on ? "text-primary" : "text-muted-foreground"}>{props.labels.styleNames![id]}</span>
+                  </button>
+                );
+              })}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+      {/* Required credit for the free map data (OpenStreetMap ODbL, OpenFreeMap/OpenMapTiles): kept to one faint line. */}
+      <a
+        href="https://www.openstreetmap.org/copyright"
+        target="_blank"
+        rel="noopener noreferrer"
+        className={`absolute bottom-0.5 end-1.5 z-10 text-[9px] leading-none ${darkMap ? "text-white/50 [text-shadow:0_0_2px_#000]" : "text-black/45 [text-shadow:0_0_2px_#fff]"}`}
+      >
+        {resolved === "osm" ? "© OpenStreetMap" : "© OpenMapTiles © OpenStreetMap"}
+      </a>
       {state !== "ready" ? (
         <div className="pointer-events-none absolute inset-0 grid place-items-center bg-muted/60 p-4 text-center text-sm text-muted-foreground">
           {state === "offline" ? props.labels.offline : state === "slow" ? (props.labels.slow ?? props.labels.loading) : props.labels.loading}

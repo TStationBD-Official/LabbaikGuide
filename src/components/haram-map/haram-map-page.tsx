@@ -11,6 +11,7 @@ import { Badge, Card, SectionHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SegmentedControl } from "@/components/ui/segmented";
 import { SkeletonList, UnavailableNotice } from "@/components/ui/states";
+import { useMapStyleNames } from "@/components/places/map-style-names";
 import { MapView, type MapPoi, type MapViewHandle } from "@/components/places/map-view";
 import { geolocationGranted, useLiveLocation } from "@/hooks/use-geolocation";
 import { useConfirm } from "@/components/ui/confirm";
@@ -135,6 +136,7 @@ function DirectionArrow({ bearing, heading }: { bearing: number; heading: number
 
 export function HaramMapPage({ initialLoc }: { initialLoc?: LocationId }) {
   const { t, formatNumber } = useI18n();
+  const mapStyleNames = useMapStyleNames();
   const prefLoc = usePrefs((s) => s.location);
   const router = useRouter();
   const [loc, setLoc] = useState<LocationId>(initialLoc ?? prefLoc);
@@ -384,7 +386,7 @@ export function HaramMapPage({ initialLoc }: { initialLoc?: LocationId }) {
             onPoiClick={select}
             trail={trail}
             dark={dark}
-            labels={{ map: t("haramMap.title"), you: t("hotel.you"), offline: t("hotel.offlineMap"), loading: t("hotel.mapLoading"), slow: t("hotel.mapSlow") }}
+            labels={{ map: t("haramMap.title"), you: t("hotel.you"), offline: t("hotel.offlineMap"), loading: t("hotel.mapLoading"), slow: t("hotel.mapSlow"), styles: t("mapStyle.title"), styleNames: mapStyleNames }}
           />
           {/* floating controls */}
           <div className="pointer-events-none absolute inset-x-3 bottom-9 flex items-end justify-between gap-2">

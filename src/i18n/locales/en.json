@@ -1071,5 +1071,15 @@
     "m": "m",
     "km": "km",
     "picked": "Searched place"
+  },
+  "mapStyle": {
+    "title": "Map style",
+    "auto": "Auto",
+    "liberty": "Streets",
+    "bright": "Bright",
+    "positron": "Light",
+    "dark": "Dark",
+    "fiord": "Night",
+    "osm": "Classic"
   }
 }

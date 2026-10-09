@@ -50,6 +50,7 @@ import { useStoreHydrated } from "@/hooks/use-hydrated";
 import { useWakeLock } from "@/hooks/use-wake-lock";
 import { useWalkingRoute } from "@/hooks/use-walking-route";
 import { RouteOptions } from "@/components/places/route-options";
+import { useMapStyleNames } from "@/components/places/map-style-names";
 import { PlaceSearch, type SearchHit } from "@/components/places/place-search";
 import { cn, copyText, shareOrCopy, vibrate } from "@/lib/utils";
 import { usePlacesStore, type Place, type PlaceKind } from "@/stores/places-store";
@@ -119,6 +120,7 @@ const emptyDraft = (kind: PlaceKind = "hotel"): Draft => ({ id: null, kind, name
 
 export function HotelView() {
   const { t } = useI18n();
+  const mapStyleNames = useMapStyleNames();
   const confirmDialog = useConfirm();
   const hydrated = useStoreHydrated(usePlacesStore);
   const places = usePlacesStore((s) => s.places);
@@ -315,7 +317,7 @@ export function HotelView() {
             pick={picking && draft?.pos ? { value: draft.pos, onChange: (p) => setDraft((x) => (x ? { ...x, pos: { ...p, accuracy: null, source: "map" } } : x)) } : null}
             initialCenter={haram}
             dark={dark}
-            labels={{ map: t("hotel.mapLabel"), you: t("hotel.you"), offline: t("hotel.offlineMap"), loading: t("hotel.mapLoading"), slow: t("hotel.mapSlow") }}
+            labels={{ map: t("hotel.mapLabel"), you: t("hotel.you"), offline: t("hotel.offlineMap"), loading: t("hotel.mapLoading"), slow: t("hotel.mapSlow"), styles: t("mapStyle.title"), styleNames: mapStyleNames }}
           />
           <div className="absolute right-2.5 bottom-9 z-10 flex flex-col gap-2">
             <MapButton
