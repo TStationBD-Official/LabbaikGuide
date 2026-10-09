@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ExternalLink, Play, RefreshCw, ShieldCheck, Signal, Wifi } from "lucide-react";
 import { useI18n } from "@/components/providers/i18n-provider";
@@ -51,12 +51,34 @@ export function LiveThumb({ id, place, emojiClass = "text-3xl" }: { id: string |
   );
 }
 
-function Player({ channel, info, loading }: { channel: LiveChannel; info: LiveInfo["channels"][number] | undefined; loading: boolean }) {
+export function Player({
+  channel,
+  info,
+  loading,
+  autoStart,
+  compact,
+}: {
+  channel: LiveChannel;
+  info: LiveInfo["channels"][number] | undefined;
+  loading: boolean;
+  /** Start playing (muted) once the player is on screen. */
+  autoStart?: boolean;
+  compact?: boolean;
+}) {
   const { t, locale } = useI18n();
   const reduce = useReducedMotion();
   const [playing, setPlaying] = useState<"video" | "channel" | null>(null);
   const [thumbOk, setThumbOk] = useState(true);
   const id = info?.videoId ?? null;
+  // Seen on screen at least once (auto-start waits for this, so nothing streams off-screen).
+  const box = useRef<HTMLDivElement>(null);
+  const [seen, setSeen] = useState(false);
+  useEffect(() => {
+    if (!autoStart || seen || !box.current) return;
+    const io = new IntersectionObserver((es) => es.some((e) => e.isIntersecting) && setSeen(true), { threshold: 0.4 });
+    io.observe(box.current);
+    return () => io.disconnect();
+  }, [autoStart, seen]);
 
   // A different channel or stream → back to the poster (nothing plays until tapped).
   const key = `${channel.id}:${id ?? "-"}`;
@@ -67,15 +89,17 @@ function Player({ channel, info, loading }: { channel: LiveChannel; info: LiveIn
     setThumbOk(true);
   }
 
+  // Muted by default (browsers only auto-play muted video); the player's own speaker button unmutes.
+  const mode = playing ?? (autoStart && seen && !loading ? (id ? "video" : "channel") : null);
   const src =
-    playing === "video" && id
-      ? `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&playsinline=1&rel=0&modestbranding=1`
-      : playing === "channel"
-        ? `https://www.youtube.com/embed/live_stream?channel=${channel.channelId}&autoplay=1&playsinline=1`
+    mode === "video" && id
+      ? `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1`
+      : mode === "channel"
+        ? `https://www.youtube.com/embed/live_stream?channel=${channel.channelId}&autoplay=1&mute=1&playsinline=1`
         : null;
 
   return (
-    <div className="relative aspect-video overflow-hidden rounded-3xl bg-black shadow-soft ring-1 ring-border">
+    <div ref={box} className={cn("relative aspect-video overflow-hidden bg-black shadow-soft ring-1 ring-border", compact ? "rounded-2xl" : "rounded-3xl")}>
       <AnimatePresence mode="wait">
         {src ? (
           <motion.iframe
@@ -136,17 +160,18 @@ function Player({ channel, info, loading }: { channel: LiveChannel; info: LiveIn
 
 export function LivePage() {
   const { t, locale } = useI18n();
-  const pref = usePrefs((s) => s.location);
-  const [ch, setCh] = useState<Ch>(pref);
+  // Follows the app's Makkah/Madinah choice (the tab at the top); choosing here changes it too.
+  const ch = usePrefs((s) => s.location);
+  const setPrefs = usePrefs((s) => s.set);
   const q = useLiveStreams();
 
   useEffect(() => {
     const p = new URLSearchParams(window.location.search).get("ch");
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- read the address once on mount
-    if (p === "makkah" || p === "madinah") setCh(p);
+    if ((p === "makkah" || p === "madinah") && p !== ch) setPrefs({ location: p });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- read the address once on mount
   }, []);
   const pick = (c: Ch) => {
-    setCh(c);
+    setPrefs({ location: c });
     window.history.replaceState(window.history.state, "", `/live?ch=${c}`);
   };
 
@@ -171,7 +196,7 @@ export function LivePage() {
       />
 
       <motion.div key={ch} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-        <Player channel={channel} info={info} loading={q.isLoading} />
+        <Player channel={channel} info={info} loading={q.isLoading} autoStart />
       </motion.div>
 
       {unconfirmed ? (

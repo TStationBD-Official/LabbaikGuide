@@ -1324,6 +1324,7 @@
     "privacy": "Nothing loads from YouTube until you tap play (privacy-enhanced mode).",
     "homeTitle": "Live: Makkah & Madinah",
     "homeSub": "Official 24/7 broadcast from the Haramain",
-    "watch": "Watch"
+    "watch": "Watch",
+    "mutedHint": "starts muted — tap 🔊 for sound"
   }
 }
