@@ -42,3 +42,15 @@ describe("car routes", () => {
     }
   });
 });
+
+describe("thin", () => {
+  it("keeps ends and the limit", async () => {
+    const { thin } = await import("@/server/routing/service");
+    const pts = Array.from({ length: 10001 }, (_, i) => i);
+    const out = thin(pts, 4000);
+    expect(out).toHaveLength(4000);
+    expect(out[0]).toBe(0);
+    expect(out.at(-1)).toBe(10000);
+    expect(thin([1, 2, 3], 4000)).toEqual([1, 2, 3]);
+  });
+});

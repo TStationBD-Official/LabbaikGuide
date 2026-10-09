@@ -26,7 +26,7 @@ const OsrmResponse = z.object({
       z.object({
         distance: z.number(),
         duration: z.number(),
-        geometry: z.object({ type: z.literal("LineString"), coordinates: z.array(z.tuple([z.number(), z.number()])).min(2).max(5000) }),
+        geometry: z.object({ type: z.literal("LineString"), coordinates: z.array(z.tuple([z.number(), z.number()])).min(2).max(60000) }),
       }),
     )
     .optional(),
@@ -78,6 +78,13 @@ export function distinctPaths<T extends { distance: number; coordinates: [number
 
 export type RouteMode = "walk" | "drive";
 
+/** Keep at most `max` points (long car routes), always keeping the first and last. */
+export function thin<T>(pts: T[], max: number): T[] {
+  if (pts.length <= max) return pts;
+  const step = (pts.length - 1) / (max - 1);
+  return Array.from({ length: max }, (_, i) => pts[Math.round(i * step)]);
+}
+
 export async function walkingRoute(from: { lat: number; lon: number }, to: { lat: number; lon: number }): Promise<WalkRoute> {
   return osrmRoute(from, to, "walk");
 }
@@ -94,7 +101,7 @@ export async function osrmRoute(from: { lat: number; lon: number }, to: { lat: n
   const { osrmUrl, osrmCarUrl, sourceName, sourceUrl, timeoutMs } = SERVER_CONFIG.routing;
   const url =
     mode === "drive"
-      ? `${osrmCarUrl.replace(/\/$/, "")}/route/v1/driving/${key}?overview=simplified&geometries=geojson&steps=false&alternatives=2`
+      ? `${osrmCarUrl.replace(/\/$/, "")}/route/v1/driving/${key}?overview=full&geometries=geojson&steps=false&alternatives=2`
       : `${osrmUrl.replace(/\/$/, "")}/route/v1/foot/${key}?overview=full&geometries=geojson&steps=false&alternatives=3`;
 
   const raw = await throttled(async () => {
@@ -122,7 +129,7 @@ export async function osrmRoute(from: { lat: number; lon: number }, to: { lat: n
   const toPath = (r: (typeof parsed.data.routes)[number]) => ({
     distance: Math.round(r.distance),
     duration: Math.round(r.duration),
-    coordinates: r.geometry.coordinates.map(([lon, lat]) => [+lon.toFixed(6), +lat.toFixed(6)] as [number, number]),
+    coordinates: thin(r.geometry.coordinates, 4000).map(([lon, lat]) => [+lon.toFixed(6), +lat.toFixed(6)] as [number, number]),
   });
   const [first, ...others] = parsed.data.routes;
   const route: WalkRoute = {
