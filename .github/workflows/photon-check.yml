@@ -10,11 +10,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
-          mkdir -p out
+          set +e; mkdir -p out; touch out/codes.txt
           UA="LabbaikGuide/1.0 (place search check)"
-          curl -sS -m 30 -A "$UA" "https://photon.komoot.io/api/?q=swissotel&lat=21.4225&lon=39.8262&limit=5&lang=en" -o out/swissotel.json -w "%{http_code}\n" > out/codes.txt
-          curl -sS -m 30 -A "$UA" "https://photon.komoot.io/api/?q=%D9%81%D9%86%D8%AF%D9%82%20%D8%A7%D9%84%D9%85%D9%8A%D8%B1%D8%A7%D8%AF&lat=21.4225&lon=39.8262&limit=5" -o out/arabic.json -w "%{http_code}\n" >> out/codes.txt
-          curl -sS -m 30 -A "$UA" "https://photon.komoot.io/api/?q=hilton&lat=21.4225&lon=39.8262&limit=5&lang=en&bbox=39.70,21.30,39.95,21.55" -o out/bbox.json -w "%{http_code}\n" >> out/codes.txt
-          curl -sS -m 30 -A "$UA" "https://photon.komoot.io/api/?q=ibrahim%20khalil&lat=21.4225&lon=39.8262&limit=5&lang=en" -o out/street.json -w "%{http_code}\n" >> out/codes.txt
+          curl -sS -m 30 -A "$UA" "https://photon.komoot.io/api/?q=swissotel&lat=21.4225&lon=39.8262&limit=5&lang=en" -o out/swissotel.json -w "%{http_code}\n" >> out/codes.txt || echo fail1 >> out/codes.txt
+          curl -sS -m 30 -A "$UA" "https://photon.komoot.io/api/?q=%D9%81%D9%86%D8%AF%D9%82%20%D8%A7%D9%84%D9%85%D9%8A%D8%B1%D8%A7%D8%AF&lat=21.4225&lon=39.8262&limit=5" -o out/arabic.json -w "%{http_code}\n" >> out/codes.txt || echo fail >> out/codes.txt
+          curl -sS -m 30 -A "$UA" "https://photon.komoot.io/api/?q=hilton&lat=21.4225&lon=39.8262&limit=5&lang=en&bbox=39.70,21.30,39.95,21.55" -o out/bbox.json -w "%{http_code}\n" >> out/codes.txt || echo fail >> out/codes.txt
+          curl -sS -m 30 -A "$UA" "https://photon.komoot.io/api/?q=ibrahim%20khalil&lat=21.4225&lon=39.8262&limit=5&lang=en" -o out/street.json -w "%{http_code}\n" >> out/codes.txt || echo fail >> out/codes.txt
           git config user.name ci && git config user.email ci@users.noreply.github.com
           git add out && git commit -m "photon sample [skip ci]" && git push
