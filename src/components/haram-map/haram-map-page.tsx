@@ -382,26 +382,36 @@ export function HaramMapPage({ initialLoc }: { initialLoc?: LocationId }) {
 
               </>
             ) : null}
-            <span className="ms-auto">{t("haramMap.privacy")}</span>
+            <span className="basis-full text-[11px] opacity-80">{t("haramMap.privacy")}</span>
           </div>
         ) : null}
       </Card>
 
       {/* selected place */}
       {selected ? (
-        <Card className="space-y-3">
-          <div className="flex items-start gap-3">
-            {selDist !== null ? <DirectionArrow bearing={bearingDeg(fix!, selected)} heading={compass.heading ?? fix?.heading ?? null} /> : null}
+        <Card className="overflow-hidden p-0">
+          {/* header */}
+          <div className="flex items-start gap-3 p-4">
+            <span
+              className={cn(
+                "grid size-12 shrink-0 place-items-center rounded-2xl text-xl font-bold",
+                selected.kind === "gate" ? "bg-[#b8891f] text-white" : "bg-primary-soft text-primary",
+              )}
+              aria-hidden
+            >
+              {selected.id === HOTEL_ID ? "🏨" : selected.kind === "gate" ? (selected.num !== undefined ? formatNumber(selected.num) : <DoorOpen className="size-5" />) : selected.id === FOUND_ID ? "📍" : selected.kind === "landmark" ? "🕋" : "📍"}
+            </span>
             <div className="min-w-0 flex-1">
-              <h2 className="text-lg font-semibold leading-snug">{text.title(selected)}</h2>
+              <h2 className="truncate text-lg font-semibold leading-snug" dir="auto">
+                {text.title(selected)}
+              </h2>
               {selected.id === FOUND_ID && found?.detail ? (
-                <p className="text-sm text-muted-foreground" dir="auto">
+                <p className="truncate text-sm text-muted-foreground" dir="auto">
                   {found.detail}
                 </p>
-              ) : null}
-              {selected.kind === "gate" && text.name(selected) && text.name(selected) !== text.title(selected) ? (
-                <p className="text-sm text-muted-foreground" dir="auto">
-                  {selected.nameAr && selected.nameAr !== text.name(selected) ? selected.nameAr : null}
+              ) : selected.kind === "gate" && selected.nameAr && selected.nameAr !== text.title(selected) ? (
+                <p className="truncate text-sm text-muted-foreground" dir="auto">
+                  {selected.nameAr}
                 </p>
               ) : null}
               <div className="mt-1.5 flex flex-wrap gap-1.5">
@@ -415,32 +425,53 @@ export function HaramMapPage({ initialLoc }: { initialLoc?: LocationId }) {
                 ) : null}
                 {selected.gender ? <Badge>{t(selected.gender === "female" ? "haramMap.women" : "haramMap.men")}</Badge> : null}
               </div>
-              {toGo !== null ? (
-                <div className="mt-2.5 grid grid-cols-3 gap-2 text-center">
-                  <div className="rounded-xl bg-muted/70 px-2 py-1.5">
-                    <p className="text-[11px] text-muted-foreground">{t("haramMap.toGoDistance")}</p>
-                    <p className="text-sm font-semibold">{fmt(toGo.m)}</p>
-                  </div>
-                  <div className="rounded-xl bg-muted/70 px-2 py-1.5">
-                    <p className="text-[11px] text-muted-foreground">{t("haramMap.toGoTime")}</p>
-                    <p className="text-sm font-semibold">≈ {t("haramMap.minutes", { n: formatNumber(walkingMinutes(toGo.m)) })}</p>
-                  </div>
-                  <div className="rounded-xl bg-muted/70 px-2 py-1.5">
-                    <p className="text-[11px] text-muted-foreground">{t("haramMap.trackSteps")}</p>
-                    <p className="text-sm font-semibold">≈ {formatNumber(stepsFor(toGo.m))}</p>
-                  </div>
-                  <p className="col-span-3 text-[11px] text-muted-foreground">{t(toGo.byRoute ? "haramMap.toGoByRoute" : "haramMap.toGoStraight")}</p>
-                </div>
-              ) : null}
             </div>
-            <button type="button" onClick={() => setSelectedId(null)} className="grid size-10 place-items-center rounded-full hover:bg-muted" aria-label={t("haramMap.close")}>
+            <button type="button" onClick={() => setSelectedId(null)} className="-me-1 -mt-1 grid size-10 shrink-0 place-items-center rounded-full hover:bg-muted" aria-label={t("haramMap.close")}>
               <X className="size-5" aria-hidden />
             </button>
           </div>
+
+          {/* distance, time, steps — or what is needed to show them */}
+          <div className="border-t border-border bg-muted/30 px-4 py-3">
+            {toGo !== null ? (
+              <div className="flex items-center gap-3">
+                <DirectionArrow bearing={bearingDeg(fix!, selected)} heading={compass.heading ?? fix?.heading ?? null} />
+                <div className="grid flex-1 grid-cols-3 gap-2 text-center">
+                  <div>
+                    <p className="text-[11px] text-muted-foreground">{t("haramMap.toGoDistance")}</p>
+                    <p className="font-semibold">{fmt(toGo.m)}</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] text-muted-foreground">{t("haramMap.toGoTime")}</p>
+                    <p className="font-semibold">≈ {t("haramMap.minutes", { n: formatNumber(walkingMinutes(toGo.m)) })}</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] text-muted-foreground">{t("haramMap.trackSteps")}</p>
+                    <p className="font-semibold">≈ {formatNumber(stepsFor(toGo.m))}</p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary/10 text-primary" aria-hidden>
+                  <Crosshair className="size-5" />
+                </span>
+                <p className="flex-1 text-sm text-muted-foreground">{live.status === "requesting" ? t("haramMap.locating") : t("haramMap.needLocation")}</p>
+                {live.status !== "requesting" ? (
+                  <Button size="sm" variant="outline" onClick={locate}>
+                    {t("haramMap.locate")}
+                  </Button>
+                ) : null}
+              </div>
+            )}
+            {toGo !== null ? <p className="mt-2 text-center text-[11px] text-muted-foreground">{t(toGo.byRoute ? "haramMap.toGoByRoute" : "haramMap.toGoStraight")}</p> : null}
+          </div>
+
+          {/* route */}
           {!selected.restricted ? (
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="space-y-3 border-t border-border p-4">
               <Button
-                size="sm"
+                className="w-full"
                 variant={routeOn ? "outline" : "primary"}
                 onClick={() => {
                   if (!fix) locate();
@@ -450,11 +481,12 @@ export function HaramMapPage({ initialLoc }: { initialLoc?: LocationId }) {
                 <Route className="size-4" aria-hidden />
                 {routeOn ? t("haramMap.routeHide") : t("haramMap.route")}
               </Button>
-              {routeOn && walk.status === "loading" ? <p className="text-xs text-muted-foreground">{t("hotel.routeLoading")}</p> : null}
-              {routeOn && walk.status === "unavailable" && !walk.route ? <p className="text-xs text-warning">{t("hotel.routeUnavailable")}</p> : null}
+              {routeOn && walk.status === "loading" ? <p className="text-center text-xs text-muted-foreground">{t("hotel.routeLoading")}</p> : null}
+              {routeOn && !fix && live.status !== "denied" ? <p className="text-center text-xs text-muted-foreground">{t("haramMap.routeWaitsForLocation")}</p> : null}
+              {routeOn && walk.status === "unavailable" && !walk.route ? <p className="text-center text-xs text-warning">{t("hotel.routeUnavailable")}</p> : null}
+              {routeOn && walk.routes.length ? <RouteOptions routes={walk.routes} choice={walk.choice} onChoose={walk.choose} fmtDist={fmt} /> : null}
             </div>
           ) : null}
-          {routeOn && walk.routes.length ? <RouteOptions routes={walk.routes} choice={walk.choice} onChoose={walk.choose} fmtDist={fmt} /> : null}
         </Card>
       ) : null}
 

@@ -1006,7 +1006,9 @@
     "toGoTime": "Time",
     "minutes": "{n} min",
     "toGoByRoute": "Along the walking route · steps are an estimate",
-    "toGoStraight": "Straight-line distance; the real walk is usually longer · steps are an estimate"
+    "toGoStraight": "Straight-line distance; the real walk is usually longer · steps are an estimate",
+    "needLocation": "Turn on your location to see the distance, time and steps.",
+    "routeWaitsForLocation": "The route appears as soon as your location is found."
   },
   "travelGuide": {
     "title": "Travel Guide",
