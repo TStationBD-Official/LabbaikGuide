@@ -186,7 +186,28 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
             type: "line",
             source: "hc-trail",
             layout: { "line-cap": "round", "line-join": "round" },
-            paint: { "line-color": "#7c3aed", "line-width": 4, "line-opacity": 0.75, "line-dasharray": [0.2, 1.6] },
+            filter: ["==", ["geometry-type"], "LineString"],
+            paint: { "line-color": "#7c3aed", "line-width": 4, "line-opacity": 0.8 },
+          });
+          // Each recorded waypoint as a small dot; the start as a larger green one.
+          m.addLayer({
+            id: "hc-trail-pts",
+            type: "circle",
+            source: "hc-trail",
+            filter: ["all", ["==", ["geometry-type"], "Point"], ["!=", ["get", "start"], true]],
+            paint: {
+              "circle-radius": ["interpolate", ["linear"], ["zoom"], 15, 1.6, 18, 3.6],
+              "circle-color": "#ffffff",
+              "circle-stroke-color": "#7c3aed",
+              "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 15, 1, 18, 2],
+            },
+          });
+          m.addLayer({
+            id: "hc-trail-start",
+            type: "circle",
+            source: "hc-trail",
+            filter: ["==", ["get", "start"], true],
+            paint: { "circle-radius": 7, "circle-color": "#16a34a", "circle-stroke-color": "#ffffff", "circle-stroke-width": 2.5 },
           });
         }
         if (!m.getSource("hc-route")) {
@@ -408,7 +429,14 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
     if (!m || state !== "ready") return;
     const src = m.getSource("hc-trail") as GeoJSONSource | undefined;
     const t = props.trail;
-    src?.setData(t && t.length > 1 ? { type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: t } } : EMPTY);
+    if (!t || !t.length) return void src?.setData(EMPTY);
+    src?.setData({
+      type: "FeatureCollection",
+      features: [
+        ...(t.length > 1 ? [{ type: "Feature" as const, properties: {}, geometry: { type: "LineString" as const, coordinates: t } }] : []),
+        ...t.map((c, i) => ({ type: "Feature" as const, properties: { start: i === 0 }, geometry: { type: "Point" as const, coordinates: c } })),
+      ],
+    });
   }, [props.trail, state, styleTick]);
 
   // Heading cone on the user dot.

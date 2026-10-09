@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
-import { Accessibility, Crosshair, DoorOpen, ExternalLink, Footprints, Info, Navigation, Route, Search, Trash2, X } from "lucide-react";
+import { Accessibility, Circle, Crosshair, DoorOpen, ExternalLink, Info, Navigation, Pause, Route, Search, Trash2, X } from "lucide-react";
 import { useI18n } from "@/components/providers/i18n-provider";
 import { usePrefs } from "@/components/providers/preferences-provider";
 import { Badge, Card, SectionHeader } from "@/components/ui/card";
@@ -12,12 +12,14 @@ import { Button } from "@/components/ui/button";
 import { SegmentedControl } from "@/components/ui/segmented";
 import { SkeletonList, UnavailableNotice } from "@/components/ui/states";
 import { MapView, type MapPoi, type MapViewHandle } from "@/components/places/map-view";
-import { useLiveLocation } from "@/hooks/use-geolocation";
+import { geolocationGranted, useLiveLocation } from "@/hooks/use-geolocation";
+import { useConfirm } from "@/components/ui/confirm";
 import { useCompass } from "@/hooks/use-compass";
 import { useIsDark } from "@/hooks/use-is-dark";
 import { useWalkingRoute } from "@/hooks/use-walking-route";
 import { LOCATIONS, type LocationId } from "@/config/locations";
 import { bearingDeg, distanceM, remainingPath, walkingMinutes, type LatLon } from "@/features/places/geo";
+import { addFix, elapsedMs, EMPTY_TRACK, loadTrack, startTrack, stepsFor, stopTrack, TRACK_KEY, type Track } from "@/features/places/track";
 import { apiGet } from "@/services/api-client";
 import { cn } from "@/lib/utils";
 import type { TKey } from "@/i18n";
@@ -93,6 +95,17 @@ function usePoiText() {
   }, [t, locale, formatNumber]);
 }
 
+const DEST_KEY = "hc_haram_dest_v1";
+
+/** 3:07 or 1:02:45 */
+function clock(ms: number) {
+  const s = Math.floor(ms / 1000);
+  const h = Math.floor(s / 3600);
+  const mm = String(Math.floor((s % 3600) / 60)).padStart(h ? 2 : 1, "0");
+  const ss = String(s % 60).padStart(2, "0");
+  return h ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
+}
+
 function useFmt() {
   const { intlLocale } = useI18n();
   return useMemo(() => {
@@ -140,22 +153,61 @@ export function HaramMapPage({ initialLoc }: { initialLoc?: LocationId }) {
   const compass = useCompass();
   const fix = live.fix;
 
-  // Path walked while this page is open (kept on the device, in memory only).
-  const [trail, setTrail] = useState<[number, number][]>([]);
-  const [walked, setWalked] = useState(0);
+  const confirm = useConfirm();
+  // Recorded walk: saved on this device so a refresh or a closed tab doesn't lose it.
+  const [track, setTrack] = useState<Track>(EMPTY_TRACK);
+  const [restored, setRestored] = useState(false);
+  const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
-    if (!fix || fix.accuracy > 35) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- append each accepted GPS fix to the trail
-    setTrail((tr) => {
-      const last = tr[tr.length - 1];
-      if (last) {
-        const d = distanceM({ lat: last[1], lon: last[0] }, fix);
-        if (d < 4) return tr;
-        setWalked((w) => w + d);
-      }
-      return [...tr.slice(-1999), [fix.lon, fix.lat]];
-    });
+    let saved = EMPTY_TRACK;
+    let dest: { loc?: string; id?: string; route?: boolean } = {};
+    try {
+      saved = loadTrack(localStorage.getItem(TRACK_KEY));
+      dest = JSON.parse(localStorage.getItem(DEST_KEY) ?? "{}");
+    } catch {
+      /* storage unavailable */
+    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- restore the saved walk after mount
+    setTrack(saved);
+    if (dest.id && dest.loc === (initialLoc ?? prefLoc)) {
+      setSelectedId(dest.id);
+      setRouteOn(Boolean(dest.route));
+    }
+    setRestored(true);
+    // Recording was on before the refresh: carry on if location access is already allowed.
+    if (saved.on) void geolocationGranted().then((ok) => ok && live.start());
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once, on mount
+  }, []);
+  useEffect(() => {
+    if (!restored) return;
+    try {
+      localStorage.setItem(TRACK_KEY, JSON.stringify(track));
+    } catch {
+      /* storage full or unavailable */
+    }
+  }, [track, restored]);
+  useEffect(() => {
+    if (!fix) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- each accepted GPS fix becomes a waypoint while recording
+    setTrack((t) => addFix(t, fix));
   }, [fix]);
+  useEffect(() => {
+    if (!track.on) return;
+    const id = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(id);
+  }, [track.on]);
+  const trail = useMemo(() => track.points.map((p) => [p[0], p[1]] as [number, number]), [track.points]);
+  const walked = track.walked;
+
+  // Remember the chosen destination too.
+  useEffect(() => {
+    if (!restored) return;
+    try {
+      localStorage.setItem(DEST_KEY, JSON.stringify(selectedId ? { loc, id: selectedId, route: routeOn } : {}));
+    } catch {
+      /* storage unavailable */
+    }
+  }, [selectedId, routeOn, loc, restored]);
 
   const pois = useMemo(() => (data.data?.location === loc ? data.data.pois : []), [data.data, loc]);
   const shown = useMemo(() => pois.filter((p) => layers[layerOf(p)]), [pois, layers]);
@@ -202,6 +254,8 @@ export function HaramMapPage({ initialLoc }: { initialLoc?: LocationId }) {
 
   const distTo = (p: LatLon) => (fix ? distanceM(fix, p) : null);
   const selDist = selected ? distTo(selected) : null;
+  // Along the walking route when there is one; otherwise the straight line.
+  const toGo = selDist === null ? null : walk.progress && routeOn ? { m: walk.progress.remainingM, byRoute: true } : { m: selDist, byRoute: false };
 
   return (
     <div className="space-y-5">
@@ -261,12 +315,33 @@ export function HaramMapPage({ initialLoc }: { initialLoc?: LocationId }) {
           {/* floating controls */}
           <div className="pointer-events-none absolute inset-x-3 bottom-9 flex items-end justify-between gap-2">
             <div className="pointer-events-auto flex flex-col gap-2">
-              {trail.length > 1 ? (
+              <button
+                type="button"
+                onClick={() => {
+                  if (track.on) setTrack((t) => stopTrack(t, Date.now()));
+                  else {
+                    if (live.status !== "tracking") live.start();
+                    if (compass.state === "off") void compass.start();
+                    setFollow(true);
+                    setNow(Date.now());
+                    setTrack((t) => startTrack(t, Date.now()));
+                  }
+                }}
+                aria-pressed={track.on}
+                className={cn(
+                  "inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 text-sm font-semibold shadow-lg ring-1 transition-colors",
+                  track.on ? "bg-danger text-white ring-danger" : "bg-card/95 text-foreground ring-border backdrop-blur",
+                )}
+              >
+                {track.on ? <Pause className="size-4" aria-hidden /> : <Circle className="size-4 fill-danger text-danger" aria-hidden />}
+                {track.on ? t("haramMap.trackStop") : track.points.length ? t("haramMap.trackResume") : t("haramMap.trackStart")}
+              </button>
+              {track.points.length > 1 && !track.on ? (
                 <button
                   type="button"
-                  onClick={() => {
-                    setTrail(fix ? [[fix.lon, fix.lat]] : []);
-                    setWalked(0);
+                  onClick={async () => {
+                    const ok = await confirm({ title: t("haramMap.trackClearTitle"), message: t("haramMap.trackClearMsg"), emoji: "👣", tone: "danger", confirmLabel: t("haramMap.trailClear") });
+                    if (ok) setTrack(EMPTY_TRACK);
                   }}
                   className="inline-flex min-h-10 items-center gap-1.5 whitespace-nowrap rounded-full bg-card/95 px-3 text-xs font-medium shadow-soft ring-1 ring-border backdrop-blur"
                 >
@@ -290,6 +365,27 @@ export function HaramMapPage({ initialLoc }: { initialLoc?: LocationId }) {
           </div>
         </div>
 
+        {/* recorded walk */}
+        {track.on || track.points.length > 1 ? (
+          <div className="grid grid-cols-3 divide-x divide-border border-t border-border text-center rtl:divide-x-reverse" aria-live="polite">
+            <div className="px-2 py-2.5">
+              <p className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
+                {track.on ? <span className="size-2 animate-pulse rounded-full bg-danger" aria-hidden /> : null}
+                {track.on ? t("haramMap.trackRecording") : t("haramMap.trackPaused")}
+              </p>
+              <p className="font-semibold tabular-nums">{clock(elapsedMs(track, now))}</p>
+            </div>
+            <div className="px-2 py-2.5">
+              <p className="text-[11px] text-muted-foreground">{t("haramMap.trackDistance")}</p>
+              <p className="font-semibold">{fmt(walked)}</p>
+            </div>
+            <div className="px-2 py-2.5">
+              <p className="text-[11px] text-muted-foreground">{t("haramMap.trackSteps")}</p>
+              <p className="font-semibold">≈ {formatNumber(stepsFor(walked))}</p>
+            </div>
+          </div>
+        ) : null}
+
         {/* live status */}
         {live.status !== "idle" ? (
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-border px-4 py-2.5 text-xs text-muted-foreground">
@@ -302,10 +398,7 @@ export function HaramMapPage({ initialLoc }: { initialLoc?: LocationId }) {
                   <span className="size-2 rounded-full bg-[#2f7cf6]" aria-hidden />
                   {t("haramMap.accuracy", { m: formatNumber(Math.round(fix.accuracy)) })}
                 </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <Footprints className="size-3.5" aria-hidden />
-                  {t("haramMap.walked", { d: fmt(walked) })}
-                </span>
+
               </>
             ) : null}
             <span className="ms-auto">{t("haramMap.privacy")}</span>
@@ -336,8 +429,22 @@ export function HaramMapPage({ initialLoc }: { initialLoc?: LocationId }) {
                 ) : null}
                 {selected.gender ? <Badge>{t(selected.gender === "female" ? "haramMap.women" : "haramMap.men")}</Badge> : null}
               </div>
-              {selDist !== null ? (
-                <p className="mt-2 text-sm">{t("haramMap.distance", { d: fmt(selDist), min: formatNumber(Math.max(1, Math.round(walkingMinutes(selDist)))) })}</p>
+              {toGo !== null ? (
+                <div className="mt-2.5 grid grid-cols-3 gap-2 text-center">
+                  <div className="rounded-xl bg-muted/70 px-2 py-1.5">
+                    <p className="text-[11px] text-muted-foreground">{t("haramMap.toGoDistance")}</p>
+                    <p className="text-sm font-semibold">{fmt(toGo.m)}</p>
+                  </div>
+                  <div className="rounded-xl bg-muted/70 px-2 py-1.5">
+                    <p className="text-[11px] text-muted-foreground">{t("haramMap.toGoTime")}</p>
+                    <p className="text-sm font-semibold">≈ {t("haramMap.minutes", { n: formatNumber(walkingMinutes(toGo.m)) })}</p>
+                  </div>
+                  <div className="rounded-xl bg-muted/70 px-2 py-1.5">
+                    <p className="text-[11px] text-muted-foreground">{t("haramMap.trackSteps")}</p>
+                    <p className="text-sm font-semibold">≈ {formatNumber(stepsFor(toGo.m))}</p>
+                  </div>
+                  <p className="col-span-3 text-[11px] text-muted-foreground">{t(toGo.byRoute ? "haramMap.toGoByRoute" : "haramMap.toGoStraight")}</p>
+                </div>
               ) : null}
             </div>
             <button type="button" onClick={() => setSelectedId(null)} className="grid size-10 place-items-center rounded-full hover:bg-muted" aria-label={t("haramMap.close")}>
