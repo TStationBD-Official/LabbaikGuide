@@ -41,3 +41,20 @@ describe("haram map: OpenStreetMap parsing", () => {
     expect(buildQuery("madinah")).toContain("24.467206,39.611133");
   });
 });
+
+describe("hand-checked gates", () => {
+  it("replace the OpenStreetMap gate with the same number and keep the rest", async () => {
+    const { mergeVerified } = await import("@/server/haram-map/service");
+    const osm = [
+      { id: "n1", kind: "gate" as const, lat: 21.4, lon: 39.8, num: 84 },
+      { id: "n2", kind: "gate" as const, lat: 21.41, lon: 39.81, num: 85 },
+      { id: "n3", kind: "toilets" as const, lat: 21.42, lon: 39.82 },
+    ];
+    const out = mergeVerified(osm, [{ num: 84, lat: 21.5, lon: 39.9, source: "test", checked: "2026-10-09" }]);
+    const g84 = out.filter((p) => p.num === 84);
+    expect(g84).toHaveLength(1);
+    expect(g84[0]).toMatchObject({ lat: 21.5, lon: 39.9, verified: true });
+    expect(out.some((p) => p.id === "n2")).toBe(true);
+    expect(out.some((p) => p.id === "n3")).toBe(true);
+  });
+});

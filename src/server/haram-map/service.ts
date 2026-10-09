@@ -1,6 +1,7 @@
 import "server-only";
 import { z } from "zod";
 import { LOCATIONS, type LocationId } from "@/config/locations";
+import { VERIFIED_GATES, type VerifiedGate } from "@/data/haram-gates";
 
 export const HARAM_MAP_TAG = "haram-map";
 
@@ -30,6 +31,8 @@ export type Poi = {
   landmark?: Landmark;
   /** Part of the mosque's mapped outline (not a nearby hotel door). */
   onMosque?: boolean;
+  /** Position checked by hand (see src/data/haram-gates.ts), not from OpenStreetMap. */
+  verified?: boolean;
 };
 export type HaramMapData = { location: LocationId; pois: Poi[]; source: "OpenStreetMap"; fetchedAt: string };
 
@@ -165,6 +168,27 @@ export function parseOverpass(json: unknown, location: LocationId): Poi[] {
   return dedupe(pois).sort((a, b) => (a.num ?? 9999) - (b.num ?? 9999));
 }
 
+/** Hand-checked gates replace OpenStreetMap gates with the same number. */
+export function mergeVerified(pois: Poi[], verified: VerifiedGate[]): Poi[] {
+  if (!verified.length) return pois;
+  const nums = new Set(verified.map((g) => g.num));
+  const own: Poi[] = verified.map((g) => ({
+    id: `v${g.num}`,
+    kind: "gate",
+    lat: g.lat,
+    lon: g.lon,
+    name: g.nameAr ?? g.nameEn,
+    nameEn: g.nameEn,
+    nameAr: g.nameAr,
+    num: g.num,
+    role: g.role ?? "entrance",
+    restricted: g.role === "emergency" || g.role === "service",
+    onMosque: true,
+    verified: true,
+  }));
+  return [...pois.filter((p) => !(p.kind === "gate" && p.num !== undefined && nums.has(p.num))), ...own].sort((a, b) => (a.num ?? 9999) - (b.num ?? 9999));
+}
+
 export async function getHaramMap(location: LocationId): Promise<HaramMapData> {
   const q = buildQuery(location).replace(".mg out tags;", ".mg out ids;");
   let lastErr: unknown;
@@ -178,7 +202,7 @@ export async function getHaramMap(location: LocationId): Promise<HaramMapData> {
         next: { revalidate: 86_400, tags: [HARAM_MAP_TAG] },
       });
       if (!res.ok) throw new Error(`Overpass ${res.status}`);
-      const pois = parseOverpass(await res.json(), location);
+      const pois = mergeVerified(parseOverpass(await res.json(), location), VERIFIED_GATES[location]);
       return { location, pois, source: "OpenStreetMap", fetchedAt: new Date().toISOString() };
     } catch (e) {
       lastErr = e;

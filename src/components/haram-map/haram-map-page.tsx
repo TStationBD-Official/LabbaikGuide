@@ -37,6 +37,7 @@ const PoiSchema = z.object({
   gender: z.enum(["male", "female"]).optional(),
   landmark: z.enum(["kaaba", "maqam", "blackstone", "safa", "marwah", "zamzam", "rawdah", "greenDome", "baqi", "mosque"]).optional(),
   onMosque: z.boolean().optional(),
+  verified: z.boolean().optional(),
 });
 const DataSchema = z.object({ location: z.enum(["makkah", "madinah"]), pois: z.array(PoiSchema), source: z.string(), fetchedAt: z.string() });
 type Poi = z.infer<typeof PoiSchema>;
