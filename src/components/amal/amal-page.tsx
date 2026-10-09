@@ -138,6 +138,22 @@ function TodayView({ day, today, onDay }: { day: string; today: string; onDay: (
   const yesterday = shiftKey(today, -1);
   const yRec = useAmalStore((st) => st.days[yesterday]);
   const lastNight = isToday && now && now.getTime() < fajrOf(today, location).getTime() ? itemsFor(yesterday, s).filter((i) => (i.slot === "isha" || i.slot === "night") && i.kind !== "fard" && !isDone(i, yRec, s)) : [];
+
+  // On opening today, bring the current part of the day (or last night's open deeds) into view — once.
+  const jumped = useRef(false);
+  const target = !isToday ? null : lastNight.length ? "last-night" : slot ? `slot-${slot}` : null;
+  useEffect(() => {
+    if (jumped.current || !target) return;
+    // Let the page settle first so the scroll lands on the right spot.
+    const id = setTimeout(() => {
+      const el = document.getElementById(target)?.closest("section");
+      if (!el) return;
+      jumped.current = true;
+      const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    }, 350);
+    return () => clearTimeout(id);
+  }, [target]);
   const ymd = { year: +day.slice(0, 4), month: +day.slice(5, 7), day: +day.slice(8, 10) };
   const dateLabel = new Intl.DateTimeFormat(intlLocale, { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" }).format(parseKey(day));
   const recs = useMemo(() => (isToday ? recommend(days, s, today, firstDay, 2) : []), [isToday, days, s, today, firstDay]);
@@ -266,7 +282,7 @@ function TodayView({ day, today, onDay }: { day: string; today: string; onDay: (
       </Card>
 
       {lastNight.length ? (
-        <section aria-labelledby="last-night" className="hc-rise space-y-2 rounded-3xl bg-primary-soft/40 p-2 ring-1 ring-primary/30">
+        <section aria-labelledby="last-night" className="hc-rise scroll-mt-24 space-y-2 rounded-3xl bg-primary-soft/40 p-2 ring-1 ring-primary/30">
           <header className="flex items-center gap-3 px-1 pt-1">
             <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-card text-xl shadow-soft" aria-hidden>
               🌌
@@ -297,7 +313,7 @@ function TodayView({ day, today, onDay }: { day: string; today: string; onDay: (
           const allLocked = list.every((i) => opensLabel(i) && !isDone(i, rec, s));
           const name = sl === "dhuhr" && fri ? t("amal.slot_jumuah") : t(`amal.slot_${sl}`);
           return (
-            <section key={sl} aria-labelledby={`slot-${sl}`} className={cn("hc-rise space-y-2", isNow && "rounded-3xl bg-gold-soft/30 p-2 ring-2 ring-gold/40", allLocked && "opacity-80")}>
+            <section key={sl} aria-labelledby={`slot-${sl}`} className={cn("hc-rise scroll-mt-24 space-y-2", isNow && "rounded-3xl bg-gold-soft/30 p-2 ring-2 ring-gold/40", allLocked && "opacity-80")}>
               <header className="flex items-center gap-3 px-1">
                 <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-card text-xl shadow-soft" aria-hidden>
                   {SLOT_EMOJI[sl]}
