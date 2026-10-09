@@ -31,7 +31,8 @@
       "hotel": "Hotel",
       "haramMap": "Map",
       "travelGuide": "Guide",
-      "janazah": "Janazah"
+      "janazah": "Janazah",
+      "walks": "Walks"
     },
     "collapse": "Collapse menu",
     "expand": "Expand menu",
@@ -39,7 +40,8 @@
     "toggleTheme": "Switch light/dark",
     "haramMap": "Haram Map",
     "travelGuide": "Travel Guide",
-    "janazah": "Janazah Prayer"
+    "janazah": "Janazah Prayer",
+    "walks": "My Walks"
   },
   "location": {
     "makkah": "Makkah",
@@ -1094,5 +1096,39 @@
     "dark": "Dark",
     "fiord": "Night",
     "osm": "Classic"
+  },
+  "walks": {
+    "title": "My Walks",
+    "subtitle": "Record a path step by step, save it with a name, and follow it back later",
+    "homeTitle": "Save a path (waypoints)",
+    "homeSub": "Record your way, name it, find your way back",
+    "open": "Open",
+    "start": "Start recording",
+    "save": "Save",
+    "saveWalk": "Save this walk",
+    "discard": "Discard",
+    "nameLabel": "Name",
+    "defaultName": "Walk {n} · {date}",
+    "intro": "Tap “Start recording” and walk — every few metres becomes a waypoint. Save it with a name (e.g. “Hotel → Gate 79”) to find the same way again.",
+    "saved": "Saved walks",
+    "none": "No saved walks yet.",
+    "allWalks": "All walks",
+    "edit": "Edit",
+    "noteLabel": "Note",
+    "notePlaceholder": "e.g. Take the escalator after the clock tower",
+    "delete": "Delete",
+    "deleteTitle": "Delete this walk?",
+    "deleteMsg": "“{name}” and its waypoints will be removed from this phone.",
+    "points": "{n} waypoints",
+    "goTo": "Follow the path to",
+    "backToStart": "Back to start",
+    "toEnd": "To the end",
+    "startPoint": "Start of the walk",
+    "endPoint": "End of the walk",
+    "arrived": "You've arrived 🎉",
+    "offPath": "{d} off the saved path — head back to the blue line",
+    "followPath": "Show my position on the path",
+    "followNote": "Distance, time and steps are measured along your saved path. Inside buildings GPS can be weak.",
+    "privacy": "Walks and your location stay on this phone only."
   }
 }

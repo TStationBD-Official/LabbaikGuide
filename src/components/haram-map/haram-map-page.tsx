@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
-import { Accessibility, Circle, Crosshair, DoorOpen, ExternalLink, Info, Navigation, Pause, Route, Search, Trash2, X } from "lucide-react";
+import { Accessibility, Crosshair, DoorOpen, ExternalLink, Info, Navigation, Route, Search, X } from "lucide-react";
 import { useI18n } from "@/components/providers/i18n-provider";
 import { usePrefs } from "@/components/providers/preferences-provider";
 import { Badge, Card, SectionHeader } from "@/components/ui/card";
@@ -14,7 +14,6 @@ import { SkeletonList, UnavailableNotice } from "@/components/ui/states";
 import { useMapStyleNames } from "@/components/places/map-style-names";
 import { MapView, type MapPoi, type MapViewHandle } from "@/components/places/map-view";
 import { geolocationGranted, useLiveLocation } from "@/hooks/use-geolocation";
-import { useConfirm } from "@/components/ui/confirm";
 import { RouteOptions } from "@/components/places/route-options";
 import { PlaceSearch, type SearchHit } from "@/components/places/place-search";
 import { useActivePlace } from "@/stores/places-store";
@@ -24,7 +23,7 @@ import { useIsDark } from "@/hooks/use-is-dark";
 import { useWalkingRoute } from "@/hooks/use-walking-route";
 import { LOCATIONS, type LocationId } from "@/config/locations";
 import { bearingDeg, distanceM, remainingPath, walkingMinutes, type LatLon } from "@/features/places/geo";
-import { addFix, elapsedMs, EMPTY_TRACK, loadTrack, startTrack, stepsFor, stopTrack, TRACK_KEY, type Track } from "@/features/places/track";
+import { stepsFor } from "@/features/places/track";
 import { apiGet } from "@/services/api-client";
 import { cn } from "@/lib/utils";
 import type { TKey } from "@/i18n";
@@ -107,14 +106,6 @@ const HOTEL_ID = "hotel";
 const FOUND_ID = "found";
 type Found = { name: string; detail: string; lat: number; lon: number };
 
-/** 3:07 or 1:02:45 */
-function clock(ms: number) {
-  const s = Math.floor(ms / 1000);
-  const h = Math.floor(s / 3600);
-  const mm = String(Math.floor((s % 3600) / 60)).padStart(h ? 2 : 1, "0");
-  const ss = String(s % 60).padStart(2, "0");
-  return h ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
-}
 
 function useFmt() {
   const { intlLocale } = useI18n();
@@ -164,54 +155,26 @@ export function HaramMapPage({ initialLoc }: { initialLoc?: LocationId }) {
   const compass = useCompass();
   const fix = live.fix;
 
-  const confirm = useConfirm();
   const [found, setFound] = useState<Found | null>(null);
-  // Recorded walk: saved on this device so a refresh or a closed tab doesn't lose it.
-  const [track, setTrack] = useState<Track>(EMPTY_TRACK);
   const [restored, setRestored] = useState(false);
-  const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
-    let saved = EMPTY_TRACK;
     let dest: { loc?: string; id?: string; route?: boolean; found?: Found } = {};
     try {
-      saved = loadTrack(localStorage.getItem(TRACK_KEY));
       dest = JSON.parse(localStorage.getItem(DEST_KEY) ?? "{}");
     } catch {
       /* storage unavailable */
     }
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- restore the saved walk after mount
-    setTrack(saved);
     if (dest.id && dest.loc === (initialLoc ?? prefLoc)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- restore the chosen destination after mount
       if (dest.found) setFound(dest.found);
       setSelectedId(dest.id);
       setRouteOn(Boolean(dest.route));
     }
     setRestored(true);
-    // Recording or a route was on before the refresh: carry on if location access is already allowed.
-    if (saved.on || dest.route) void geolocationGranted().then((ok) => ok && live.start());
+    // A route was on before the refresh: carry on if location access is already allowed.
+    if (dest.route) void geolocationGranted().then((ok) => ok && live.start());
     // eslint-disable-next-line react-hooks/exhaustive-deps -- once, on mount
   }, []);
-  useEffect(() => {
-    if (!restored) return;
-    try {
-      localStorage.setItem(TRACK_KEY, JSON.stringify(track));
-    } catch {
-      /* storage full or unavailable */
-    }
-  }, [track, restored]);
-  useEffect(() => {
-    if (!fix) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- each accepted GPS fix becomes a waypoint while recording
-    setTrack((t) => addFix(t, fix));
-  }, [fix]);
-  useEffect(() => {
-    if (!track.on) return;
-    const id = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => window.clearInterval(id);
-  }, [track.on]);
-  const trail = useMemo(() => track.points.map((p) => [p[0], p[1]] as [number, number]), [track.points]);
-  const walked = track.walked;
-
   // Remember the chosen destination too.
   useEffect(() => {
     if (!restored) return;
@@ -384,48 +347,18 @@ export function HaramMapPage({ initialLoc }: { initialLoc?: LocationId }) {
             pois={mapPois}
             selectedPoi={selectedId}
             onPoiClick={select}
-            trail={trail}
             dark={dark}
             labels={{ map: t("haramMap.title"), you: t("hotel.you"), offline: t("hotel.offlineMap"), loading: t("hotel.mapLoading"), slow: t("hotel.mapSlow"), styles: t("mapStyle.title"), styleNames: mapStyleNames }}
           />
           {/* floating controls */}
           <div className="pointer-events-none absolute inset-x-3 bottom-9 flex items-end justify-between gap-2">
-            <div className="pointer-events-auto flex flex-col gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  if (track.on) setTrack((t) => stopTrack(t, Date.now()));
-                  else {
-                    if (live.status !== "tracking") live.start();
-                    if (compass.state === "off") void compass.start();
-                    setFollow(true);
-                    setNow(Date.now());
-                    setTrack((t) => startTrack(t, Date.now()));
-                  }
-                }}
-                aria-pressed={track.on}
-                className={cn(
-                  "inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 text-sm font-semibold shadow-lg ring-1 transition-colors",
-                  track.on ? "bg-danger text-white ring-danger" : "bg-card/95 text-foreground ring-border backdrop-blur",
-                )}
-              >
-                {track.on ? <Pause className="size-4" aria-hidden /> : <Circle className="size-4 fill-danger text-danger" aria-hidden />}
-                {track.on ? t("haramMap.trackStop") : track.points.length ? t("haramMap.trackResume") : t("haramMap.trackStart")}
-              </button>
-              {track.points.length > 1 && !track.on ? (
-                <button
-                  type="button"
-                  onClick={async () => {
-                    const ok = await confirm({ title: t("haramMap.trackClearTitle"), message: t("haramMap.trackClearMsg"), emoji: "👣", tone: "danger", confirmLabel: t("haramMap.trailClear") });
-                    if (ok) setTrack(EMPTY_TRACK);
-                  }}
-                  className="inline-flex min-h-10 items-center gap-1.5 whitespace-nowrap rounded-full bg-card/95 px-3 text-xs font-medium shadow-soft ring-1 ring-border backdrop-blur"
-                >
-                  <Trash2 className="size-4" aria-hidden />
-                  {t("haramMap.trailClear")}
-                </button>
-              ) : null}
-            </div>
+            <Link
+              href="/walks"
+              className="pointer-events-auto inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap rounded-full bg-card/95 px-3.5 text-sm font-semibold shadow-lg ring-1 ring-border backdrop-blur"
+            >
+              <span aria-hidden>👣</span>
+              {t("walks.homeTitle")}
+            </Link>
             <button
               type="button"
               onClick={locate}
@@ -440,27 +373,6 @@ export function HaramMapPage({ initialLoc }: { initialLoc?: LocationId }) {
             </button>
           </div>
         </div>
-
-        {/* recorded walk */}
-        {track.on || track.points.length > 1 ? (
-          <div className="grid grid-cols-3 divide-x divide-border border-t border-border text-center rtl:divide-x-reverse" aria-live="polite">
-            <div className="px-2 py-2.5">
-              <p className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
-                {track.on ? <span className="size-2 animate-pulse rounded-full bg-danger" aria-hidden /> : null}
-                {track.on ? t("haramMap.trackRecording") : t("haramMap.trackPaused")}
-              </p>
-              <p className="font-semibold tabular-nums">{clock(elapsedMs(track, now))}</p>
-            </div>
-            <div className="px-2 py-2.5">
-              <p className="text-[11px] text-muted-foreground">{t("haramMap.trackDistance")}</p>
-              <p className="font-semibold">{fmt(walked)}</p>
-            </div>
-            <div className="px-2 py-2.5">
-              <p className="text-[11px] text-muted-foreground">{t("haramMap.trackSteps")}</p>
-              <p className="font-semibold">≈ {formatNumber(stepsFor(walked))}</p>
-            </div>
-          </div>
-        ) : null}
 
         {/* live status */}
         {live.status !== "idle" ? (

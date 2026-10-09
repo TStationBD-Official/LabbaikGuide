@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { APP_CONFIG } from "@/config/app";
 
-const ROUTES = ["/", "/quran", "/zikr", "/umrah", "/hajj", "/duas", "/prayer", "/qibla", "/hotel", "/tawaf", "/sai", "/manasik", "/settings", "/sources", "/privacy", "/about", "/haram-map", "/travel-guide", "/janazah"];
+const ROUTES = ["/", "/quran", "/zikr", "/umrah", "/hajj", "/duas", "/prayer", "/qibla", "/hotel", "/tawaf", "/sai", "/manasik", "/settings", "/sources", "/privacy", "/about", "/haram-map", "/travel-guide", "/janazah", "/walks"];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const surahs = Array.from({ length: 114 }, (_, i) => `/quran/surah/${i + 1}`);
