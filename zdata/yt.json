@@ -1,26 +1,10 @@
 {
  "quran": {
   "status": 200,
-  "videoDetails": null,
-  "title": "25K",
-  "isLiveContent": null,
-  "isLive": "true",
-  "og": null,
-  "canon": [
-   "undefined"
-  ],
-  "len": 1203683
+  "items": []
  },
  "sunnah": {
   "status": 200,
-  "videoDetails": null,
-  "title": "12K",
-  "isLiveContent": null,
-  "isLive": "true",
-  "og": null,
-  "canon": [
-   "undefined"
-  ],
-  "len": 1208992
+  "items": []
  }
 }
