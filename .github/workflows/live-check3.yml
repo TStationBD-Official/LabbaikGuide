@@ -1,0 +1,17 @@
+name: live-check3
+on:
+  push:
+    branches: [tools/live-check3]
+permissions:
+  contents: write
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          set +e; mkdir -p live-data
+          curl -sS -m 40 "https://labbaikguide.vercel.app/api/places/resolve?url=https%3A%2F%2Fmaps.app.goo.gl%2FAY1kTJQ4VVsLQnKr5%3Fg_st%3Dac&loc=makkah&lang=bn&v=3" -o live-data/resolve.json
+          curl -sS -m 40 "https://labbaikguide.vercel.app/manifest.webmanifest" -o live-data/manifest.json
+          git config user.name ci && git config user.email ci@users.noreply.github.com
+          git add live-data && git commit -m "live sample [skip ci]" && git push
