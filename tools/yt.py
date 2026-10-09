@@ -8,19 +8,20 @@ def get(u):
 out={}
 CH={"quran":"UCos52azQNBgW63_9uDJoPDA","sunnah":"UCROKYPep-UuODNwyipe6JMw"}
 for k,cid in CH.items():
-    st,h=get(f"https://www.youtube.com/channel/{cid}/live")
-    vd=re.search(r'"videoDetails":\{"videoId":"([\w-]{11})"',h)
-    title=re.search(r'"videoDetails":\{.*?"title":"(.*?)"',h)
-    live=re.search(r'"isLiveContent":(true|false)',h)
-    islive=re.search(r'"isLive":(true|false)',h)
-    og=re.search(r'<meta property="og:url" content="([^"]+)"',h)
-    canon=re.findall(r'rel="canonical" href="([^"]+)"',h)
-    r={"status":st,"videoDetails":vd.group(1) if vd else None,"title":title.group(1)[:120] if title else None,"isLiveContent":live.group(1) if live else None,"isLive":islive.group(1) if islive else None,"og":og.group(1) if og else None,"canon":canon[:3],"len":len(h)}
-    v=r["videoDetails"]
-    if v:
-        s2,o=get(f"https://www.youtube.com/oembed?url=https%3A//www.youtube.com/watch%3Fv%3D{v}&format=json"); r["oembed"]=[s2,o[:200]]
-        s3,w=get(f"https://www.youtube.com/watch?v={v}")
-        r["playableInEmbed"]=re.findall(r'"playableInEmbed":(true|false)',w)[:1]
-        r["watchIsLive"]=re.findall(r'"isLiveNow":(true|false)',w)[:1]
+    st,h=get(f"https://www.youtube.com/channel/{cid}/streams")
+    chunks=h.split('"videoRenderer":{')[1:]
+    lives=[]
+    for c in chunks[:30]:
+        vid=re.match(r'"videoId":"([\w-]{11})"',c)
+        if not vid: continue
+        islive='"style":"LIVE"' in c[:6000] or '"BADGE_STYLE_TYPE_LIVE_NOW"' in c[:6000]
+        t=re.search(r'"title":\{"runs":\[\{"text":"(.*?)"\}',c)
+        lives.append({"id":vid.group(1),"live":islive,"title":(t.group(1) if t else "")[:100]})
+    r={"status":st,"items":lives[:12]}
+    for it in [x for x in lives if x["live"]][:3]:
+        s2,o=get(f"https://www.youtube.com/oembed?url=https%3A//www.youtube.com/watch%3Fv%3D{it['id']}&format=json"); it["oembed"]=s2
+        s3,w=get(f"https://www.youtube.com/watch?v={it['id']}")
+        it["playableInEmbed"]=re.findall(r'"playableInEmbed":(true|false)',w)[:1]
+        it["isLiveNow"]=re.findall(r'"isLiveNow":(true|false)',w)[:1]
     out[k]=r
 json.dump(out,open("zdata/yt.json","w"),ensure_ascii=False,indent=1)
