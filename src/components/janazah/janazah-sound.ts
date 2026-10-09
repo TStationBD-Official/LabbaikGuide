@@ -32,7 +32,7 @@ function loadFatiha(): Promise<string[]> {
 
 /** The device's Arabic voice, if it has one (voices load asynchronously on some browsers). */
 export function arabicVoice(): Promise<SpeechSynthesisVoice | null> {
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) return Promise.resolve(null);
+  if (typeof window === "undefined" || !window.speechSynthesis) return Promise.resolve(null);
   const pick = () => {
     const vs = window.speechSynthesis.getVoices().filter((v) => v.lang.toLowerCase().startsWith("ar"));
     return vs.find((v) => /sa/i.test(v.lang)) ?? vs[0] ?? null;
@@ -60,18 +60,26 @@ export class JanazahSound {
   private audio: HTMLAudioElement | null = null;
   private token = 0;
 
+  /** Keeps the current utterance referenced: Chrome drops events of garbage-collected utterances. */
+  private utterance: SpeechSynthesisUtterance | null = null;
+
   /**
-   * Call from the Play click: mobile browsers (iOS especially) only allow sound that a tap
+   * Call from a tap (Play / Test): mobile browsers (iOS especially) only allow sound that a tap
    * started, so the shared audio element and the speech engine are "unlocked" here.
    */
   unlock() {
     this.audio ??= new Audio();
     const a = this.audio;
-    if (!a.src) {
+    if (!a.getAttribute("src")) {
       a.src = "/audio/silence.wav";
       a.play().catch(() => {});
     }
-    if ("speechSynthesis" in window) window.speechSynthesis.speak(new SpeechSynthesisUtterance(""));
+    if (window.speechSynthesis) {
+      const u = new SpeechSynthesisUtterance(".");
+      u.volume = 0;
+      u.lang = "ar-SA";
+      window.speechSynthesis.speak(u);
+    }
   }
 
   stop() {
@@ -81,14 +89,28 @@ export class JanazahSound {
       this.audio.removeAttribute("src");
       this.audio.load();
     }
-    if (typeof window !== "undefined" && "speechSynthesis" in window) window.speechSynthesis.cancel();
+    if (typeof window !== "undefined" && window.speechSynthesis) {
+      const ss = window.speechSynthesis;
+      if (ss.speaking || ss.pending) ss.cancel();
+    }
   }
 
-  /** Plays a clip; resolves when it ends, is stopped, or can't be played. Returns whether anything played. */
-  async play(key: ClipKey, arabic: string): Promise<boolean> {
+  /** Set after the device voice fails once, so later clips don't wait on it again (cleared by a working test). */
+  speechBroken = false;
+
+  /**
+   * Plays a clip; resolves when it ends or can't be played.
+   * true = played, false = couldn't play, null = stopped by stop()/another clip.
+   */
+  async play(key: ClipKey, arabic: string): Promise<boolean | null> {
     this.stop();
     const token = this.token;
     const live = () => token === this.token;
+    const r = await this.run(key, arabic, live);
+    return live() ? r : null;
+  }
+
+  private async run(key: ClipKey, arabic: string, live: () => boolean): Promise<boolean> {
 
     if (RECORDED.includes(key) && !missing.has(key)) {
       const ok = await this.file(`/audio/janazah/${key}.mp3`, live);
@@ -106,11 +128,16 @@ export class JanazahSound {
       let any = false;
       for (const u of urls) {
         if (!live()) return any;
-        if ((await this.file(u, live)) === "played") any = true;
+        const r = await this.file(u, live);
+        if (r === "played") any = true;
+        else if (r === "missing" && !any) return false;
       }
       return any;
     }
-    return this.speak(arabic, live);
+    if (this.speechBroken && key !== "takbir") return false;
+    const ok = await this.speak(arabic, live);
+    if (live()) this.speechBroken = !ok;
+    return ok;
   }
 
   private file(url: string, live: () => boolean): Promise<"played" | "missing" | "stopped"> {
@@ -134,30 +161,57 @@ export class JanazahSound {
       };
       a.onerror = () => {
         cleanup();
-        resolve("missing");
+        resolve(live() ? "missing" : "stopped");
       };
       a.src = url;
       a.play().catch(() => {
         cleanup();
-        resolve("missing");
+        resolve(live() ? "missing" : "stopped");
       });
     });
   }
 
   private async speak(text: string, live: () => boolean): Promise<boolean> {
+    if (typeof window === "undefined" || !window.speechSynthesis) return false;
     const voice = await arabicVoice();
-    if (!voice || !live()) return false;
+    // Some Android browsers never list their voices; then try the Arabic language anyway.
+    if (!voice && window.speechSynthesis.getVoices().length > 0) return false;
+    if (!live()) return false;
+    let spoke = false;
     for (const p of phrases(text)) {
-      if (!live()) return true;
-      await new Promise<void>((resolve) => {
-        const u = new SpeechSynthesisUtterance(p);
-        u.voice = voice;
-        u.lang = voice.lang;
-        u.rate = 0.82;
-        u.onend = u.onerror = () => resolve();
-        window.speechSynthesis.speak(u);
-      });
+      if (!live()) return spoke;
+      const r = await this.utter(p, voice);
+      if (r === "error") return spoke;
+      spoke = true;
     }
-    return true;
+    return spoke;
+  }
+
+  /** One phrase. "error" when the browser refuses or never starts speaking (silent failure). */
+  private utter(text: string, voice: SpeechSynthesisVoice | null): Promise<"ok" | "error"> {
+    return new Promise((resolve) => {
+      const ss = window.speechSynthesis;
+      const u = new SpeechSynthesisUtterance(text);
+      if (voice) u.voice = voice;
+      u.lang = voice?.lang ?? "ar-SA";
+      u.rate = 0.82;
+      u.volume = 1;
+      this.utterance = u;
+      const finish = (r: "ok" | "error") => {
+        window.clearTimeout(guard);
+        resolve(r);
+      };
+      // If speech never starts (a silent failure), don't hold the animation.
+      let guard = window.setTimeout(() => finish("error"), 2500);
+      u.onstart = () => {
+        window.clearTimeout(guard);
+        guard = window.setTimeout(() => finish("ok"), 2000 + text.length * 250);
+      };
+      u.onend = () => finish("ok");
+      u.onerror = (e) => finish(e.error === "interrupted" || e.error === "canceled" ? "ok" : "error");
+      ss.speak(u);
+      // Chrome can leave the queue paused after a cancel.
+      if (ss.paused) ss.resume();
+    });
   }
 }

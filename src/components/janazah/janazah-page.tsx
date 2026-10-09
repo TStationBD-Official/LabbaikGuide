@@ -138,6 +138,7 @@ export function JanazahPage() {
   const [sound, setSound] = useState(true);
   const [noVoice, setNoVoice] = useState(false);
   const [fatihaError, setFatihaError] = useState(false);
+  const [test, setTest] = useState<"idle" | "testing" | "ok" | "fail">("idle");
   const engine = useRef<JanazahSound | null>(null);
   /** While a clip plays the animation holds its pose. */
   const busy = useRef(false);
@@ -152,7 +153,12 @@ export function JanazahPage() {
       /* storage unavailable */
     }
     let alive = true;
-    void arabicVoice().then((v) => alive && setNoVoice(!v));
+    void arabicVoice().then((v) => {
+      if (!alive) return;
+      const ss = window.speechSynthesis ?? null;
+      // Only warn up front when we know for sure; otherwise the first clip tells us.
+      setNoVoice(!ss || (!v && ss.getVoices().length > 0));
+    });
     return () => {
       alive = false;
       engine.current?.stop();
@@ -180,7 +186,7 @@ export function JanazahPage() {
     const stepMs = step.ms;
     engine.current ??= new JanazahSound();
     void engine.current.play(ev.key, ev.text).then((ok) => {
-      if (current.current !== ev.id) return; // stopped meanwhile
+      if (ok === null || current.current !== ev.id) return; // stopped meanwhile
       busy.current = false;
       current.current = null;
       if (!ok && ev.key === "fatiha") setFatihaError(true);
@@ -320,7 +326,33 @@ export function JanazahPage() {
       </Card>
 
       {sound ? (
-        <div className="-mt-3 space-y-1 px-1 text-xs text-muted-foreground">
+        <div className="-mt-3 space-y-1.5 px-1 text-xs text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                if (playing) {
+                  silence();
+                  setPlaying(false);
+                }
+                const e = (engine.current ??= new JanazahSound());
+                e.unlock();
+                setTest("testing");
+                void e.play("takbir", TAKBIR_AR).then((ok) => {
+                  if (ok === null) return setTest("idle");
+                  setTest(ok ? "ok" : "fail");
+                  setNoVoice(!ok);
+                });
+              }}
+              className="inline-flex min-h-9 items-center gap-1.5 rounded-xl border border-border bg-card px-3 text-xs font-semibold text-foreground hover:border-gold"
+            >
+              <Volume2 className="size-3.5" aria-hidden />
+              {t("janazah.testSound")}
+            </button>
+            <span aria-live="polite" className={cn(test === "ok" && "text-success", test === "fail" && "text-warning")}>
+              {test === "testing" ? t("janazah.testing") : test === "ok" ? t("janazah.testOk") : test === "fail" ? t("janazah.testFail") : null}
+            </span>
+          </div>
           <p>{t("janazah.soundNote")}</p>
           {noVoice ? <p className="text-warning">{t("janazah.noVoice")}</p> : null}
           {fatihaError ? <p className="text-warning">{t("janazah.fatihaAudioError")}</p> : null}

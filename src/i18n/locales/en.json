@@ -1032,7 +1032,11 @@
     "you": "You",
     "sound": "Sound on/off",
     "soundNote": "Sound: al-Fatiha is recited by Mishary Alafasy (Quran.com); the takbir, Durood, duas and salam use your device's Arabic voice. In the real prayer only the imam's takbirs and salam are said aloud — everything else is said quietly.",
-    "noVoice": "This device has no Arabic voice, so only al-Fatiha can be heard. Install an Arabic text-to-speech voice in your phone's settings to hear the rest.",
-    "fatihaAudioError": "The al-Fatiha recitation couldn't be loaded right now."
+    "noVoice": "Your browser has no Arabic voice, so the takbir and duas can't be heard (al-Fatiha in the Haramain method still plays). Try: iPhone — turn off Silent mode and raise the volume; Android — open the site in Chrome and install the Arabic voice in Settings → Text-to-speech (Speech Services by Google); if you opened it inside another app (Facebook, WhatsApp…), open it in Chrome or Safari.",
+    "fatihaAudioError": "The al-Fatiha recitation couldn't be loaded right now.",
+    "testSound": "Test sound",
+    "testing": "Playing “Allāhu akbar”…",
+    "testOk": "✓ Sound works.",
+    "testFail": "✗ This browser didn't play the Arabic voice."
   }
 }
